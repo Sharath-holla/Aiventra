@@ -5,6 +5,7 @@ See `IMPLEMENTATION_STATUS.md` for verified progress. Continue in dependency ord
 ## Immediate Aiventra continuation
 
 Current phase: **Phase 1 — Production Foundation**. Preserve the verified 0.2.0 modules. The authorized Git remote is `origin` → `https://github.com/Sharath-holla/Aiventra.git`; push only with ordinary Git updates, never force.
+Source milestone `d71a072` is published on `master`; inspect its [CI run](https://github.com/Sharath-holla/Aiventra/actions/runs/37801518599) and newer branch runs before declaring container verification complete. Local tests passed 64 backend/3 browser checks; CI was still running at publication.
 
 1. Make a working Docker Engine available, then run `docker compose up --build -d --wait --wait-timeout 180`. Check `http://localhost:8000/health/ready`, run browser tests against this stack, restart services and verify retained projects/checkpoints. Record PostgreSQL migration/concurrency and container evidence. Existing loopback development services must be stopped first.
 2. Review remote CI results after publication. Resolve any Linux/PostgreSQL/container incompatibility from its actual logs. Monetary columns currently use SQL Integer, which is narrower on PostgreSQL than SQLite; migrate monetary/time fields appropriately and test large values before production use. Pin/review deployed images and library provenance.

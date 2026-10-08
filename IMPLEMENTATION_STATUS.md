@@ -31,7 +31,7 @@ The authoritative upgrade target is [AIVENTRA_MASTER_SPEC.md](docs/AIVENTRA_MAST
 | 9 — Business departments | Persistent records and artifact tasks functional; external/departmental programs incomplete |
 | 10 — DevOps hardening | Local/CI definitions exist; cluster manifests, actual infrastructure validation and hardening pending |
 | 11 — Crypto readiness | Synthetic generic import tested; actual owner repository and regression evidence absent |
-| 12 — Publication/final verification | Local checks and publication preparation underway; full final product acceptance is not achieved |
+| 12 — Publication/final verification | Verified local milestone pushed to authorized `origin/master` as `d71a072`; remote CI started. Full final product acceptance is not achieved |
 
 ## What an owner can use now
 
