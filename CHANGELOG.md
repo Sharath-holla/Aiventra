@@ -1,5 +1,10 @@
 # Change log
 
+## CI portability repairs — October 8, 2026
+
+- Added the repository root to pytest's configured import path so the Linux console entry point can import the publication scanner.
+- Bound the standalone web image explicitly to `0.0.0.0`, avoiding Docker's inherited hostname breaking loopback health checks. A local standalone HTTP check passed; remote Compose/browser verification follows.
+
 ## 0.2.0 — October 8, 2026
 
 - Audited actual source/Git/tests against the new Aiventra specification; added missing architecture/audit entry points and preserved working modules.

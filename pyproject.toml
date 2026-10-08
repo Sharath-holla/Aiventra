@@ -21,7 +21,7 @@ dev = ["pytest>=9.0.3,<10", "pytest-asyncio>=1.4,<2", "ruff>=0.11,<1", "pip-audi
 where = ["apps/api"]
 
 [tool.pytest.ini_options]
-pythonpath = ["apps/api"]
+pythonpath = ["apps/api", "."]
 testpaths = ["tests"]
 asyncio_mode = "auto"
 addopts = "--basetemp=data/pytest-temp"
