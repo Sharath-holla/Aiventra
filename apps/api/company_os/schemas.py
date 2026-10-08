@@ -106,8 +106,8 @@ class ModelInput(Strict):
     quality: int = Field(ge=0, le=100)
     reliability: int = Field(ge=0, le=100, default=100)
     latency_ms: int = Field(ge=1, default=1000)
-    input_price_micro_per_million: int = Field(ge=0)
-    output_price_micro_per_million: int = Field(ge=0)
+    input_price_micro_per_million: int = Field(ge=0, le=10**15)
+    output_price_micro_per_million: int = Field(ge=0, le=10**15)
     price_source: str = Field(min_length=1, max_length=2000)
     sensitivity: Literal["public", "internal", "confidential"] = "internal"
 

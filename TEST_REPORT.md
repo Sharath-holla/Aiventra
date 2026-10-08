@@ -2,11 +2,11 @@
 
 ## 0.2.0 — October 8, 2026
 
-The original 44-test baseline was rerun successfully before changes. The final combined backend suite passed **64 tests, 0 failed, 1 dependency deprecation warning in 65.84 seconds**. Ruff lint and formatting passed across 48 API/test/script files. The warning does not establish an application failure.
+The original 44-test baseline was rerun successfully before changes. After the foundation work, portability fixes and monetary migration, the latest combined backend suite passed **66 tests, 0 failed, 1 dependency deprecation warning in 64.76 seconds**. Ruff lint and formatting passed across 49 API/test/script files. The warning does not establish an application failure.
 
 - Browser: **3 passed in 27.2 seconds**, against real running API/worker/web. Coverage now checks worker readiness, request correlation, provider configuration display and coding review-policy/count controls. No live provider calls were made.
 - Frontend strict typecheck, Prettier and optimized production build passed; production npm audit reported **0 vulnerabilities**.
-- Ruff lint/format passed across API/tests/scripts. Alembic head is `e9c9f1ed55a6`; metadata check reports no drift. Migration tests upgrade a populated previous schema and verify workflow step/data preservation plus default wait context.
+- Ruff lint/format passed across API/tests/scripts. Alembic head is `f20b34705a81`; metadata check reports no drift. Migration tests upgrade populated previous schemas and verify workflow/data/large monetary balance preservation, default wait context and retained audit triggers.
 - The real running `/health/ready` returned `{"status":"ready","worker":"ready"}`. Worker/API were stopped/restarted with private database/artifacts retained.
 - New automated checks cover logout reuse rejection, independent sessions, expiry, persistent/concurrent login counters, heartbeat expiry, positive/stale schema readiness, correlation, provider waiting without spending, same-step controlled-adapter resume and wait deadlines.
 - Cross-model controls are tested with **controlled adapters and synthetic configuration/rates**. Strict policies reject duplicate registry identities. No live multi-provider verification is claimed.
@@ -16,8 +16,10 @@ The original 44-test baseline was rerun successfully before changes. The final c
 - Verified source commit **`d71a072e44a1e2db0f0df9c3d36db16527a769d6`** was pushed normally to `origin/master` at `https://github.com/Sharath-holla/Aiventra.git`. `git ls-remote` confirmed that exact remote SHA. No force push was used; private configuration/database/artifacts remain ignored.
 - [GitHub Actions run 37801518599](https://github.com/Sharath-holla/Aiventra/actions/runs/37801518599) completed with frontend/secret checks passing and backend/integration failing. Linux's pytest console entry point could not import `scripts.secret_scan`; the standalone web container inherited Docker's `HOSTNAME` and failed its loopback health check. PostgreSQL, migrations, API and worker became healthy. The pytest root path and explicit `HOSTNAME=0.0.0.0` fixes follow in a separate commit; a fresh CI run must verify them.
 - After these fixes the actual pytest console entry point passed **64 tests, 0 failed, 1 dependency warning in 63.69 seconds**. The standalone production server was started with the corrected hostname on an isolated port; its loopback HTTP health returned **200**, and the server was stopped. This checks generated-server binding without claiming local Docker execution.
+- [GitHub Actions run 37802879819](https://github.com/Sharath-holla/Aiventra/actions/runs/37802879819) completed **successfully in all four jobs** for `3ade79d8127ffc12482326cebe8918715c45aa4a`: Linux backend **64 passed in 33.56 seconds**, lint/audit passed; frontend typecheck/format/build/audit passed; secret scan passed; real Compose PostgreSQL/migrations/API/worker/web all became healthy, readiness returned 200, and browser **3 passed in 10.8 seconds**. No generated code ran in this stack.
+- Follow-up monetary changes use PostgreSQL BIGINT for all 12 monetary columns and retain SQLite's already-wide INTEGER storage. Two regression tests cover large reservations and upgrade preservation; the targeted finance/migration group passed **9 tests in 11.60 seconds**. The integration job now checks actual PostgreSQL column types, large concurrent reservations, concurrent login counters and append-only audit enforcement. Record the new run's outcome before claiming those new checks passed remotely.
 
-The suite has one Starlette TestClient `httpx` deprecation warning. Alembic's configuration warning was removed using `path_separator=os`. Docker/Compose/PostgreSQL, cluster, real provider billing, S3 and actual crypto verification remain pending; none were substituted with simulated production evidence.
+The suite has one Starlette TestClient `httpx` deprecation warning. Alembic's configuration warning was removed using `path_separator=os`. Docker/Compose/PostgreSQL startup and browser integration are now verified in ephemeral GitHub CI; local Docker, the restricted coding runner, cluster, real provider billing, S3 and actual crypto verification remain pending.
 
 ## Historical 0.1.0 evidence
 
@@ -66,9 +68,9 @@ Browser coverage signs in via the actual HttpOnly proxy, submits a fixture cloud
 
 - Provider contract tests cover OpenAI, Anthropic, Gemini, Ollama and a compatible endpoint using mocked HTTP. Official request formats were checked; account access, model-specific behavior, latency and billing were not tested live.
 - Restricted Docker commands are implemented, but Docker was unavailable. The mocked coding-runner test is control-flow evidence only. It does not prove execution success, real test coverage or sandbox security.
-- PostgreSQL, Compose images, dedicated runner, S3 account storage, browser OIDC, OAuth connectors, staging deployment/rollback, production backup/restore, load and hostile multi-tenant behavior were not tested.
+- PostgreSQL/Compose startup and browser integration were tested in GitHub CI. Dedicated coding runner, S3 account storage, browser OIDC, OAuth connectors, staging deployment/rollback, production backup/restore, load and hostile multi-tenant behavior remain untested.
 - Local record persistence across process restarts was observed. No full production backup restore drill or distributed failure certification was performed.
-- CI files are included and use lockfiles; no remote CI job was run. Frontend production artifacts built locally; the currently served app uses the local development server.
+- Remote CI passed for the portability milestone as recorded above. The currently served Windows app uses the local development server; its Docker runtime remains unavailable.
 - Screenshots and fixture records remain private under `artifacts/` and `data/`. An earlier diagnostic captured a previous local password; diagnostics were scrubbed, the password/signing key rotated and tests changed to avoid credential entry in the page.
 
 Consult IMPLEMENTATION_STATUS.md before interpreting any feature as complete. Remaining work is in NEXT_STEPS.md.

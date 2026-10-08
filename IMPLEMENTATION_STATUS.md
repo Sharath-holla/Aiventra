@@ -14,13 +14,14 @@ The authoritative upgrade target is [AIVENTRA_MASTER_SPEC.md](docs/AIVENTRA_MAST
 - Failed/empty baseline tests prevent patch generation. Both baseline and final QA detect interrupted running execution records, preventing blind replay. Real Docker validation, security/PM acceptance and bounded repairs remain incomplete.
 - Requests carry correlation IDs through browser proxy and API logs; worker logs use workflow correlation. Structured application logs avoid request bodies, secrets and raw exception details.
 - A staged/branch-history secret scanner and CI secret/container/browser checks are included. Compose worker/web health checks and container Git availability were repaired; those container changes remain unverified locally because Docker is absent.
+- All four remote CI jobs passed on `3ade79d`, including real PostgreSQL/Compose startup and 3 browser tests. Monetary storage now has a 64-bit PostgreSQL migration, with populated SQLite preservation checks; extended PostgreSQL contract checks must pass on its subsequent CI run.
 
 ## Aiventra phase coverage
 
 | Phase | Current status |
 |---|---|
 | 0 — Audit | Complete local source/test audit; not an external security certification |
-| 1 — Production foundation | Local repairs implemented/tested; Docker/PostgreSQL and production auth/operations validation outstanding |
+| 1 — Production foundation | Local repairs tested; Compose/PostgreSQL/browser CI passed. Live providers, production identity/operations and extended PostgreSQL checks outstanding |
 | 2 — Core execution | Existing bounded role/tool/document/coding runtime retained; live execution and richer employee capabilities incomplete |
 | 3 — Routing/memory | Filtering/caps/keyword persistence functional; benchmarks, semantic memory and full memory lifecycle incomplete |
 | 4 — Enterprise orchestration | DB durable flows/approvals/watchdog functional; general bus/Temporal and full delegation incomplete |
@@ -31,7 +32,7 @@ The authoritative upgrade target is [AIVENTRA_MASTER_SPEC.md](docs/AIVENTRA_MAST
 | 9 — Business departments | Persistent records and artifact tasks functional; external/departmental programs incomplete |
 | 10 — DevOps hardening | Local/CI definitions exist; cluster manifests, actual infrastructure validation and hardening pending |
 | 11 — Crypto readiness | Synthetic generic import tested; actual owner repository and regression evidence absent |
-| 12 — Publication/final verification | Verified local milestone pushed to authorized `origin/master` as `d71a072`; remote CI started. Full final product acceptance is not achieved |
+| 12 — Publication/final verification | Milestones published normally to authorized `origin/master`; all CI jobs passed on `3ade79d`. Full final product acceptance is not achieved |
 
 ## What an owner can use now
 
@@ -43,7 +44,7 @@ Owners can configure employees and providers, inspect routing and usage, change 
 
 | Master phase | Implemented and locally tested | Remaining or unverified |
 |---|---|---|
-| 1. Engineering foundation | Modular FastAPI/Next.js monorepo, local authentication, tenant/RBAC checks, migrations, health, HttpOnly proxy, Windows startup/stop, responsive UI, locked dependency files; CI configuration included | PostgreSQL/Compose runtime, browser OIDC flow, distributed auth limiting, production deployment and remote CI execution |
+| 1. Engineering foundation | Modular FastAPI/Next.js monorepo, persisted authentication/throttling, tenant/RBAC checks, migrations, health, HttpOnly proxy, Windows startup/stop, responsive UI, locked dependencies; real PostgreSQL/Compose/browser CI passed | Browser OIDC flow, trusted edge source limits, production deployment and operational validation |
 | 2. Organization and agents | 16 departments, 136 initial roles, reporting hierarchy, policies, responsibilities/objectives, tools, instance cloning, pause/routing settings, scoped document execution and persisted run history | Department-specific autonomous tool programs, measured employee evaluations, training/skill registry, recruitment and comprehensive working-memory controls |
 | 3. Model routing and finance | Five HTTP adapters with official-format contract fixtures; capability/quality/context/sensitivity/freshness filtering; economy/balanced/quality/fastest ordering; three-model bounded fallback; usage ledger, atomic overlapping caps and uncertain-call reconciliation | Live account verification, benchmarks, learned/custom scoring weights, explicit per-task model override, invoice ingestion and provider billing reconciliation |
 | 4. Client consulting | Versioned intake/clarification, text evidence upload, allowlisted source retrieval, persisted specialist meeting contributions, CFO interpretation, deterministic partial rate arithmetic, alternatives, exact proposal approval/rejection/change requests | Live recommendation quality, comprehensive research and rate extraction, PDF/diagram ingestion, cost completeness certification and client-facing approval portal |

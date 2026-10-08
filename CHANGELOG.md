@@ -1,9 +1,14 @@
 # Change log
 
+## Monetary persistence hardening — October 8, 2026
+
+- Migrated all 12 PostgreSQL monetary fields to BIGINT; SQLite retains its native 64-bit INTEGER tables and audit triggers. Large-balance/reservation and populated-upgrade regression tests added.
+- Bound registered model prices to a supported integer range and extended container CI with actual PostgreSQL schema, concurrent cap/login and append-only audit checks.
+
 ## CI portability repairs — October 8, 2026
 
 - Added the repository root to pytest's configured import path so the Linux console entry point can import the publication scanner.
-- Bound the standalone web image explicitly to `0.0.0.0`, avoiding Docker's inherited hostname breaking loopback health checks. A local standalone HTTP check passed; remote Compose/browser verification follows.
+- Bound the standalone web image explicitly to `0.0.0.0`, avoiding Docker's inherited hostname breaking loopback health checks. All four CI jobs subsequently passed on `3ade79d`, including Compose/PostgreSQL and 3 browser tests.
 
 ## 0.2.0 — October 8, 2026
 

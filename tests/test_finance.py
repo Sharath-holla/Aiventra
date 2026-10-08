@@ -62,6 +62,19 @@ def test_reservation_rolls_back_all_caps(company):
         assert session.get(Budget, first.id).reserved_micro == 0
 
 
+def test_large_budgets_remain_exact_across_reservation_and_session_reopen(company):
+    with company["factory"]() as session:
+        budget = session.scalar(select(Budget))
+        budget.limit_micro = 1_000_000_000_000
+        reserve(session, [budget], 3_000_000_000)
+        session.commit()
+        budget_id = budget.id
+    with company["factory"]() as session:
+        budget = session.get(Budget, budget_id)
+        assert budget.limit_micro == 1_000_000_000_000
+        assert budget.reserved_micro == 3_000_000_000
+
+
 @pytest.mark.parametrize("scope", ["requirement", "project"])
 async def test_h_workflow_pauses_before_spend_and_alerts_owner(company, http, requirement, scope):
     subject_id = requirement["id"]

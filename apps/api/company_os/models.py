@@ -1,9 +1,12 @@
 from typing import Any
 
-from sqlalchemy import JSON, ForeignKey, Index, String, Text, UniqueConstraint
+from sqlalchemy import JSON, BigInteger, ForeignKey, Index, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .db import Base, now, uid
+
+# SQLite INTEGER already stores signed 64-bit values. PostgreSQL requires BIGINT.
+MONEY = BigInteger().with_variant(Integer(), "sqlite")
 
 
 class Record:
@@ -82,7 +85,7 @@ class Agent(Tenant, Base):
     memory_scope: Mapped[str] = mapped_column(default="assigned_project")
     max_iterations: Mapped[int] = mapped_column(default=3)
     max_runtime_seconds: Mapped[int] = mapped_column(default=180)
-    max_cost_micro: Mapped[int] = mapped_column(default=500000)
+    max_cost_micro: Mapped[int] = mapped_column(MONEY, default=500000)
     enabled: Mapped[bool] = mapped_column(default=True)
 
 
@@ -104,8 +107,8 @@ class ModelConfig(Tenant, Base):
     quality: Mapped[int] = mapped_column(default=50)
     reliability: Mapped[int] = mapped_column(default=100)
     latency_ms: Mapped[int] = mapped_column(default=1000)
-    input_price_micro_per_million: Mapped[int] = mapped_column(default=0)
-    output_price_micro_per_million: Mapped[int] = mapped_column(default=0)
+    input_price_micro_per_million: Mapped[int] = mapped_column(MONEY, default=0)
+    output_price_micro_per_million: Mapped[int] = mapped_column(MONEY, default=0)
     price_source: Mapped[str] = mapped_column(Text, default="")
     price_checked_at: Mapped[int] = mapped_column(default=now)
     sensitivity: Mapped[str] = mapped_column(default="internal")
@@ -120,7 +123,7 @@ class Requirement(Tenant, Base):
     text: Mapped[str] = mapped_column(Text)
     mode: Mapped[str] = mapped_column(default="mock")
     sensitivity: Mapped[str] = mapped_column(default="internal")
-    budget_micro: Mapped[int] = mapped_column(default=5000000)
+    budget_micro: Mapped[int] = mapped_column(MONEY, default=5000000)
     deadline: Mapped[str | None] = mapped_column(String(100))
     constraints: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
     answers: Mapped[dict[str, str]] = mapped_column(JSON, default=dict)
@@ -160,7 +163,7 @@ class Project(Tenant, Base):
     name: Mapped[str] = mapped_column(String(200))
     status: Mapped[str] = mapped_column(default="active")
     selected_alternative: Mapped[str] = mapped_column(String(200))
-    budget_micro: Mapped[int] = mapped_column(default=5000000)
+    budget_micro: Mapped[int] = mapped_column(MONEY, default=5000000)
     version: Mapped[int] = mapped_column(default=1)
 
 
@@ -182,7 +185,7 @@ class Task(Tenant, Base):
     acceptance: Mapped[list[str]] = mapped_column(JSON, default=list)
     payload: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
     evidence: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
-    budget_micro: Mapped[int] = mapped_column(default=500000)
+    budget_micro: Mapped[int] = mapped_column(MONEY, default=500000)
     version: Mapped[int] = mapped_column(default=1)
 
 
@@ -252,9 +255,9 @@ class Message(Tenant, Base):
 class Budget(Tenant, Base):
     __tablename__ = "budgets"
     scope: Mapped[str] = mapped_column(String(100), unique=True)
-    limit_micro: Mapped[int] = mapped_column()
-    spent_micro: Mapped[int] = mapped_column(default=0)
-    reserved_micro: Mapped[int] = mapped_column(default=0)
+    limit_micro: Mapped[int] = mapped_column(MONEY)
+    spent_micro: Mapped[int] = mapped_column(MONEY, default=0)
+    reserved_micro: Mapped[int] = mapped_column(MONEY, default=0)
     version: Mapped[int] = mapped_column(default=1)
 
 
@@ -271,8 +274,8 @@ class ModelRun(Tenant, Base):
     routing_reason: Mapped[str] = mapped_column(Text)
     input_tokens: Mapped[int] = mapped_column(default=0)
     output_tokens: Mapped[int] = mapped_column(default=0)
-    cost_micro: Mapped[int] = mapped_column(default=0)
-    reserved_micro: Mapped[int] = mapped_column(default=0)
+    cost_micro: Mapped[int] = mapped_column(MONEY, default=0)
+    reserved_micro: Mapped[int] = mapped_column(MONEY, default=0)
     budget_ids: Mapped[list[str]] = mapped_column(JSON, default=list)
     cost_basis: Mapped[str] = mapped_column(default="computed_estimate")
     duration_ms: Mapped[int] = mapped_column(default=0)
@@ -284,7 +287,7 @@ class ModelRun(Tenant, Base):
 class Transaction(Tenant, Base):
     __tablename__ = "spending_transactions"
     run_id: Mapped[str] = mapped_column(ForeignKey("model_runs.id"), unique=True)
-    amount_micro: Mapped[int] = mapped_column()
+    amount_micro: Mapped[int] = mapped_column(MONEY)
     basis: Mapped[str] = mapped_column()
 
 

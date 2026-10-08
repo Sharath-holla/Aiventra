@@ -20,7 +20,7 @@ jobs:
       - run: uv sync --extra dev --locked
       - run: uv run --locked --extra dev python scripts/configure.py
       - run: uv run --locked --extra dev python -m company_os.cli init
-      - run: uv run --locked --extra dev ruff check apps/api tests
+      - run: uv run --locked --extra dev ruff check apps/api tests scripts
       - run: uv run --locked --extra dev pytest -q
       - run: uv run --locked --extra dev pip-audit
   frontend:
@@ -45,6 +45,8 @@ jobs:
       - run: python scripts/configure.py
       - run: docker compose up --build -d --wait --wait-timeout 180
       - run: curl --fail http://localhost:8000/health/ready
+      - run: docker compose exec -T api python -m alembic check
+      - run: docker compose exec -T api python - --allow-test-records < scripts/verify_postgres.py
       - run: npm ci && npx playwright install --with-deps chromium && npm run test:e2e
         working-directory: apps/web
       - run: docker compose logs && docker compose down

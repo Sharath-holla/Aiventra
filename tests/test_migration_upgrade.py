@@ -42,6 +42,29 @@ def test_upgrade_preserves_preexisting_workflow_and_backfills_wait_context(compa
         )
 
 
+def test_money_upgrade_preserves_large_sqlite_balances_and_audit_triggers(company):
+    path = company["root"] / "money-upgrade.db"
+    migrate(path, "e9c9f1ed55a6")
+    with sqlite3.connect(path) as connection:
+        connection.execute(
+            "INSERT INTO organizations(id,created_at,name,paused,deployments_paused,version,audit_head) VALUES('money-org',1,'Retained data',0,1,1,'head')"
+        )
+        connection.execute(
+            "INSERT INTO budgets(id,org_id,created_at,scope,limit_micro,spent_micro,reserved_micro,version) VALUES('money','money-org',1,'retained',1000000000000,4000000000,3000000000,1)"
+        )
+    migrate(path, "head")
+    with sqlite3.connect(path) as connection:
+        assert connection.execute(
+            "SELECT limit_micro,spent_micro,reserved_micro FROM budgets WHERE id='money'"
+        ).fetchone() == (1_000_000_000_000, 4_000_000_000, 3_000_000_000)
+        assert (
+            connection.execute(
+                "SELECT count(*) FROM sqlite_master WHERE type='trigger' AND name IN ('audit_no_update','audit_no_delete')"
+            ).fetchone()[0]
+            == 2
+        )
+
+
 def test_readiness_checks_worker_and_schema_revision(http, company):
     from alembic.config import Config
     from alembic.script import ScriptDirectory
