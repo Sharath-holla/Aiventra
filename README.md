@@ -110,7 +110,7 @@ docker compose stop
 docker compose start
 ```
 
-Compose uses PostgreSQL with a pgvector-capable image, an initialization job, API, worker and web. Only web/API loopback ports are published; the database stays on the internal network. Code execution is disabled in this stack: the API has no Docker socket, and a dedicated runner must be configured separately. The pgvector extension is not used for retrieval yet. Startup, service readiness and browser integration passed in GitHub CI on `3ade79d`; Docker remains unavailable on this Windows host. See TEST_REPORT.md for current commit-specific evidence.
+Compose uses PostgreSQL with a pgvector-capable image, an initialization job, API, worker and web. Only web/API loopback ports are published; the database stays on the internal network. Code execution is disabled in this stack: the API has no Docker socket, and a dedicated runner must be configured separately. The pgvector extension is not used for retrieval yet. Startup, readiness, monetary/concurrency/audit contracts, schema drift and browser integration passed in GitHub CI on `ca51145`; Docker remains unavailable on this Windows host. See TEST_REPORT.md for current commit-specific evidence.
 
 ## Repository map
 

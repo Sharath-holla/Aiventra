@@ -4,6 +4,7 @@
 
 - Migrated all 12 PostgreSQL monetary fields to BIGINT; SQLite retains its native 64-bit INTEGER tables and audit triggers. Large-balance/reservation and populated-upgrade regression tests added.
 - Bound registered model prices to a supported integer range and extended container CI with actual PostgreSQL schema, concurrent cap/login and append-only audit checks.
+- All four remote CI jobs passed on `ca51145`: 66 Linux backend tests, 3 browser tests against Compose/PostgreSQL, schema drift and all extended database contracts. Local backend suite also passed 66 tests; no live AI/coding-runner success is claimed.
 
 ## CI portability repairs — October 8, 2026
 

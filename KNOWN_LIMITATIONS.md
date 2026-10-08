@@ -3,7 +3,7 @@
 The current phase is Production Foundation; the full master specification is incomplete. [Implementation status](IMPLEMENTATION_STATUS.md), [audit](AUDIT_REPORT.md) and [next steps](NEXT_STEPS.md) distinguish actual code from verification gaps.
 
 - PostgreSQL/Compose startup and browser integration passed in ephemeral remote CI. Local Docker, live providers, object storage, browser OIDC, dedicated coding sandbox, staging/rollback, cluster deployment and actual crypto repository behavior remain unverified.
-- Monetary fields now use PostgreSQL BIGINT and SQLite's native 64-bit INTEGER. Large-balance upgrade tests pass locally; the new PostgreSQL cap/login/audit CI contracts must pass on this migration before clearing that verification gate.
+- Monetary fields use PostgreSQL BIGINT and SQLite's native 64-bit INTEGER. Large-balance preservation and PostgreSQL concurrent cap/login/audit contracts passed on `ca51145`; production load, distributed failures and restore behavior remain unverified.
 - Worker readiness means a recently alive process, not a certified healthy model/runner. Provider readiness means configuration exists, not successful API access.
 - No semantic pgvector indexing, general durable message bus, measured model benchmarks, full retention/erasure controls or distributed orchestration certification.
 - Fixed planning tasks and specialist artifacts do not implement dynamic workforce allocation or final client delivery. Document completion verifies saved structure/integrity, not semantic accuracy.

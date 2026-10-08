@@ -14,14 +14,14 @@ The authoritative upgrade target is [AIVENTRA_MASTER_SPEC.md](docs/AIVENTRA_MAST
 - Failed/empty baseline tests prevent patch generation. Both baseline and final QA detect interrupted running execution records, preventing blind replay. Real Docker validation, security/PM acceptance and bounded repairs remain incomplete.
 - Requests carry correlation IDs through browser proxy and API logs; worker logs use workflow correlation. Structured application logs avoid request bodies, secrets and raw exception details.
 - A staged/branch-history secret scanner and CI secret/container/browser checks are included. Compose worker/web health checks and container Git availability were repaired; those container changes remain unverified locally because Docker is absent.
-- All four remote CI jobs passed on `3ade79d`, including real PostgreSQL/Compose startup and 3 browser tests. Monetary storage now has a 64-bit PostgreSQL migration, with populated SQLite preservation checks; extended PostgreSQL contract checks must pass on its subsequent CI run.
+- All four remote CI jobs passed on `ca51145`: 66 Linux backend tests, frontend build/audit, secret scan, and real PostgreSQL/Compose plus 3 browser tests. PostgreSQL monetary storage, large concurrent caps, persistent concurrent login counters, append-only audit enforcement and schema drift checks passed. Populated SQLite upgrades preserve large balances, workflows and audit triggers.
 
 ## Aiventra phase coverage
 
 | Phase | Current status |
 |---|---|
 | 0 — Audit | Complete local source/test audit; not an external security certification |
-| 1 — Production foundation | Local repairs tested; Compose/PostgreSQL/browser CI passed. Live providers, production identity/operations and extended PostgreSQL checks outstanding |
+| 1 — Production foundation | Authentication/readiness/persistence repairs and PostgreSQL contracts tested; real Compose/browser CI passed. Live providers, production identity/operations and dedicated runner verification outstanding |
 | 2 — Core execution | Existing bounded role/tool/document/coding runtime retained; live execution and richer employee capabilities incomplete |
 | 3 — Routing/memory | Filtering/caps/keyword persistence functional; benchmarks, semantic memory and full memory lifecycle incomplete |
 | 4 — Enterprise orchestration | DB durable flows/approvals/watchdog functional; general bus/Temporal and full delegation incomplete |
@@ -32,7 +32,7 @@ The authoritative upgrade target is [AIVENTRA_MASTER_SPEC.md](docs/AIVENTRA_MAST
 | 9 — Business departments | Persistent records and artifact tasks functional; external/departmental programs incomplete |
 | 10 — DevOps hardening | Local/CI definitions exist; cluster manifests, actual infrastructure validation and hardening pending |
 | 11 — Crypto readiness | Synthetic generic import tested; actual owner repository and regression evidence absent |
-| 12 — Publication/final verification | Milestones published normally to authorized `origin/master`; all CI jobs passed on `3ade79d`. Full final product acceptance is not achieved |
+| 12 — Publication/final verification | Milestones published normally to authorized `origin/master`; all CI jobs passed on source commit `ca51145`. Final documentation records results without code changes. Full final product acceptance is not achieved |
 
 ## What an owner can use now
 
@@ -53,7 +53,7 @@ Owners can configure employees and providers, inspect routing and usage, change 
 | 7. Deployment and operations | Deployment attempts are rejected, audited and alerted; Compose and operational instructions included | Supported staging/production connector, environment approval, smoke/health verification, release records, rollback and deployed observability |
 | 8. Enterprise departments | Persistent clients/CRM/support/knowledge/incidents/campaign/email/calendar drafts, optimistic record updates, bounded owner command interface, specialist document tasks, independent watchdog, scoped keyword memory | OAuth/email/calendar execution, authorized outreach, lead discovery, invoicing/payment integrations, structured departmental programs and semantic retrieval |
 | 9. Existing crypto project | Optional eight specialist roles; generic repository discovery and source protection tested on synthetic repositories; trading/transfer effects unavailable | Actual owner repository has not been supplied. Real stack discovery, baseline/regression results, approved feature changes and testnet integration pending |
-| 10. Hardening | Local workflow restarts, concurrent claims/caps, tenant controls, stale approvals, path/secret controls, audit SQL mutation guard, dependency scans and browser checks | PostgreSQL load/concurrency, restore drill, hardened dedicated runner adversarial testing, distributed fault tests, metrics/tracing backend, external immutable audit anchoring and security review |
+| 10. Hardening | Local workflow restarts, concurrent claims/caps, tenant controls, stale approvals, path/secret controls, PostgreSQL large concurrent cap/login contracts and audit SQL mutation guards, dependency scans and browser checks | PostgreSQL load/distributed concurrency, restore drill, hardened dedicated runner adversarial testing, distributed fault tests, metrics/tracing backend, external immutable audit anchoring and security review |
 
 ## Implementation boundaries
 
