@@ -1,7 +1,13 @@
 # Agent orchestration
 
-The existing [modular architecture](docs/architecture.md) uses a separate database worker with bounded role-specific model calls, conditional leases and fenced checkpoints. Organization/agent/project permissions and approval/cost limits remain server decisions. Workers are invoked on demand; registering a role does not start an LLM.
+Current scope: Milestone A of [Phases 2–5](docs/PHASES_2_5_SPEC.md). Registered roles execute through one on-demand durable worker, not 136 permanent model processes.
 
-Provider waits, checkpoints, run IDs, failures and review evidence persist across processes. Every worker publishes a heartbeat while its event loop runs; stale heartbeat changes readiness. Requests and workflow failures carry correlation IDs. Independent watch monitoring remains active even when dispatch is paused.
+`workflows` retain claims, deadlines, attempt bounds and checkpoint results. `agent_work` binds an owner-idempotent request to a probe, message or meeting and a shared budget. `agent_executions` records each workflow/employee invocation; `agent_state_events` records validated transitions with unique per-execution sequence numbers. A completed invocation is not proof that a project is complete or its output is semantically correct.
 
-The coding author cannot self-review or execute QA. Initial reviews share code/acceptance context without earlier verdicts; achieved model diversity is recorded. Actual container tests are still required. Temporal, general message delivery, dynamic workforce planning, rich employee programs and parallel developer coordination remain incomplete.
+RUNNING begins only when a model run and reservation have committed. Provider waits have no paid run. Success/failure/uncertainty, ordered state history, actual usage and costs persist. Runtime summaries prioritize current valid live leases and show expired/revoked work as blocked. Registered employees with no current work are idle; disabled employees are labeled disabled.
+
+Messages validate sender/recipient/project/artifact scope and approved project authority. The recipient writes an artifact before an acknowledgement/response is published. Responses remain records until an owner explicitly requests another task; a correlation chain is bounded to two replies. A repeated request ID with a different payload is rejected.
+
+Meetings use 2–8 participants and 1–2 rounds plus CEO synthesis. Round-one evidence is captured once; participants do not see earlier verdicts. Round two may compare round one. Optional bounded document follow-ups share the meeting spend cap and cannot grant code or deployment tools.
+
+Worker restart reclaims expired leases and replays successful checkpoints. Started/uncertain provider calls require owner reconciliation instead of blind repayment. Cancellation changes the lease token; late answers cannot advance checkpoints or publish artifacts. Usage can still be recorded after cancellation. Distributed load certification, native tool-call dispatch, richer role templates/dead letters and production recovery drills remain pending.

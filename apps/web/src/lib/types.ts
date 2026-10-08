@@ -103,6 +103,7 @@ export interface Task extends Entity {
   evidence: Record<string, Json>;
 }
 export interface Workflow extends Entity {
+  mode: string;
   kind: string;
   requirement_id: string | null;
   task_id: string | null;
@@ -114,6 +115,7 @@ export interface Workflow extends Entity {
   last_error: string;
 }
 export interface Model extends Entity {
+  enabled: boolean;
   identifier: string;
   provider_id: string;
   quality: number;
@@ -221,6 +223,64 @@ export interface Notification extends Entity {
   subject_id: string;
 }
 export interface State {
+  provider_probes: (Entity & {
+    provider_id: string;
+    status: string;
+    checked_at: number | null;
+    error_code: string;
+    models: { identifier: string; generation_methods: string[] }[];
+    inference_at: number | null;
+    inference_model_id: string | null;
+  })[];
+  model_policies: (Entity & {
+    scope: string;
+    preferred_model_id: string | null;
+    allowed_model_ids: string[];
+    version: number;
+  })[];
+  model_evaluations: (Entity & {
+    model_id: string;
+    run_id: string;
+    score: number;
+    task_class: string;
+    note: string;
+  })[];
+  agent_executions: (Entity & {
+    agent_id: string;
+    workflow_id: string;
+    state: string;
+    step_name: string;
+    updated_at: number;
+    detail: Json;
+  })[];
+  agent_state_events: (Entity & {
+    sequence: number;
+    execution_id: string;
+    previous_state: string;
+    state: string;
+    detail: Json;
+  })[];
+  agent_runtime: {
+    agent_id: string;
+    state: string;
+    workflow_id: string | null;
+    mode: string | null;
+    step_name: string;
+    updated_at: number;
+    stale_lease: boolean;
+    successful_runs: number;
+    failed_runs: number;
+    cost_micro: number;
+  }[];
+  agent_work: (Entity & {
+    workflow_id: string;
+    project_id: string | null;
+    kind: string;
+    subject_id: string;
+    participants: string[];
+    input: Record<string, Json>;
+    result: Record<string, Json>;
+  })[];
   conversations: Conversation[];
   organization: {
     id: string;
@@ -237,7 +297,16 @@ export interface State {
       last_seen: number | null;
       stale_after_seconds: number;
     };
-    providers: { id: string; name: string; mode: string; status: string }[];
+    providers: {
+      id: string;
+      name: string;
+      mode: string;
+      status: string;
+      credential_source: string;
+      credential_configured: boolean;
+      credential_error: string;
+      vault_available: boolean;
+    }[];
   };
   departments: Department[];
   agents: Agent[];

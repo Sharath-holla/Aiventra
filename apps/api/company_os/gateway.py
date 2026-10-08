@@ -5,10 +5,26 @@ from pydantic import BaseModel, ValidationError
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from .agent_runtime import transition
 from .config import settings
+from .credentials import credential_revision
 from .db import now, uid
-from .finance import reserve, settle, token_cost
-from .models import Agent, Budget, ConversationTurn, ModelConfig, ModelRun, Project, Provider, Workflow
+from .finance import BudgetExceeded, reserve, settle, token_cost
+from .model_routing import apply_policies, task_class_for, work_override
+from .models import (
+    Agent,
+    AgentWork,
+    Budget,
+    ConversationTurn,
+    ModelConfig,
+    ModelEvaluation,
+    ModelRun,
+    Project,
+    Provider,
+    Task,
+    Workflow,
+)
+from .provider_state import probe_for
 from .providers import (
     HTTPAdapter,
     ProviderError,
@@ -53,6 +69,7 @@ def eligible_models(
     sensitivity: str,
     context_tokens: int,
     policy: str,
+    task_class: str | None = None,
 ) -> list[tuple[ModelConfig, Provider]]:
     rows = session.execute(
         select(ModelConfig, Provider)
@@ -64,6 +81,27 @@ def eligible_models(
             Provider.enabled.is_(True),
         )
     ).all()
+    evaluations = (
+        session.scalars(
+            select(ModelEvaluation).where(
+                ModelEvaluation.org_id == org_id, ModelEvaluation.task_class == task_class
+            )
+        ).all()
+        if task_class
+        else []
+    )
+    measured = {}
+    for row in evaluations:
+        measured.setdefault(row.model_id, []).append(row.score)
+    scores = {key: sum(values) / len(values) for key, values in measured.items()}
+    durations = {}
+    for run in session.execute(
+        select(ModelRun.model_id, ModelRun.duration_ms).where(
+            ModelRun.org_id == org_id, ModelRun.status == "succeeded", ModelRun.duration_ms > 0
+        )
+    ):
+        durations.setdefault(run.model_id, []).append(run.duration_ms)
+    latency = {key: sum(values) / len(values) for key, values in durations.items()}
     candidates = []
     for model, provider in rows:
         if (provider.kind == "mock") != (mode == "mock"):
@@ -72,6 +110,7 @@ def eligible_models(
             not capabilities.issubset(model.capabilities)
             or model.quality < quality
             or model.context_tokens < context_tokens
+            or scores.get(model.id, model.quality) < quality
         ):
             continue
         if SENSITIVITY[model.sensitivity] < SENSITIVITY[sensitivity] or model.reliability < 50:
@@ -83,13 +122,14 @@ def eligible_models(
     def score(row):
         model = row[0]
         cost = model.input_price_micro_per_million + model.output_price_micro_per_million
+        grade, duration = scores.get(model.id, model.quality), latency.get(model.id, model.latency_ms)
         if policy == "quality":
-            return (-model.quality, cost, model.latency_ms)
+            return (-grade, cost, duration)
         if policy == "fastest":
-            return (model.latency_ms, cost, -model.quality)
+            return (duration, cost, -grade)
         if policy == "balanced":
-            return (cost / max(model.quality * model.reliability, 1), model.latency_ms, -model.quality)
-        return (cost, -model.reliability, model.latency_ms, -model.quality)
+            return (cost / max(grade * model.reliability, 1), duration, -grade)
+        return (cost, -model.reliability, duration, -grade)
 
     return sorted(candidates, key=score)
 
@@ -133,6 +173,7 @@ async def execute[T: BaseModel](
     prompt = canonical(context)
     schema_json = schema.model_json_schema()
     max_output = 2048
+    task_class = task_class_for(session, workflow)
     upper_input = len((system + prompt + canonical(schema_json)).encode("utf-8")) + 2048
     candidates = eligible_models(
         session,
@@ -143,7 +184,10 @@ async def execute[T: BaseModel](
         sensitivity,
         upper_input + max_output,
         agent.routing_policy,
+        task_class,
     )
+    override = work_override(session, workflow)
+    candidates = apply_policies(session, agent, project.id if project else None, candidates, override)
     candidates = [(model, provider) for model, provider in candidates if configured(provider)]
     candidates = review_candidates(session, candidates, review_against or [], review_policy)
     against_models = set(review_against or [])
@@ -160,6 +204,10 @@ async def execute[T: BaseModel](
         "policy": agent.routing_policy,
         "review_against": review_against or [],
         "review_policy": review_policy,
+        "project_id": project.id if project else None,
+        "model_override": override,
+        "task_class": task_class,
+        "step_name": step,
     }
     if workflow.mode == "live" and not candidates and not previous:
         raise ProviderUnavailable(wait_context)
@@ -168,7 +216,10 @@ async def execute[T: BaseModel](
     max_attempts = min(agent.max_iterations, 3)
     deadline = time.monotonic() + agent.max_runtime_seconds
     error = "No eligible configured model. Check quality, context, sensitivity, pricing freshness and credentials."
-    for model, provider in candidates[: max(0, max_attempts - len(previous))]:
+    budget_error = None
+    for model, provider in candidates:
+        if len(previous) >= max_attempts:
+            break
         remaining = min(deadline - time.monotonic(), workflow.deadline_at - now())
         if remaining <= 0:
             raise TimeoutError("Agent or workflow runtime limit reached")
@@ -194,7 +245,10 @@ async def execute[T: BaseModel](
             if project:
                 scopes.append(f"project:{project.id}")
         else:
-            scopes.append(f"project:{project.id}" if project else f"requirement:{workflow.requirement_id}")
+            if project or workflow.requirement_id:
+                scopes.append(
+                    f"project:{project.id}" if project else f"requirement:{workflow.requirement_id}"
+                )
             if workflow.requirement_id:
                 linked = session.scalar(
                     select(ConversationTurn).where(ConversationTurn.requirement_id == workflow.requirement_id)
@@ -203,6 +257,12 @@ async def execute[T: BaseModel](
                     scopes.append(f"conversation:{linked.conversation_id}")
         if workflow.task_id:
             scopes.append(f"task:{workflow.task_id}")
+            task = session.get(Task, workflow.task_id)
+            if task.payload.get("job_id"):
+                scopes.append(f"job:{task.payload['job_id']}")
+        work = session.scalar(select(AgentWork).where(AgentWork.workflow_id == workflow.id))
+        if work:
+            scopes.append(f"job:{work.id}")
         for scope in scopes:
             if not session.scalar(select(Budget).where(Budget.scope == scope)):
                 session.add(
@@ -219,7 +279,11 @@ async def execute[T: BaseModel](
             ).all()
         )
         amount = token_cost(model, upper_input, max_output)
-        reserve(session, budgets, amount)
+        try:
+            reserve(session, budgets, amount)
+        except BudgetExceeded as exc:
+            budget_error = exc
+            continue  # An unaffordable preference cannot suppress a cheaper eligible model.
         attempt = len(previous) + 1
         run = ModelRun(
             id=uid(),
@@ -233,9 +297,12 @@ async def execute[T: BaseModel](
             attempt=attempt,
             reserved_micro=amount,
             budget_ids=[budget.id for budget in budgets],
-            routing_reason=f"{agent.routing_policy}: capabilities={sorted(capabilities or {'structured'})}; minimum_quality={quality}; quality={model.quality}; sensitivity={sensitivity}; max_input={upper_input}; mode={workflow.mode}; review_policy={review_policy}; review_against={sorted(against_models)}; provider_diverse={provider_identity(provider) not in against_providers}",
+            routing_reason=f"{agent.routing_policy}: capabilities={sorted(capabilities or {'structured'})}; minimum_quality={quality}; quality={model.quality}; sensitivity={sensitivity}; max_input={upper_input}; mode={workflow.mode}; review_policy={review_policy}; review_against={sorted(against_models)}; provider_diverse={provider_identity(provider) not in against_providers}; model_override={override}; task_class={task_class}; scoped_policies=enforced",
         )
         session.add(run)
+        session.flush()
+        credential_before = credential_revision(provider, session)
+        transition(session, workflow, agent, "RUNNING", step, run.id, {"model_id": model.id})
         session.commit()  # Durable reservation and call marker precede the external request.
         start = time.monotonic()
         try:
@@ -256,7 +323,23 @@ async def execute[T: BaseModel](
             result = schema.model_validate(run.response)
             run.status = "succeeded"
             run.duration_ms = int((time.monotonic() - start) * 1000)
+            current = session.execute(
+                select(Workflow.status, Workflow.lease_token).where(Workflow.id == workflow.id)
+            ).one()
+            state = (
+                "BLOCKED"
+                if current.status == "cancelled" or current.lease_token != workflow.lease_token
+                else "COMPLETED"
+            )
+            transition(session, workflow, agent, state, step, run.id, {"model_id": model.id})
+            if provider.kind != "mock" and credential_revision(provider, session) == credential_before:
+                probe = probe_for(session, provider)
+                probe.inference_at, probe.inference_model_id = now(), model.id
             session.commit()
+            session.refresh(agent)
+            if project:
+                session.refresh(project)
+            check_agent(session, agent, "read_context", project)
             return result
         except (ProviderError, TimeoutError) as exc:
             if isinstance(exc, TimeoutError):
@@ -269,12 +352,24 @@ async def execute[T: BaseModel](
                 settle(session, run, 0, "rejected_request_no_recorded_usage")
             run.error = error
             run.duration_ms = int((time.monotonic() - start) * 1000)
+            transition(
+                session,
+                workflow,
+                agent,
+                "BLOCKED" if exc.uncertain else "FAILED",
+                step,
+                run.id,
+                {"error": error},
+            )
             session.commit()
             if exc.uncertain:
                 raise
         except ValidationError:
             error = "Structured result failed validation; bounded fallback required"
             run.status, run.error = "quality_failed", error
+            transition(session, workflow, agent, "FAILED", step, run.id, {"error": error})
             session.commit()
         previous.append(run)
+    if budget_error and not previous:
+        raise budget_error
     raise ProviderError(error)

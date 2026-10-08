@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Cpu, Plus, Server } from "lucide-react";
 import { api, money } from "@/lib/api";
 import { Badge, Button, Empty, Panel, useApp } from "./common";
+import { ModelPolicyForm, ProviderControls } from "./provider-controls";
 export function Registry() {
   const { state, run, busy } = useApp();
   const [tab, setTab] = useState("models");
@@ -54,8 +55,9 @@ export function Registry() {
       <div className="alert info">
         Live model IDs, capabilities, quality evaluations and current prices
         must be explicitly configured. Consumer subscriptions do not establish
-        API access. Enter credential variable names; never paste API keys into
-        this interface.
+        API access. Store keys in the encrypted server vault or configure a
+        dedicated environment credential. Catalog checks and inference evidence
+        are separate.
       </div>
       <Panel
         title="Connection readiness"
@@ -105,9 +107,24 @@ export function Registry() {
             Assign policy per employee in the workforce directory. Fallback is
             bounded to three distinct eligible models and never switches a live
             workflow to mock. Freshness expires after 30 days. Manual model
-            assignment, automatic benchmarks and custom weighted policies remain
-            planned.
+            assignment and scoped allowlists preserve every mandatory filter.
+            Task-specific owner evaluations and recorded latency inform routing;
+            automatic benchmarks remain planned.
           </p>
+          {state.projects.map((project) => (
+            <details key={project.id}>
+              <summary>{project.name} · project model restrictions</summary>
+              <ModelPolicyForm
+                key={
+                  state.model_policies.find(
+                    (p) => p.scope === `project:${project.id}`,
+                  )?.version || 0
+                }
+                scopeType="project"
+                recordId={project.id}
+              />
+            </details>
+          ))}
         </Panel>
       ) : (
         <>
@@ -137,6 +154,29 @@ export function Registry() {
                         {p.credential_env || "Not required — local fixture"}
                       </code>
                     </p>
+                    <ProviderControls
+                      provider={p}
+                      register={(id) => {
+                        setProvider(p.id);
+                        setIdentifier(id);
+                        setTab("models");
+                        setShow(true);
+                      }}
+                    />
+                    {p.kind !== "mock" && (
+                      <details>
+                        <summary>Default model & restrictions</summary>
+                        <ModelPolicyForm
+                          key={
+                            state.model_policies.find(
+                              (policy) => policy.scope === `provider:${p.id}`,
+                            )?.version || 0
+                          }
+                          scopeType="provider"
+                          recordId={p.id}
+                        />
+                      </details>
+                    )}
                     <Button
                       secondary
                       disabled={busy}
@@ -244,12 +284,39 @@ export function Registry() {
                       Adapter type
                       <select
                         value={kind}
-                        onChange={(e) => setKind(e.target.value)}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setKind(value);
+                          const defaults: Record<string, [string, string]> = {
+                            openai: [
+                              "https://api.openai.com/v1",
+                              "OPENAI_API_KEY",
+                            ],
+                            anthropic: [
+                              "https://api.anthropic.com/v1",
+                              "ANTHROPIC_API_KEY",
+                            ],
+                            gemini: [
+                              "https://generativelanguage.googleapis.com/v1beta",
+                              "GEMINI_API_KEY",
+                            ],
+                            xai: ["https://api.x.ai/v1", "XAI_API_KEY"],
+                            ollama: [
+                              "http://localhost:11434",
+                              "OLLAMA_API_KEY",
+                            ],
+                          };
+                          if (defaults[value]) {
+                            setUrl(defaults[value][0]);
+                            setCredential(defaults[value][1]);
+                          }
+                        }}
                       >
                         {[
                           "openai",
                           "anthropic",
                           "gemini",
+                          "xai",
                           "ollama",
                           "compatible",
                         ].map((v) => (

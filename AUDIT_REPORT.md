@@ -1,5 +1,14 @@
 # Aiventra existing-project audit
 
+## Current Phases 2–5 audit
+
+The latest audit started from clean `master` at ae10711, with the actual source and prior 81 backend/seven browser tests checked before implementation. It identified the next incomplete foundation: provider verification, runtime states, routing configuration and durable general messaging/meetings. [The preserved gap analysis](docs/PHASES_2_5_GAP_ANALYSIS.md) classifies the starting state; IMPLEMENTATION_STATUS.md describes the new increment.
+
+Source changes now implement an encrypted vault, bounded catalogs/inference probes, scoped preferences/allowlists/evaluations, ordered runtime events, durable messages/meetings and connected controls. New contract/race/cancellation tests and browser flows exercise actual storage/dispatch. Final counts/publication evidence are in TEST_REPORT.md. Live providers, semantic memory, staffing, Docker coding, staging and final delivery remain unverified or unfinished.
+
+The sections below preserve historical audits and their earlier phase numbering.
+
+
 Audit date: October 8, 2026. Source inspected directly under `apps/api/company_os`, `apps/web/src`, `infrastructure`, `scripts` and `tests`. This is a local engineering audit, not an independent penetration test.
 
 ## Latest production-upgrade audit

@@ -10,7 +10,7 @@ def serialize(row):
         {
             column.name: getattr(row, column.name)
             for column in row.__table__.columns
-            if column.name not in {"password_hash", "audit_head"}
+            if column.name not in {"password_hash", "audit_head", "ciphertext"}
         }
     )
 

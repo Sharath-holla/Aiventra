@@ -3,12 +3,15 @@ import { useState } from "react";
 import { ArrowRight, MessageSquare, Send, Users } from "lucide-react";
 import { api, date } from "@/lib/api";
 import { Badge, Button, Empty, Panel, Pretty, useApp } from "./common";
+import { AgentWorkControls } from "./agent-work-controls";
 export function Communications({ chat }: { chat: boolean }) {
   const { state, run, busy } = useApp();
   const [text, setText] = useState("");
   const [reply, setReply] = useState("");
   const [mode, setMode] = useState("mock");
   const [channel, setChannel] = useState("");
+  const [messageLimit, setMessageLimit] = useState(30);
+  const [meetingLimit, setMeetingLimit] = useState(10);
   if (chat)
     return (
       <div className="chat-layout">
@@ -125,12 +128,13 @@ export function Communications({ chat }: { chat: boolean }) {
   const types = [...new Set(state.messages.map((m) => m.type))];
   return (
     <>
+      <AgentWorkControls />
       <Panel
         title="Internal consulting meetings"
         subtitle="Independent contributions, one synthesis round, recorded decision"
       >
         {state.meetings.length ? (
-          state.meetings.map((m) => (
+          state.meetings.slice(0, meetingLimit).map((m) => (
             <details key={m.id}>
               <summary>
                 <Users size={17} />
@@ -152,6 +156,11 @@ export function Communications({ chat }: { chat: boolean }) {
             text="A consulting workflow saves actual specialist outputs before recording a recommendation."
           />
         )}
+        {state.meetings.length > meetingLimit && (
+          <Button secondary onClick={() => setMeetingLimit(meetingLimit + 10)}>
+            Show more meeting records
+          </Button>
+        )}
       </Panel>
       <Panel
         title="Company communication feed"
@@ -161,7 +170,10 @@ export function Communications({ chat }: { chat: boolean }) {
           <select
             aria-label="Message type"
             value={channel}
-            onChange={(e) => setChannel(e.target.value)}
+            onChange={(e) => {
+              setChannel(e.target.value);
+              setMessageLimit(30);
+            }}
           >
             <option value="">All message types</option>
             {types.map((t) => (
@@ -169,10 +181,15 @@ export function Communications({ chat }: { chat: boolean }) {
             ))}
           </select>
         </div>
-        {messages.map((m) => (
+        <p className="muted">
+          Showing {Math.min(messageLimit, messages.length)} of {messages.length}{" "}
+          messages in this snapshot.
+        </p>
+        {messages.slice(0, messageLimit).map((m) => (
           <details key={m.id}>
             <summary>
               <Badge>{m.type}</Badge>
+              <Badge>{m.status}</Badge>
               {state.agents.find((a) => a.id === m.sender)?.name ||
                 m.sender.slice(0, 20)}{" "}
               →{" "}
@@ -182,7 +199,7 @@ export function Communications({ chat }: { chat: boolean }) {
             </summary>
             <Pretty value={m.content} />
             <p className="mono muted">Correlation: {m.correlation_id}</p>
-            {m.status !== "acknowledged" && (
+            {m.status === "delivered" && (
               <Button
                 secondary
                 disabled={busy}
@@ -193,6 +210,11 @@ export function Communications({ chat }: { chat: boolean }) {
             )}
           </details>
         ))}
+        {messages.length > messageLimit && (
+          <Button secondary onClick={() => setMessageLimit(messageLimit + 30)}>
+            Show more messages
+          </Button>
+        )}
       </Panel>
     </>
   );

@@ -27,10 +27,17 @@ def digest(value) -> str:
     return hashlib.sha256(canonical(value).encode()).hexdigest()
 
 
-def redact(text: str) -> str:
-    for key, value in os.environ.items():
-        if any(x in key for x in ("KEY", "TOKEN", "SECRET", "PASSWORD")) and len(value) > 7:
-            text = text.replace(value, "[REDACTED]")
+def environment_secrets() -> tuple[str, ...]:
+    return tuple(
+        value
+        for key, value in os.environ.items()
+        if any(x in key for x in ("KEY", "TOKEN", "SECRET", "PASSWORD")) and len(value) > 7
+    )
+
+
+def redact(text: str, secrets: tuple[str, ...] | None = None) -> str:
+    for value in environment_secrets() if secrets is None else secrets:
+        text = text.replace(value, "[REDACTED]")
     text = re.sub(
         r"(?i)(api[_-]?key|password|secret|seed[_ ]phrase|private[_ ]key)\s*[:=]\s*[^\n,;]+",
         r"\1=[REDACTED]",
@@ -45,13 +52,14 @@ def redact(text: str) -> str:
     return text
 
 
-def clean(value):
+def clean(value, secrets: tuple[str, ...] | None = None):
+    secrets = environment_secrets() if secrets is None else secrets
     if isinstance(value, str):
-        return redact(value)
+        return redact(value, secrets)
     if isinstance(value, dict):
-        return {k: clean(v) for k, v in value.items()}
+        return {k: clean(v, secrets) for k, v in value.items()}
     if isinstance(value, list):
-        return [clean(v) for v in value]
+        return [clean(v, secrets) for v in value]
     return value
 
 

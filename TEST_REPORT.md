@@ -1,5 +1,29 @@
 # Aiventra verification report
 
+## Milestone A workforce/provider core — October 9, 2026
+
+Starting repository: clean master ae10711; existing application source 4de41f5. The new authoritative request is docs/PHASES_2_5_SPEC.md. Before editing, 81 backend tests (63.74 seconds), seven browser tests (2.1 minutes), TypeScript and formatting passed. Docker/Ollama were checked and remain unavailable locally.
+
+| Check | Observed result |
+|---|---|
+| Full backend pytest | **98 passed, 0 failed**, one Starlette/httpx dependency deprecation warning, 86.40 seconds |
+| New provider/agent contracts | 17 included checks: encrypted no-readback vault/rotation/transplantation, six catalog protocols/pagination, xAI inference/secret scrubbing, message persistence/idempotence/ack, independent two-round meeting/follow-up cap, provider waits/probes, scoped preferences/evaluations, foreign/disabled scope and budgets, credential rotation during catalog, concurrent duplicate jobs, in-flight cancellation/charged usage, affordability fallback and illegal state transitions |
+| Full real-service browser suite | **Nine passed, 0 failed**, final rerun 1.8 minutes; explicit fixture workflows, real API/worker/storage, no mocked UI backend |
+| Follow-up UI checks | Provider vault/catalog browser flow passed; the affected message/meeting desktop/mobile/history flow passed again after the wrapping repair and stable navigation capture (30.2 seconds) |
+| Ruff | Lint passed; all 70 API/test/script/migration files formatted |
+| Web checks | TypeScript, Prettier and optimized production builds passed |
+| Migration | Existing SQLite backed up privately, additive b02442d39feb applied, populated data retained; alembic check reported no drift |
+| Dependency checks | npm production audit: zero vulnerabilities. Python audit: no known vulnerabilities; the local application package is not on PyPI and is skipped |
+| Populated dashboard | One actual state request measured 1.241 seconds with worker ready after redaction/SQL aggregation improvements; this is not a load certification |
+| Publication secret scan | **360 staged/history blobs checked, 0 findings**; private configuration, database, logs and screenshots remain ignored |
+| Remote verification | Ordinary push and exact source GitHub Actions evidence are recorded below after completion |
+
+Failures repaired: initial new test fixtures had an expired detached ORM reference, an incorrect approval HTTP expectation and empty acceptance checks. An evaluation duplicate exposed an autoflush-before-error-handler defect; the transactional handler now returns a conflict. Event ordering needed a persisted per-execution sequence. Credential rotation and concurrent probe creation are fenced. The browser fixture initially used the wrong view URL and exact label matching without explicit select names. After those repairs, later status badges exposed a 20-pixel mobile summary overflow; summaries now wrap, bounded history expansion reduces accumulated page height, and meaningful screenshots wait for loaded state. Failed assertions were retained and repaired; no fake response substituted for the running backend.
+
+Controlled adapters test provider contracts and usage accounting; they do not prove a real account or live model. Fixture meeting/message outputs are explicitly labeled. Native provider streaming/tools, semantic retrieval, approved dynamic staffing, actual dedicated coding runner execution, repair/PR/merge, staging and complete client delivery remain unfinished. The current phase is a verified **Milestone A core increment**, not completion of all Phases 2–5.
+
+The sections below preserve historical milestones; their previous roadmap phase numbers and 'latest' labels refer to those historical source versions.
+
 ## Premium conversation foundation — October 8, 2026
 
 The clean starting source was local/remote `b9e43cf`, preserving the previously CI-verified `ca51145`. Before editing, the current 66 backend tests and three browser tests were rerun successfully against actual code/services. The latest production specification is preserved in docs/PRODUCTION_UPGRADE_SPEC.md; its phase ordering now governs development.

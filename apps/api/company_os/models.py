@@ -389,3 +389,74 @@ class ConversationTurn(Tenant, Base):
         UniqueConstraint("conversation_id", "request_id"),
         UniqueConstraint("conversation_id", "position"),
     )
+
+
+class ProviderCredential(Tenant, Base):
+    __tablename__ = "provider_credentials"
+    provider_id: Mapped[str] = mapped_column(ForeignKey("providers.id"), unique=True)
+    ciphertext: Mapped[str] = mapped_column(Text)
+    version: Mapped[int] = mapped_column(default=1)
+
+
+class ProviderProbe(Tenant, Base):
+    __tablename__ = "provider_probes"
+    provider_id: Mapped[str] = mapped_column(ForeignKey("providers.id"), unique=True)
+    status: Mapped[str] = mapped_column(default="unverified")
+    checked_at: Mapped[int | None] = mapped_column()
+    error_code: Mapped[str] = mapped_column(default="")
+    models: Mapped[list[dict[str, Any]]] = mapped_column(JSON, default=list)
+    inference_at: Mapped[int | None] = mapped_column()
+    inference_model_id: Mapped[str | None] = mapped_column(ForeignKey("model_configs.id"))
+
+
+class ModelPolicy(Tenant, Base):
+    __tablename__ = "model_policies"
+    scope: Mapped[str] = mapped_column(String(100))
+    preferred_model_id: Mapped[str | None] = mapped_column(ForeignKey("model_configs.id"))
+    allowed_model_ids: Mapped[list[str]] = mapped_column(JSON, default=list)
+    version: Mapped[int] = mapped_column(default=1)
+    __table_args__ = (UniqueConstraint("org_id", "scope"),)
+
+
+class ModelEvaluation(Tenant, Base):
+    __tablename__ = "model_evaluations"
+    model_id: Mapped[str] = mapped_column(ForeignKey("model_configs.id"), index=True)
+    run_id: Mapped[str] = mapped_column(ForeignKey("model_runs.id"), unique=True)
+    task_class: Mapped[str] = mapped_column(String(100))
+    score: Mapped[int] = mapped_column()
+    note: Mapped[str] = mapped_column(Text)
+    evaluator_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+
+
+class AgentExecution(Tenant, Base):
+    __tablename__ = "agent_executions"
+    workflow_id: Mapped[str] = mapped_column(ForeignKey("workflows.id"), index=True)
+    agent_id: Mapped[str] = mapped_column(ForeignKey("agents.id"), index=True)
+    state: Mapped[str] = mapped_column(default="REGISTERED")
+    step_name: Mapped[str] = mapped_column(String(100), default="")
+    model_run_id: Mapped[str | None] = mapped_column(ForeignKey("model_runs.id"))
+    updated_at: Mapped[int] = mapped_column(default=now)
+    detail: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    __table_args__ = (UniqueConstraint("workflow_id", "agent_id"),)
+
+
+class AgentStateEvent(Tenant, Base):
+    __tablename__ = "agent_state_events"
+    execution_id: Mapped[str] = mapped_column(ForeignKey("agent_executions.id"), index=True)
+    previous_state: Mapped[str] = mapped_column(String(40))
+    state: Mapped[str] = mapped_column(String(40))
+    detail: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    sequence: Mapped[int] = mapped_column(default=1)
+    __table_args__ = (UniqueConstraint("execution_id", "sequence"),)
+
+
+class AgentWork(Tenant, Base):
+    __tablename__ = "agent_work"
+    workflow_id: Mapped[str] = mapped_column(ForeignKey("workflows.id"), unique=True)
+    project_id: Mapped[str | None] = mapped_column(ForeignKey("projects.id"))
+    kind: Mapped[str] = mapped_column(String(40))
+    subject_id: Mapped[str] = mapped_column(String(36))
+    request_hash: Mapped[str] = mapped_column(String(64))
+    participants: Mapped[list[str]] = mapped_column(JSON, default=list)
+    input: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    result: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)

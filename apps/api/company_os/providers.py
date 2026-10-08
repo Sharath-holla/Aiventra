@@ -1,11 +1,11 @@
 import json
-import os
 from dataclasses import dataclass
 from urllib.parse import urlsplit
 
 import httpx
 
 from .config import settings
+from .credentials import VaultUnavailable, secret_for
 from .models import ModelConfig, Provider
 from .security import validate_endpoint
 
@@ -29,8 +29,21 @@ class ProviderUnavailable(ProviderError):
         self.context = context
 
 
+def scrub_secret(value, secret: str):
+    if isinstance(value, str):
+        return value.replace(secret, "[REDACTED]") if secret else value
+    if isinstance(value, list):
+        return [scrub_secret(item, secret) for item in value]
+    if isinstance(value, dict):
+        return {scrub_secret(key, secret): scrub_secret(item, secret) for key, item in value.items()}
+    return value
+
+
 def configured(provider: Provider) -> bool:
-    return provider.kind in {"mock", "ollama"} or bool(os.environ.get(provider.credential_env, ""))
+    try:
+        return provider.kind in {"mock", "ollama"} or bool(secret_for(provider))
+    except VaultUnavailable:
+        return False
 
 
 def provider_identity(provider: Provider) -> str:
@@ -76,9 +89,12 @@ class HTTPAdapter:
         base = validate_endpoint(
             provider.base_url, settings().provider_allowed_hosts, local_allowed=provider.kind == "ollama"
         )
-        secret = os.environ.get(provider.credential_env, "")
+        try:
+            secret = secret_for(provider)
+        except VaultUnavailable:
+            raise ProviderError("Provider credential vault unavailable") from None
         if provider.kind != "ollama" and not secret:
-            raise ProviderError("Provider credential environment variable is not configured")
+            raise ProviderError("Provider credentials are not configured")
         schema = strict_schema(schema)
         if provider.kind == "openai":
             path, headers = "/responses", {"Authorization": f"Bearer {secret}"}
@@ -133,7 +149,7 @@ class HTTPAdapter:
                 "stream": False,
                 "options": {"num_predict": max_output},
             }
-        elif provider.kind == "compatible":
+        elif provider.kind in {"compatible", "xai"}:
             path, headers = "/chat/completions", {"Authorization": f"Bearer {secret}"}
             body = {
                 "model": model.identifier,
@@ -200,7 +216,9 @@ class HTTPAdapter:
                     "Provider omitted verifiable usage; reconciliation required", uncertain=True
                 )
             try:
-                result = json.loads(output)
+                if secret:
+                    output = output.replace(secret, "[REDACTED]")
+                result = scrub_secret(json.loads(output), secret)
             except (ValueError, TypeError):
                 # Usage must survive malformed output so it can be charged before escalating.
                 result = {"_invalid_output": True}
@@ -343,6 +361,13 @@ def fixture(schema_name: str, context: dict) -> Response:
             + json.dumps(context.get("project", {}))
             + "\n\nLive specialist analysis remains pending.",
             "acceptance_checks": ["Artifact saved with content hash", "Scope preserved; no external changes"],
+        }
+    elif schema_name == "MeetingDecision":
+        data = {
+            "summary": "Explicit fixture meeting; live deliberation remains pending.",
+            "decisions": ["Collect verified evidence before implementation"],
+            "unresolved": ["No live specialist inference performed"],
+            "followups": [],
         }
     elif schema_name == "PatchResult":
         data = {

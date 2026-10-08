@@ -75,7 +75,7 @@ def add_provider(
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from None
     if not data.credential_env.endswith("_API_KEY"):
-        raise HTTPException(422, "Use a dedicated *_API_KEY variable; secrets never enter the browser")
+        raise HTTPException(422, "Use a dedicated *_API_KEY environment reference")
     provider = m.Provider(id=uid(), org_id=user.org_id, **data.model_dump())
     session.add(provider)
     audit(session, user.org_id, user.id, "provider.registered", provider.id)

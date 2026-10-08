@@ -28,3 +28,7 @@ Official interfaces checked on October 8, 2026:
 - [Ollama generate](https://docs.ollama.com/api/generate)
 
 Contract tests exercise these wire formats with HTTP fixtures. **Live verification is pending credentials.** Some models have provider-specific restrictions on schema keywords, output limits or reasoning settings; configure and verify each selected model before trusting its availability.
+
+## Current provider controls
+
+The owner can save an encrypted write-only API key, test/discover an account catalog and run a capped inference probe. API keys never appear in returned configuration. An independent PROVIDER_SECRET_KEY is required for vault writes; environment fallback remains optional. Supported catalogs include xAI in addition to the existing five adapter kinds. Catalog success and inference evidence are distinct; documented model capabilities/prices must still be configured. See MODEL_ROUTING.md and SECURITY.md. Native token streaming and tool-call interfaces are not yet implemented.

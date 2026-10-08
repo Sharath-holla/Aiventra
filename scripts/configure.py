@@ -1,5 +1,6 @@
 """Create local secrets without displaying them or changing existing configuration."""
 
+import base64
 import secrets
 from pathlib import Path
 
@@ -10,6 +11,9 @@ if not env.exists():
     template = template.replace("replace-with-at-least-32-random-characters", secrets.token_urlsafe(48))
     template = template.replace("replace-with-a-long-unique-password", secrets.token_urlsafe(24))
     template = template.replace("replace-with-a-database-password", secrets.token_urlsafe(32))
+    template = template.replace(
+        "replace-with-base64-encoded-32-byte-key", base64.urlsafe_b64encode(secrets.token_bytes(32)).decode()
+    )
     env.write_text(template, encoding="utf-8")
     print("Created private .env. Read OWNER_EMAIL and OWNER_PASSWORD there to sign in.")
 else:
@@ -18,4 +22,10 @@ else:
     if "DB_PASSWORD=" not in current:
         with env.open("a", encoding="utf-8") as output:
             output.write("\nDB_PASSWORD=" + secrets.token_urlsafe(32) + "\n")
+    if "PROVIDER_SECRET_KEY=" not in current:
+        with env.open("a", encoding="utf-8") as output:
+            output.write(
+                "\nPROVIDER_SECRET_KEY=" + base64.urlsafe_b64encode(secrets.token_bytes(32)).decode() + "\n"
+            )
+        print("Added an independent provider vault key to private .env.")
 (root / "data").mkdir(exist_ok=True)

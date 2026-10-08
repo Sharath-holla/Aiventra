@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
 import { CopyPlus, Network, Search, ShieldCheck, Users } from "lucide-react";
-import { api, money } from "@/lib/api";
+import { api, date, money } from "@/lib/api";
+import { ModelPolicyForm } from "./provider-controls";
 import { Badge, Button, Empty, Panel, useApp } from "./common";
 
 export function Workforce({ hierarchy }: { hierarchy: boolean }) {
@@ -16,8 +17,43 @@ export function Workforce({ hierarchy }: { hierarchy: boolean }) {
   );
   const agent = state.agents.find((a) => a.id === selected);
   const runs = agent ? state.runs.filter((r) => r.agent_id === agent.id) : [];
+  const runtime = agent
+    ? state.agent_runtime.find((r) => r.agent_id === agent.id)
+    : null;
   return (
     <>
+      <div className="runtime-strip">
+        <span>
+          <strong>
+            {
+              state.agent_runtime.filter(
+                (r) => r.state === "RUNNING" && r.mode === "live",
+              ).length
+            }
+          </strong>{" "}
+          live invocations running
+        </span>
+        <span>
+          <strong>
+            {
+              state.agent_runtime.filter(
+                (r) => r.state === "WAITING_FOR_PROVIDER",
+              ).length
+            }
+          </strong>{" "}
+          waiting for providers
+        </span>
+        <span>
+          <strong>
+            {state.agent_runtime.filter((r) => r.state === "BLOCKED").length}
+          </strong>{" "}
+          blocked
+        </span>
+        <small>
+          Registered roles execute on demand. Fixture runs are explicitly
+          labeled.
+        </small>
+      </div>
       <div className="tabs">
         <button
           className={!hierarchy ? "active" : ""}
@@ -68,7 +104,10 @@ export function Workforce({ hierarchy }: { hierarchy: boolean }) {
                           <strong>{a.name}</strong>
                           <small>Reports to {a.reports_to}</small>
                         </div>
-                        <Badge>{a.enabled ? "enabled" : "paused"}</Badge>
+                        <Badge>
+                          {state.agent_runtime.find((r) => r.agent_id === a.id)
+                            ?.state || "REGISTERED"}
+                        </Badge>
                       </button>
                     ))}
                 </div>
@@ -134,7 +173,10 @@ export function Workforce({ hierarchy }: { hierarchy: boolean }) {
                         .slice(0, 2)
                         .join("")}
                     </span>
-                    <Badge>{a.enabled ? "enabled" : "paused"}</Badge>
+                    <Badge>
+                      {state.agent_runtime.find((r) => r.agent_id === a.id)
+                        ?.state || "REGISTERED"}
+                    </Badge>
                   </div>
                   <h3>{a.name}</h3>
                   <p>{department?.name}</p>
@@ -169,6 +211,20 @@ export function Workforce({ hierarchy }: { hierarchy: boolean }) {
             </button>
             <span className="agent-avatar">{agent.name.slice(0, 2)}</span>
             <h2>{agent.name}</h2>
+            <div className="badge-row">
+              <Badge>{runtime?.state || "REGISTERED"}</Badge>
+              {runtime?.mode && (
+                <Badge mode={runtime.mode}>{runtime.mode}</Badge>
+              )}
+            </div>
+            {runtime?.workflow_id && (
+              <p className="muted">
+                {runtime.step_name} · updated {date(runtime.updated_at)}
+                {runtime.stale_lease
+                  ? " · expired lease; recovery required"
+                  : ""}
+              </p>
+            )}
             <p>
               {
                 state.departments.find((d) => d.id === agent.department_id)
@@ -195,6 +251,11 @@ export function Workforce({ hierarchy }: { hierarchy: boolean }) {
               </div>
             </div>
             <h3>Responsibilities</h3>
+            <ModelPolicyForm
+              key={`${agent.id}:${state.model_policies.find((p) => p.scope === `agent:${agent.id}`)?.version || 0}`}
+              scopeType="agent"
+              recordId={agent.id}
+            />
             <ul>
               {agent.responsibilities.map((r) => (
                 <li key={r}>{r}</li>
@@ -236,6 +297,28 @@ export function Workforce({ hierarchy }: { hierarchy: boolean }) {
               Per-agent limit: {money(agent.max_cost_micro)} ·{" "}
               {agent.max_iterations} maximum iterations
             </p>
+            <details>
+              <summary>Recorded execution transitions</summary>
+              {state.agent_executions
+                .filter((e) => e.agent_id === agent.id)
+                .map((execution) => (
+                  <div key={execution.id}>
+                    <p>
+                      {execution.step_name} · <Badge>{execution.state}</Badge>
+                    </p>
+                    {state.agent_state_events
+                      .filter((event) => event.execution_id === execution.id)
+                      .slice()
+                      .sort((a, b) => a.sequence - b.sequence)
+                      .map((event) => (
+                        <p className="muted" key={event.id}>
+                          {date(event.created_at)} ·{" "}
+                          {event.previous_state || "new"} → {event.state}
+                        </p>
+                      ))}
+                  </div>
+                ))}
+            </details>
             <div className="button-row">
               <Button
                 disabled={busy}

@@ -131,6 +131,12 @@ def state(user: m.User = Depends(owner), session: Session = Depends(session_depe
         "notifications": m.Notification,
         "approvals": m.Approval,
         "conversations": m.Conversation,
+        "provider_probes": m.ProviderProbe,
+        "model_policies": m.ModelPolicy,
+        "model_evaluations": m.ModelEvaluation,
+        "agent_executions": m.AgentExecution,
+        "agent_state_events": m.AgentStateEvent,
+        "agent_work": m.AgentWork,
     }
     result = {
         name: [serialize(row) for row in tenant_rows(session, model, user, 300)]
@@ -153,7 +159,11 @@ def state(user: m.User = Depends(owner), session: Session = Depends(session_depe
         "database": "sqlite" if settings().database_url.startswith("sqlite") else "postgresql",
         "worker": workers(session),
     }
+    from ..agent_runtime import snapshot
+    from ..credentials import credential_facts
     from ..providers import configured
+
+    result["agent_runtime"] = snapshot(session, user.org_id)
 
     result["runtime"]["providers"] = [
         {
@@ -165,6 +175,7 @@ def state(user: m.User = Depends(owner), session: Session = Depends(session_depe
             else "configured_unverified"
             if configured(row)
             else "missing_credentials",
+            **credential_facts(row, session),
         }
         for row in tenant_rows(session, m.Provider, user, 300)
     ]

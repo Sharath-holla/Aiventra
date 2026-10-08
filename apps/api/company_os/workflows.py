@@ -357,6 +357,15 @@ def wake_waiting(session: Session):
             config["sensitivity"],
             config["context_tokens"],
             config["policy"],
+            config.get("task_class"),
+        )
+        from .model_routing import apply_policies
+
+        agent = session.get(Agent, config["agent_id"])
+        if not agent or not agent.enabled:
+            continue
+        candidates = apply_policies(
+            session, agent, config.get("project_id"), candidates, config.get("model_override")
         )
         candidates = review_candidates(
             session,
@@ -410,6 +419,10 @@ async def tick(factory=SessionLocal) -> bool:
                 from .engineering import coding_step
 
                 await coding_step(session, workflow, token)
+            elif workflow.kind == "agent_work":
+                from .agent_work import work_step
+
+                await work_step(session, workflow, token)
             else:
                 raise ValueError("Unknown workflow kind")
             session.commit()
@@ -420,6 +433,12 @@ async def tick(factory=SessionLocal) -> bool:
                 return True
             workflow.status, workflow.lease_until = "waiting_for_provider", 0
             workflow.wait_context, workflow.last_error = exc.context, str(exc)
+            from .agent_runtime import transition
+
+            waiting_agent = session.get(Agent, exc.context["agent_id"])
+            transition(
+                session, workflow, waiting_agent, "WAITING_FOR_PROVIDER", exc.context.get("step_name", "")
+            )
             if workflow.requirement_id:
                 session.get(Requirement, workflow.requirement_id).status = "waiting_for_provider"
             if workflow.task_id:
@@ -451,6 +470,14 @@ async def tick(factory=SessionLocal) -> bool:
                 else "queued"
             )
             workflow.last_error = redact(str(exc))[:1000]
+            from .agent_runtime import workflow_state
+
+            workflow_state(
+                session,
+                workflow,
+                "BLOCKED" if workflow.status == "needs_attention" else "FAILED",
+                {"error": workflow.last_error},
+            )
             if workflow.status == "needs_attention":
                 session.add(
                     Notification(

@@ -1,42 +1,35 @@
-# Work queue
+# Next steps
 
-Follow [the latest production specification](docs/PRODUCTION_UPGRADE_SPEC.md), with evidence in IMPLEMENTATION_STATUS.md and TEST_REPORT.md. Prior master briefs remain preserved; their phase numbers are historical. Authorized remote: `origin` → `https://github.com/Sharath-holla/Aiventra.git`, ordinary pushes only.
+Follow [the current Phases 2–5 specification](docs/PHASES_2_5_SPEC.md). Preserve existing working modules and publish verified increments to [the authorized repository](https://github.com/Sharath-holla/Aiventra) with ordinary pushes.
 
-Tested source `4de41f57c3d0c999a98a9f453ded8f368dc29443` is published on `master`. [CI 37818487850](https://github.com/Sharath-holla/Aiventra/actions/runs/37818487850) passed all four jobs: 81 Linux backend tests, seven Compose/PostgreSQL browser tests, schema/13-column monetary contracts and real service-restart conversation/document recovery. Local tests passed 81 backend/seven browser checks; the app is running with worker readiness verified.
+## Finish Milestone A — Phase 2
 
-## Next phase — Phase 3: Real AI Runtime
+1. Complete final local/remote verification of the new vault, catalogs, scoped routing, persisted runtime, durable messages and bounded meetings. Record the exact source SHA and CI jobs in TEST_REPORT.md.
+2. Add provider-native token streaming and native tool-call/cancellation contracts with a server tool registry, permission-bound dispatch and uncertain-usage handling. Current SSE streams saved workflow state, and current agent tools are server-directed workflow operations.
+3. Add explicit model-specific capability probes and a reproducible quality benchmark suite. Current catalog IDs are account facts; manually configured capabilities and owner grades are distinct from automatic verification.
+4. With a real API account or actual Ollama endpoint, discover a real model, configure documented capabilities/current prices, run the capped inference probe and verify usage/account charges. Run a real CEO answer, document task, message and bounded meeting. Configure distinct services/models for actual independent coding review.
+5. Extend role templates/tool metadata and recovery/dead-letter handling, then exercise concurrent/restart/failure behavior. Preserve no-charge waits, duplicate-request protection, lease fences and owner reconciliation for interrupted paid calls.
 
-1. Add server-side provider connection tests and account-supported model discovery with timeouts, persisted outcomes, secret-free diagnostics and explicit owner controls. Configuration alone must never show Connected. Reuse the five existing adapters and registry instead of rebuilding them.
-2. Probe model-specific structured-output/capability support, surface actual failure/retry/fallback details and integrate verified provider state into the UI. Add provider-native token streaming with fenced cancellation and uncertain-call accounting; current conversation SSE streams saved workflow snapshots only.
-3. With a real API credential or running Ollama endpoint, register an available model with documented capabilities/prices. Run a small owner-capped CEO answer and consultation, verify saved model identity, usage/ledger/failure recovery and actual account charges. A distinct second model/provider is required for genuine cross-model review evidence.
-4. Confirm pause/readiness/revocation and same-step recovery using real provider failure/restart evidence. Preserve no-charge waits and uncertain paid-request reconciliation; never silently fall back to fixtures.
+## Milestone B — Phase 3 memory
 
-No API credentials or running Ollama instance were available for this milestone. Steps 1-2 can be implemented without inventing live results; step 3 requires the external configuration.
+Implement provider-backed semantic embeddings and a scope-filtered vector index, with an explicitly labeled keyword fallback. Add company/client/project/agent/task/conversation layers, source provenance, versioning, invalidation, retention and deletion. Connect semantic context to agents and UI; test tenant/client isolation and restart recovery. No semantic retrieval is currently implemented.
 
-## Remaining UI foundation and full integration
+## Milestone C — Phase 3 workforce
 
-- Add navigation for conversation turns older than the latest 100, optional title editing/retention controls, syntax highlighting, direct specialist discussions and links from completed approvals to project delivery context.
-- Finish the Phase 9 workforce drawer/organization map, richer project activity/memory/task tabs, provider diagnostics and full accessible mobile/keyboard behavior. Current private document preview has focus trapping/restoration; no comprehensive accessibility certification is claimed.
-- Paginate legacy state collections and test large-company latency. Conversation history already has search/50-record pagination; snapshot/query load still needs production measurements.
-- Add PDF/image ingestion and permission-scoped repository URL import with real evidence extraction. Current attachments are small UTF-8 text files; local repository discovery remains a separate approved engineering operation.
+Generate requirements-based team/task plans using registered role skills and real models. Persist plan versions and exact staffing/budget approval; allocate tasks only after approval. Add distributed capacity/concurrency constraints, budget-aware scheduling and actual assignment UI. Avoid permanent per-role inference processes and uncontrolled paid parallelism.
 
-## Later phases in dependency order
+## Milestone D — Phase 4 engineering
 
-4. Routing: measured capability/quality/latency evaluations, explicit model overrides, adjustable scoring, invoice and cached/reasoning usage reconciliation.
-5. Memory: scoped semantic indexing/retrieval, provenance, versioning and retention/erasure, preserving client/project boundaries.
-6. Orchestration: durable message dispatch/acknowledgement/retries, dynamic approved delegation, dead letters and distributed restart/load tests.
-7. Consulting/workforce: invitation-based client access, live research/complete rate comparisons, exact staffing and budget approvals, dynamic PM/team plans.
-8. Coding/QA: dedicated hardened Docker runner, successful nonempty baseline/final tests, real independent reviews, bounded repair and security/PM acceptance. Compose integration does not certify the separate code runner.
-9. UI integration: complete the remaining connected workspaces against real backend data/actions.
-10. DevOps/security: browser OIDC if required, trusted edge address limits, session/heartbeat retention, encrypted restore drills, metrics/traces, secret manager and adversarial isolation/load verification.
-11. Delivery: approved staging connector, health/smoke/rollback, client acceptance and genuine end-to-end implementation. Supply the actual owner crypto repository before its baseline/feature/testnet work.
-12. Publication: run local/CI checks, staged/history secret scans, ordinary commits/pushes, verify remote SHA and record CI outcomes. Never mark the whole product complete based on fixture workflows.
+Verify actual dedicated Docker runner isolation, nonempty Python/Node tests, timeout/output/cancellation cleanup and restart recovery in CI. Add bounded diagnosis/repair cycles with fresh independent reviews, then safe Git commits/PR/merge lifecycle and QA/PM/security acceptance. Never execute generated repository code on the API/worker host or modify a dirty original checkout.
 
-## External configuration still required
+## Milestone E — Phase 5 client delivery
 
-- One supported provider API key and available model, or an actual running local Ollama instance; second independent model/provider for live verification.
-- Dedicated Docker runner access for generated-code tests. Docker is absent on the current Windows host; Compose services can run in ephemeral GitHub CI.
-- Actual owner crypto repository, excluding wallet/exchange secrets.
-- Production identity/invitations, optional S3 storage, staging/cloud and OAuth mail/calendar accounts only when those phases are implemented and authorized.
+Connect the existing intake/consultation/exact approval to approved team allocation, engineering, real test evidence, CTO/QA final review, delivery bundles and scoped client acceptance/change requests. Add invitation-only client accounts. Staging requires a real connector, environment approval and observed health/rollback; no fabricated preview URL or deployment status.
 
-Do not expose private `.env`, credentials, database contents or uploaded documents in commits, logs or screenshots. Keep code execution disabled until the dedicated runner is verified.
+## Milestones F–H
+
+Finish premium accessible UI integration, pagination and production performance checks; verify security, monitoring and recovery; run appropriate local tests, secret/dependency scans and CI before every commit/push. Update all status documents around actual evidence.
+
+## External configuration
+
+A real provider API credential and account model, or running Ollama; distinct reviewer models/services; a dedicated Docker runner; the actual owner crypto repository; and production identity, staging/cloud, optional private S3 and mail/calendar OAuth accounts when their integrations are implemented. GitHub authentication for this application's publication is available. Keep private .env, vault key, database, logs and user artifacts out of Git.

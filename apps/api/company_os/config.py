@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     oidc_jwks_url: str = ""
     s3_bucket: str = ""
     s3_endpoint: str = ""
+    provider_secret_key: str = ""
     login_window_seconds: int = Field(ge=10, le=3600, default=60)
     login_account_limit: int = Field(ge=1, le=100, default=10)
     login_source_limit: int = Field(ge=1, le=10000, default=100)

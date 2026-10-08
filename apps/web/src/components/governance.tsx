@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Activity, Pause, Play, ShieldCheck, Wallet } from "lucide-react";
 import { api, date, money } from "@/lib/api";
 import { Badge, Button, Empty, Panel, Pretty, useApp } from "./common";
+import { ModelEvaluation } from "./model-evaluation";
 export function Governance({ view }: { view: string }) {
   const { state, run, busy } = useApp();
   const [integrity, setIntegrity] = useState<unknown>(null);
@@ -421,6 +422,7 @@ function RunTable() {
                       <summary>Why this model</summary>
                       <p>{r.routing_reason}</p>
                       {r.error && <p className="error-text">{r.error}</p>}
+                      <ModelEvaluation runId={r.id} />
                     </details>
                   </td>
                 </tr>

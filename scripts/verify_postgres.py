@@ -7,7 +7,8 @@ from company_os.authentication import count_attempt
 from company_os.config import settings
 from company_os.db import Base, SessionLocal, engine, uid
 from company_os.finance import BudgetExceeded, reserve
-from company_os.models import AuditEvent, Budget, Organization
+from company_os.models import AuditEvent, Budget, Organization, Provider, ProviderProbe
+from company_os.provider_state import probe_for
 from company_os.security import audit, verify_audit
 from sqlalchemy import BigInteger, inspect, select, text
 from sqlalchemy.exc import DBAPIError
@@ -66,6 +67,32 @@ def verify():
         assert sorted(pool.map(increment, range(8))) == list(range(1, 9))
 
     with SessionLocal() as session:
+        provider = Provider(
+            org_id=org_id,
+            name="CI concurrent probe contract",
+            kind="openai",
+            base_url="https://api.openai.com/v1",
+            credential_env="CI_CONTRACT_API_KEY",
+        )
+        session.add(provider)
+        session.commit()
+        provider_id = provider.id
+
+    def create_probe(_):
+        with SessionLocal() as session:
+            record = probe_for(session, session.get(Provider, provider_id))
+            session.commit()
+            return record.id
+
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        assert len(set(pool.map(create_probe, range(4)))) == 1
+    with SessionLocal() as session:
+        assert (
+            len(session.scalars(select(ProviderProbe).where(ProviderProbe.provider_id == provider_id)).all())
+            == 1
+        )
+
+    with SessionLocal() as session:
         audit(session, org_id, "ci-verifier", "verification.postgres", budget_id)
         session.commit()
         assert verify_audit(session, org_id)["valid"]
@@ -83,7 +110,7 @@ def verify():
                 raise AssertionError("Database allowed audit mutation")
         assert verify_audit(session, org_id)["valid"]
     print(
-        "PostgreSQL verified: 13 BIGINT money columns, large atomic caps, concurrent login counters, append-only audit"
+        "PostgreSQL verified: 13 BIGINT money columns, large atomic caps, concurrent login counters/probe creation, append-only audit"
     )
 
 

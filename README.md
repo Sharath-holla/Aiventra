@@ -4,7 +4,7 @@ A working Next.js + FastAPI application for supervising a configurable AI workfo
 
 **This is a tested local foundation, not a finished production enterprise platform.** Read [implementation status](IMPLEMENTATION_STATUS.md) and [test evidence](TEST_REPORT.md) before enabling live integrations. The full build target is preserved in [the master brief](docs/MASTER_BUILD_PROMPT.md).
 
-The current upgrade specification is [Production engineering and premium UI](docs/PRODUCTION_UPGRADE_SPEC.md); the [previous specification](docs/AIVENTRA_MASTER_SPEC.md) is preserved. The source audit is in [AUDIT_REPORT.md](AUDIT_REPORT.md). Current milestone: Phase 2 Premium UI Foundation; next phase: Phase 3 Real AI Runtime. Repository: [Sharath-holla/Aiventra](https://github.com/Sharath-holla/Aiventra).
+The current specification is [Phases 2–5](docs/PHASES_2_5_SPEC.md). Both earlier briefs and [the previous production roadmap](docs/PRODUCTION_UPGRADE_SPEC.md) are preserved. Current increment: Milestone A workforce/provider foundation; Phase 2 remains partial. See [source audit](AUDIT_REPORT.md) and [gap analysis](docs/PHASES_2_5_GAP_ANALYSIS.md). Repository: [Sharath-holla/Aiventra](https://github.com/Sharath-holla/Aiventra).
 
 ## Start on Windows 11
 
@@ -63,13 +63,13 @@ Attach small UTF-8 `.txt`, `.md`, `.csv` or `.json` files (16 KB each, four per 
 
 Choose **Start consultation** to invoke the existing specialist flow. Its review button opens the exact requirement; versioned approval opens the exact persistent project with dependent planning tasks. The separate **Company commands** view retains the earlier bounded operations interface. Theme/sidebar preferences persist locally.
 
-## Executive chat
+## Provider and agent operations
 
-The default workspace saves real conversations and connects questions to the separate worker. **Live AI** is the default and waits for an eligible configured provider. Choose **Local fixture** explicitly for an offline example; fixture output never claims live inference. Inspect actual workflow/model/cost evidence below each turn.
+In Models & providers, store a write-only encrypted key or use a dedicated environment reference, test the real account catalog and configure documented model capabilities/prices. A catalog identifier is not inference proof. Registered models can run an explicit owner-capped inference test; unavailable models wait durably. Bootstrap creates the independent private PROVIDER_SECRET_KEY needed for vault storage.
 
-Attach small UTF-8 `.txt`, `.md`, `.csv` or `.json` files (16 KB each, four per turn). Preview their saved content/hash, search recent conversations and reopen their URLs after reload/restart. SSE streams saved workflow state; provider token streaming and rich PDF/image ingestion are pending. Stop cancels publication of the response; in-flight paid usage may still be charged.
+Employee/provider/project preferences and allowed-model lists preserve mandatory routing/security/budget filters. Inspect saved runs and optionally record an owner quality evaluation with evidence. Workforce cards show persisted invocation state/history, not activity inferred from enabled roles.
 
-Choose **Start consultation** to invoke the existing specialist flow. Its review button opens the exact requirement; versioned approval opens the exact persistent project with dependent planning tasks. The separate **Company commands** view retains the earlier bounded operations interface. Theme/sidebar preferences persist locally.
+Meetings & messages can queue a scoped artifact task or a bounded 2–8 participant meeting for an approved active project. First-round contributions are independent; optional document follow-ups share the original cap. Fixture output is labeled. Cancellation blocks late publication while in-flight usage can remain charged.
 
 ## What works
 
@@ -81,11 +81,11 @@ Choose **Start consultation** to invoke the existing specialist flow. Its review
 - Exact proposal hash/version approval, project creation, dependent planning tasks and saved artifacts.
 - Owner-assigned specialist document work and permission-scoped project keyword memory.
 - Durable separate worker, atomic job claims, checkpoints, failure bounds, owner notifications and uncertain-paid-call reconciliation.
-- Configurable adapters for OpenAI Responses, Anthropic Messages, Gemini, Ollama and compatible chat-completion endpoints. No live model IDs or prices are invented or preloaded.
+- Configurable adapters for OpenAI Responses, Anthropic Messages, Gemini, xAI, Ollama and compatible chat-completion endpoints. No live model IDs or prices are invented or preloaded.
 - Capability, quality, sensitivity, context, freshness and availability routing filters; bounded fallback; atomic company/project/task/conversation/turn/agent/model/day/month spending reservations.
 - Read-only local repository discovery, approved isolated Git worktrees, structured file patches, independent reviewer boundary and restricted container QA implementation.
 - Failed/empty baseline blocking, one/two review passes, owner-approved model/provider diversity policy and persisted achieved-diversity evidence.
-- Company/project/agent/provider controls, independent watchdog, messages, meetings, audit chain with database mutation guards.
+- Company/project/agent/provider controls, independent watchdog, durable dispatched messages/bounded meetings, ordered agent state history and audit chain with database mutation guards.
 - Persistent CRM, client, support, knowledge, incident and email/calendar/campaign **draft** records.
 - Responsive dashboard, directory/hierarchy, executive commands, consultation/approval, project board/timeline, engineering evidence, finance, providers, records and audit interfaces.
 

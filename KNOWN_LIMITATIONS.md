@@ -1,15 +1,16 @@
 # Known limitations
 
-The current phase is Production Foundation; the full master specification is incomplete. [Implementation status](IMPLEMENTATION_STATUS.md), [audit](AUDIT_REPORT.md) and [next steps](NEXT_STEPS.md) distinguish actual code from verification gaps.
+Current work follows [Phases 2–5](docs/PHASES_2_5_SPEC.md): Milestone A core increment; the wider four-phase request is incomplete. See IMPLEMENTATION_STATUS.md and TEST_REPORT.md for implementation and evidence.
 
-- PostgreSQL/Compose startup and browser integration passed in ephemeral remote CI. Local Docker, live providers, object storage, browser OIDC, dedicated coding sandbox, staging/rollback, cluster deployment and actual crypto repository behavior remain unverified.
-- Monetary fields use PostgreSQL BIGINT and SQLite's native 64-bit INTEGER. Large-balance preservation and PostgreSQL concurrent cap/login/audit contracts passed on `ca51145`; production load, distributed failures and restore behavior remain unverified.
-- Worker readiness means a recently alive process, not a certified healthy model/runner. Provider readiness means configuration exists, not successful API access.
-- No semantic pgvector indexing, general durable message bus, measured model benchmarks, full retention/erasure controls or distributed orchestration certification.
-- Fixed planning tasks and specialist artifacts do not implement dynamic workforce allocation or final client delivery. Document completion verifies saved structure/integrity, not semantic accuracy.
-- Coding supports Python/Node built-in tests. Dependency installation, autonomous repairs, coverage, security/PM acceptance, commits/PR merging and deployments remain future work. Strict two-review diversity can require three distinct services/models (author plus reviewers); the system waits if configuration cannot satisfy it.
-- OIDC upstream token/session logout remains the identity provider's responsibility; browser OIDC is absent. Client invitation/account management and review/delivery portals remain incomplete. No public registration is intended.
-- Source throttling is currently shared behind the Next.js proxy; session/throttle/heartbeat retention and trusted edge client-source handling remain operational work.
-- UI is an incremental light workspace, not the requested Phase 8 dark conversation design. Snapshot collections remain capped at 300.
+- No live provider account or Ollama inference was verified locally. Stored credentials, catalog access and actual successful inference are separate facts. Consumer subscriptions do not establish API access.
+- Provider-native streaming/tools and automatic capability/benchmark probes remain incomplete. SSE streams saved workflow state. Owner quality scores do not certify semantic correctness.
+- Durable messages and bounded meetings now execute through the worker; broader autonomous delegation, lifecycle retention, dead letters and distributed-load certification remain pending.
+- Semantic indexing, layered memory, provenance/version/erasure controls and requirements-based approved team allocation remain missing.
+- Fixed planning tasks and saved documents do not establish completed software, client delivery or acceptance.
+- Restricted coding runner implementation exists, but Docker is absent locally and actual generated-code runner evidence is pending. Repair, richer QA, Git commits/PR merging and staging/rollback are incomplete. Strict two-review diversity can require author plus two distinct services/models.
+- Client invitation/account management, scoped delivery portal, browser OIDC, OAuth mail/calendar and actual sending are incomplete. Public registration is not intended.
+- Upstream OIDC logout, trusted edge client addresses, session/heartbeat retention, production restores and hostile multi-tenant isolation need further work.
+- The UI has a dark/light shell and connected controls. Comprehensive accessibility/performance certification is pending; legacy snapshot collections remain capped at 300. Dashboard redaction/aggregation has been improved, but full pagination is still required.
+- Vault keys must be preserved independently with private backups. Master-key rotation/managed secret stores are not implemented. Environment fallback remains active when a stored credential is removed and is reported explicitly.
 
-No production readiness, verified live AI collaboration, successful container QA, deployment or trading action is claimed.
+No production readiness, live cross-model collaboration, verified staging deployment, crypto integration or trading action is claimed.

@@ -1,55 +1,38 @@
 # Implementation status
 
-Updated October 8, 2026. The current roadmap is [PRODUCTION_UPGRADE_SPEC.md](docs/PRODUCTION_UPGRADE_SPEC.md), supplied in the latest request. It supersedes the implementation order in the preserved [previous specification](docs/AIVENTRA_MASTER_SPEC.md) and [original brief](docs/MASTER_BUILD_PROMPT.md). Phase numbers below refer to the latest roadmap.
+Updated October 9, 2026. The authoritative request is [Phases 2–5](docs/PHASES_2_5_SPEC.md). Earlier roadmap phase numbers are historical. The audit began on clean `master` at `ae10711`; the previous tested application source was `4de41f5`.
 
-**Phase 2 — Premium UI Foundation: verified and published conversation milestone. Next implementation phase: Phase 3 — Real AI Runtime.** The wider UI redesign in Part 2 and Phase 9 remains incomplete. This application is not production-certified.
+**Current increment: Milestone A — Phase 2 workforce/provider foundation. Phase 2 is partially implemented; Phases 3–5 are not complete.** This increment adds real backend and UI functionality without certifying live AI or production deployment.
 
-## Functionality added in this increment
+## Implemented in this increment
 
-- Dark default design tokens, optional persistent light theme, reusable surfaces/forms/status styling, collapsible desktop sidebar, mobile navigation, recent conversations, company search shortcut and default CEO workspace. Existing connected operational views are retained.
-- Persisted, organization-scoped owner conversations and ordered turns, live mode by default, UUID request deduplication, optimistic concurrency, actual worker dispatch and fenced cancellation. Reload and server restarts preserve history; a cancellation cannot publish a delayed provider answer.
-- Read-only CEO answers call the existing real model gateway with scoped project memory, prior turns and explicitly attached documents. Company/project/agent/model/period caps remain enforced; conversation and per-turn caps are added. Missing credentials/models persist a truthful provider wait without a fabricated answer, paid run or reservation.
-- Server-sent events deliver actual persisted snapshots, with heartbeat/reconnect and polling recovery. They recheck identity, expiry and session revocation. This is **workflow-state streaming**, not token-by-token provider streaming; the latter remains a Phase 3 task.
-- Actual private UTF-8 document uploads, integrity hashes and a keyboard-accessible preview. Supported types: `.txt`, `.md`, `.csv`, `.json`, maximum 16 KB, four documents per message and 20 per conversation. PDF/image/repository URL ingestion is not implemented here.
-- Markdown responses with tables/code blocks, safe links, copy, explicit resubmission, real model/run/cost details, bounded recovery controls and visible loading/wait/error/cancel states. No fabricated active workforce or simulated word streaming.
-- An explicit consultation action stages the existing seven-step specialist workflow atomically. Uploaded text feeds scoped consultation evidence. The conversation opens its exact requirement/proposal; existing version/hash approval opens the exact resulting project with four dependent planning tasks. This reuses working consultation/approval modules.
-- Paginated conversation history (50 per page), search and durable URL links. Snapshots expose the latest 100 turns and their total count; navigation to earlier turns within a conversation is pending.
-- Additive conversation migration `771bb4c719ce`, retaining populated SQLite data and audit protection; PostgreSQL conversation cap uses BIGINT (13 monetary columns total).
-- CI now checks migration formatting and compares conversation/document digests across actual API/worker/web container restarts. Local restart comparison also checks private file integrity. All four remote CI jobs passed on `4de41f5`, including seven browser tests against real Compose/PostgreSQL and identical conversation/document digests after API/worker/web container restarts. Details are in TEST_REPORT.md.
+- AES-GCM provider credential vault with an independent 32-byte key, tenant/provider/version-bound authenticated encryption, write-only owner API, replacement and revocation. Environment fallback and vault availability are reported separately. No ciphertext or saved key is returned in application state.
+- Read-only, bounded account model discovery for OpenAI, Anthropic, Gemini, xAI, Ollama and explicitly allowed compatible endpoints. Catalog checks persist success/failure/time and account identifiers; capability/quality/pricing assertions are not inferred from a model name. Credential rotation invalidates an in-flight catalog check.
+- Explicit owner-capped durable inference probes using the real gateway and an exact registered model. Successful structured inference is recorded separately from catalog connectivity. Missing eligible models wait without a paid call or reservation. No live account was verified during local development.
+- Optimistic, organization-scoped employee/provider/project model preferences and intersecting allowlists. Manual probe/job overrides preserve capabilities, quality, sensitivity, context, fresh price evidence, independent review and every spend cap. Unaffordable preferences can fall back to cheaper qualified candidates without making an unaffordable call.
+- Task-specific owner evaluations tied to successful real-provider run records, evaluator identity and notes. Their averages and recorded latency inform routing. This is not an automatic benchmark certification.
+- Persisted agent invocation states, validated transitions and ordered event history. RUNNING requires an actual durable call marker; expired/revoked work is shown as blocked. Runtime totals are actual SQL aggregates. Registered roles remain on-demand, with fixture/live mode explicit.
+- Owner-directed, scoped durable agent messages with UUID request deduplication, artifact boundary checks, correlation IDs and a two-hop reply bound. A recipient model produces a saved artifact before acknowledgement and a recorded response. Response messages do not recursively start more inference.
+- General project meetings with 2–8 selected agents, 1–2 rounds and a bounded CEO synthesis. First-round participants receive the same saved project evidence without earlier verdicts; round two can inspect round one. Decisions persist and optional document follow-ups share the original job cap. Model output cannot create coding or deployment authority.
+- Fenced cancellation for agent work. Late provider usage remains charged/recorded; cancelled output cannot publish an artifact or acknowledgement. Company/project/employee permissions are rechecked around inference.
+- Connected provider key/discovery/default/restriction/probe controls, employee runtime/history/preferences, message/meeting forms, job results/cancellation and human evaluations. Retry of the same unresolved form submission retains its request ID.
+- Additive migration `b02442d39feb`, retaining existing data and 13 monetary BIGINT columns. A private pre-migration SQLite backup was created. Dashboard redaction now reuses one secret snapshot per value tree, and runtime statistics avoid loading full model outputs.
 
-Fixture answers remain **explicitly selected local fixtures**, show no live inference, and carry no fabricated billing. The consultation coordinator acknowledgement is a deterministic saved-workflow acknowledgement; specialist model work appears separately.
+## Verification and limits
 
-## Source and verification baseline
+See [TEST_REPORT.md](TEST_REPORT.md) for exact final counts, repaired failures and CI evidence. Controlled HTTP adapters and explicit fixtures test contracts; they do not establish live provider access. The local app was migrated and schema drift checked. Docker and Ollama remain unavailable on this Windows host.
 
-The clean local and remote starting commit was `b9e43cf` on `master`; source milestone `ca51145` previously passed all four CI jobs, 66 backend tests and three real Compose/PostgreSQL browser tests. This turn reran those 66 backend/three browser tests before editing. Earlier completed session/throttle/readiness/provider-wait/review-diversity/BIGINT repairs remain intact. Current source **`4de41f57c3d0c999a98a9f453ded8f368dc29443`** was pushed normally to `origin/master`; local/remote SHA matched. [All four CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/37818487850): 81 Linux backend tests, seven real Compose/PostgreSQL browser tests, 13 BIGINT monetary columns, atomic finance/login/audit contracts and actual container restart persistence. Current evidence and repaired failures are in TEST_REPORT.md.
+Provider-native token streaming, native tool-call adapters/dispatch, model-specific automatic capability/benchmark probes, broader tool registry/templates, comprehensive recovery/load certification and lifecycle retention remain Phase 2 work. Existing workflow SSE streams committed snapshots. Job bodies and responses remain bounded; general autonomous delegation is not enabled.
 
-## Latest phase coverage
+## Remaining milestones
 
-| Phase | Current implementation and limits |
+| Milestone | Actual state |
 |---|---|
-| 1 — Audit and stabilization | Required documents, Git and actual source inspected; prior tests rerun; existing modules retained. Broader production security/operations are pending |
-| 2 — Premium UI foundation | Design system, shell, primary CEO chat, navigation and real-state connections implemented in this milestone. Full-screen redesign belongs to Phase 9; provider token streaming remains pending |
-| 3 — Real AI runtime | Five HTTP adapters, real bounded gateway/worker and configuration-aware waits exist. Connection tests/model discovery, capability probes and capped live inference are next; no live provider verified |
-| 4 — Intelligent routing | Filtering, ordering, fallback and atomic usage/caps exist. Measured benchmarks, configurable scoring and invoice reconciliation pending |
-| 5 — Persistent memory | Scoped keyword project memory, conversation history and text context persist. Semantic indexing, retention/version lifecycle and earlier-turn retrieval pending |
-| 6 — Orchestration | Database leases/checkpoints, bounded specialist meetings, dependencies, watchdog and owner controls exist. General message delivery, dynamic delegation and Temporal/distributed operations pending |
-| 7 — Consulting/workforce | Saved consulting, exact approvals and fixed assigned planning tasks work with fixtures. Dynamic approved staffing, live research quality and client portal incomplete |
-| 8 — Coding/QA | Real Git discovery/worktrees/diffs and independent review policies exist. Dedicated runner/live coding, repair, security/PM acceptance and delivery remain unverified/incomplete |
-| 9 — Full UI integration | Connected legacy operational views inherit the design tokens. Full workforce/organization/project/provider interaction redesign and accessibility audit pending |
-| 10 — DevOps/security | Local and ephemeral remote Compose contracts exist. Browser OIDC, trusted proxy limits, hardened runner, restore/load drills, managed secrets and external monitoring pending |
-| 11 — End-to-end delivery | No live coding/deployment/client acceptance completed. Actual owner crypto repository is still required |
-| 12 — Publication | Ordinary authenticated pushes are authorized. This source milestone is published with passing CI; final product acceptance is not achieved |
+| A — Phase 2 | Core vault/catalog/routing/runtime/messages/meetings implemented; 98 backend and nine browser checks passed locally. Remote verification is recorded in TEST_REPORT.md. Live verification and remaining adapter/tool work pending |
+| B — Phase 3 memory | Scoped keyword memory and saved conversation/artifact history exist; semantic embeddings/indexing, layered memory, version/provenance/retention still missing |
+| C — Phase 3 workforce | Registered roles and fixed approved planning tasks exist; requirements-based team plans, staffing approval and distributed scheduling still missing |
+| D — Phase 4 coding | Approved Git worktrees, actual patch/diff workflow and restricted runner implementation exist; Docker runner evidence, bounded repair, commits/PR/merge lifecycle and broader QA incomplete |
+| E — Phase 5 delivery | Real intake, consultation, proposal and exact approval exist; complete engineering/final review/delivery/client acceptance incomplete |
+| F–H | Dark/light shell and several connected screens exist. Full UX integration, production certification and publication of later milestones remain pending |
 
-## Operational boundaries
-
-- SQLite remains a trusted local development database; PostgreSQL is used by remote integration CI. A passing disposable stack is not a production restore/load certificate.
-- Existing 16 departments/136 seeded roles are registry entries. Agent availability, workflow status and recorded runs are shown as separate facts; registration does not mean agents are actively working.
-- The CEO advisory route has no tool execution. Consultation and approved planning produce documented artifacts, not completed software. Generated/repository code must run only through the restricted runner.
-- Provider configuration is not connectivity verification. Live prices/identifiers are owner-configured, token costs are estimates, and no real account billing has been checked.
-- Public registration remains intentionally absent. Owner credentials are in private `.env`; invitation provisioning and full client project/proposal/delivery access remain pending.
-- Most legacy snapshot collections are capped at 300. Conversation list pagination is implemented, but company-wide pagination/load performance and cross-tab updates are not certified.
-- Deployment is rejected until an approved connector exists. OAuth mail/calendar, actual sending, S3 account verification, semantic memory, actual crypto tests and production backup/restore remain external or unfinished.
-
-## Local handoff
-
-Use `scripts/start.ps1` / `scripts/stop.ps1`; both preserve private data. The current default page is Executive chat; the previous bounded operations interface remains under Company commands. Select Local fixture explicitly for offline demonstrations; Live AI waits until an eligible real model is configured. Browser tests create clearly labeled persistent fixture conversations/projects. No user repository has been reset or modified by generated code.
+[Gap analysis](docs/PHASES_2_5_GAP_ANALYSIS.md) preserves the audit classification before this increment. Historical evidence remains in TEST_REPORT.md and Git history. No crypto repository, live cross-model collaboration, completed client software delivery or staging deployment is claimed.

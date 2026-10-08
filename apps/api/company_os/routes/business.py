@@ -129,6 +129,15 @@ def acknowledge_message(
     record_id: str, user: m.User = Depends(owner), session: Session = Depends(session_dependency)
 ):
     message = scoped(session, m.Message, record_id, user)
+    work = session.scalar(
+        select(m.AgentWork).where(
+            m.AgentWork.org_id == user.org_id,
+            m.AgentWork.subject_id == message.id,
+            m.AgentWork.kind == "message",
+        )
+    )
+    if work and session.get(m.Workflow, work.workflow_id).status != "completed":
+        raise HTTPException(409, "The recipient workflow must complete before acknowledgement")
     message.status, message.acknowledged_at = "acknowledged", now()
     audit(session, user.org_id, user.id, "message.acknowledged", message.id)
     session.commit()

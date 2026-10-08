@@ -1,6 +1,6 @@
 # Aiventra OS architecture
 
-The FastAPI/Next.js modular monolith is retained. [Detailed boundaries and diagrams](docs/architecture.md) describe the implementation. The authoritative roadmap is now [PRODUCTION_UPGRADE_SPEC.md](docs/PRODUCTION_UPGRADE_SPEC.md); both earlier specifications remain preserved.
+The FastAPI/Next.js modular monolith is retained. [Detailed boundaries and diagrams](docs/architecture.md) describe the implementation. The authoritative roadmap is now [PHASES_2_5_SPEC.md](docs/PHASES_2_5_SPEC.md); both earlier specifications remain preserved.
 
 The API owns authenticated, organization/client/project-scoped mutations. A separate worker owns durable database workflows, real model calls and restricted runner requests. SQLAlchemy/Alembic hold authoritative state; SQLite is verified locally and PostgreSQL/Compose is exercised in ephemeral CI. Monetary quantities use 64-bit storage. Private files plus database content hold artifacts. Generated code never executes directly in API/worker hosts.
 
@@ -12,4 +12,8 @@ Server-sent events transmit committed snapshot changes and heartbeats through th
 
 Design tokens support dark/light themes across preserved operational views. The shell provides persistent desktop collapse, mobile navigation, recent conversations and exact record deep links. Markdown rendering disables raw HTML and external image loads. No third-party font service is needed.
 
-Latest Phase 2 UI foundation milestone is implemented; the next phase is Phase 3 real provider runtime/verification. Full UI integration, semantic memory, general message dispatch, measured benchmarks, dynamic workforce planning, dedicated runner evidence, production deployment and final client delivery remain incomplete. See IMPLEMENTATION_STATUS.md, AUDIT_REPORT.md and TEST_REPORT.md.
+Milestone A adds encrypted provider credentials and separate catalog/inference evidence, scoped model policies/evaluations, durable agent work and ordered invocation-state events. The existing gateway, financial ledger, worker leases/checkpoints, approvals and artifact storage remain authoritative. Message/meeting follow-ups are bounded server operations, not arbitrary model tool execution. A job cap overlaps all participants and optional document follow-ups.
+
+A credential rotation invalidates connection evidence; cancelled work revokes its lease and suppresses late publication while preserving usage. Provider catalogs never infer undocumented capabilities/prices. Runtime statistics aggregate recorded runs in SQL, and recursive redaction snapshots environment secrets once per value tree. The additive migration preserves existing records and audit guards.
+
+The authoritative phase numbers now refer to the Phases 2–5 specification. Phase 2 remains partial; semantic memory, dynamic staffing, complete engineering and client delivery are still unfinished. Historical UI milestone evidence remains in TEST_REPORT.md and Git history.
