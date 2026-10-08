@@ -1,0 +1,254 @@
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import Field
+from sqlalchemy import update
+from sqlalchemy.orm import Session
+
+from .. import models as m
+from ..api_common import serialize
+from ..db import now, session_dependency, uid
+from ..organization import agent_for
+from ..repositories import discover, safe_repository
+from ..schemas import (
+    CodingTaskInput,
+    Strict,
+)
+from ..security import (
+    audit,
+    clean,
+    current_user,
+    digest,
+    owner,
+    scoped,
+)
+
+router = APIRouter()
+
+
+class SpecialistTaskInput(Strict):
+    agent_id: str
+    objective: str = Field(min_length=10, max_length=10000)
+    acceptance: list[str] = Field(min_length=1, max_length=20)
+    mode: str = Field(pattern="^(mock|live)$", default="live")
+    budget_micro: int = Field(ge=0, le=10**10, default=500000)
+
+
+@router.post("/projects/{record_id}/tasks", status_code=201)
+def specialist_task(
+    record_id: str,
+    data: SpecialistTaskInput,
+    user: m.User = Depends(owner),
+    session: Session = Depends(session_dependency),
+):
+    project = scoped(session, m.Project, record_id, user)
+    agent = scoped(session, m.Agent, data.agent_id, user)
+    from ..security import check_agent
+    from ..workflows import project_authority
+
+    try:
+        project_authority(session, project)
+        check_agent(session, agent, "write_artifact", project)
+    except PermissionError as exc:
+        raise HTTPException(403, str(exc)) from None
+    task = m.Task(
+        id=uid(),
+        org_id=user.org_id,
+        project_id=project.id,
+        assigned_agent_id=agent.id,
+        objective=clean(data.objective),
+        acceptance=clean(data.acceptance),
+        kind="document",
+        payload={"mode": data.mode},
+        budget_micro=data.budget_micro,
+    )
+    session.add(task)
+    session.add(m.Budget(org_id=user.org_id, scope=f"task:{task.id}", limit_micro=data.budget_micro))
+    audit(
+        session,
+        user.org_id,
+        user.id,
+        "specialist.task_assigned",
+        task.id,
+        {"agent": agent.id},
+        project_id=project.id,
+        task_id=task.id,
+    )
+    session.commit()
+    return serialize(task)
+
+
+@router.post("/tasks/{record_id}/cancel")
+def cancel_task(
+    record_id: str, user: m.User = Depends(owner), session: Session = Depends(session_dependency)
+):
+    task = scoped(session, m.Task, record_id, user)
+    task.status = "cancelled"
+    session.execute(
+        update(m.Workflow).where(m.Workflow.task_id == task.id).values(status="cancelled", lease_token=uid())
+    )
+    audit(
+        session, user.org_id, user.id, "task.cancelled", task.id, project_id=task.project_id, task_id=task.id
+    )
+    session.commit()
+    return serialize(task)
+
+
+class RepositoryInput(Strict):
+    project_id: str
+    name: str = Field(min_length=1, max_length=200)
+    relative_path: str = Field(min_length=1, max_length=500)
+
+
+@router.post("/repositories", status_code=201)
+def import_repository(
+    data: RepositoryInput, user: m.User = Depends(owner), session: Session = Depends(session_dependency)
+):
+    scoped(session, m.Project, data.project_id, user)
+    try:
+        path = safe_repository(data.relative_path)
+        report = discover(path)
+    except (ValueError, PermissionError) as exc:
+        raise HTTPException(422, str(exc)) from None
+    repository = m.Repository(
+        id=uid(),
+        org_id=user.org_id,
+        project_id=data.project_id,
+        name=data.name,
+        path=str(path),
+        report=report,
+        baseline_commit=report["baseline_commit"],
+    )
+    session.add(repository)
+    audit(
+        session,
+        user.org_id,
+        user.id,
+        "repository.discovered",
+        repository.id,
+        {"read_only": True},
+        project_id=data.project_id,
+    )
+    session.commit()
+    return serialize(repository)
+
+
+@router.post("/projects/{record_id}/coding", status_code=201)
+def coding_task(
+    record_id: str,
+    data: CodingTaskInput,
+    user: m.User = Depends(owner),
+    session: Session = Depends(session_dependency),
+):
+    project = scoped(session, m.Project, record_id, user)
+    repository = scoped(session, m.Repository, data.repository_id, user)
+    if repository.project_id != project.id:
+        raise HTTPException(422, "Repository belongs to a different project")
+    task = m.Task(
+        id=uid(),
+        org_id=user.org_id,
+        project_id=project.id,
+        assigned_agent_id=agent_for(session, user.org_id, "Backend Developer").id,
+        objective=data.objective,
+        acceptance=data.acceptance,
+        kind="coding",
+        status="awaiting_approval",
+        payload={
+            "repository_id": repository.id,
+            "baseline_commit": repository.baseline_commit,
+            "objective": data.objective,
+            "test_suite": data.test_suite,
+            "mode": data.mode,
+            "review_policy": data.review_policy,
+            "review_count": data.review_count,
+        },
+        budget_micro=data.budget_micro,
+    )
+    session.add(task)
+    session.add(m.Budget(org_id=user.org_id, scope=f"task:{task.id}", limit_micro=data.budget_micro))
+    audit(session, user.org_id, user.id, "coding.requested", task.id, project_id=project.id, task_id=task.id)
+    session.commit()
+    return {**serialize(task), "approval_hash": digest(task.payload)}
+
+
+class HashApproval(Strict):
+    content_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
+
+
+@router.post("/tasks/{record_id}/approve")
+def approve_coding(
+    record_id: str,
+    data: HashApproval,
+    user: m.User = Depends(owner),
+    session: Session = Depends(session_dependency),
+):
+    task = scoped(session, m.Task, record_id, user)
+    if (
+        task.kind != "coding"
+        or task.status != "awaiting_approval"
+        or data.content_hash != digest(task.payload)
+    ):
+        raise HTTPException(409, "Invalid or stale coding scope")
+    approval = m.Approval(
+        id=uid(),
+        org_id=user.org_id,
+        category="repository_change",
+        subject_id=task.id,
+        subject_hash=data.content_hash,
+        version=task.version,
+        owner_id=user.id,
+        expires_at=now() + 604800,
+    )
+    session.add(approval)
+    task.status = "in_progress"
+    session.add(m.Workflow(org_id=user.org_id, task_id=task.id, kind="coding", mode=task.payload["mode"]))
+    audit(
+        session,
+        user.org_id,
+        user.id,
+        "coding.approved",
+        task.id,
+        project_id=task.project_id,
+        task_id=task.id,
+        authorization=f"approval:{approval.id}",
+    )
+    session.commit()
+    return serialize(task)
+
+
+@router.get("/artifacts/{record_id}")
+def artifact_detail(
+    record_id: str, user: m.User = Depends(current_user), session: Session = Depends(session_dependency)
+):
+    artifact = scoped(session, m.Artifact, record_id, user)
+    if user.role != "owner" and not artifact.project_id:
+        raise HTTPException(404, "Artifact not found")
+    return serialize(artifact)
+
+
+@router.post("/projects/{record_id}/deploy")
+def deploy(
+    record_id: str, user: m.User = Depends(current_user), session: Session = Depends(session_dependency)
+):
+    project = scoped(session, m.Project, record_id, user)
+    audit(
+        session,
+        user.org_id,
+        user.id,
+        "deployment.denied",
+        project.id,
+        {"reason": "No verified deployment connector and environment approval"},
+        project_id=project.id,
+        authorization="policy rejection",
+    )
+    session.add(
+        m.Notification(
+            org_id=user.org_id,
+            severity="warning",
+            title="Deployment blocked: connector and environment approval required",
+            subject_id=project.id,
+        )
+    )
+    session.commit()
+    raise HTTPException(
+        403,
+        "Deployment requires a configured connector, verified QA evidence and environment-specific owner approval",
+    )

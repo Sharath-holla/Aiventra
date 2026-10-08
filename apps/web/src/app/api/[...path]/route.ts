@@ -1,0 +1,83 @@
+import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
+
+const base = process.env.API_INTERNAL_URL || "http://127.0.0.1:8000";
+async function proxy(
+  request: NextRequest,
+  context: { params: Promise<{ path: string[] }> },
+) {
+  const { path } = await context.params;
+  if (path.some((segment) => !/^[a-zA-Z0-9_-]+$/.test(segment)))
+    return NextResponse.json({ detail: "Invalid path" }, { status: 400 });
+  if (request.method !== "GET") {
+    const origin = request.headers.get("origin");
+    const expected = process.env.WEB_ORIGIN || "http://localhost:3000";
+    const allowed =
+      origin === expected ||
+      (process.env.NODE_ENV !== "production" &&
+        origin === "http://127.0.0.1:3000");
+    if (!allowed)
+      return NextResponse.json({ detail: "Origin rejected" }, { status: 403 });
+  }
+  const jar = await cookies();
+  const endpoint = path.join("/");
+  const token = jar.get("company-session")?.value;
+  const headers: Record<string, string> = {};
+  const contentType = request.headers.get("content-type");
+  if (contentType) headers["Content-Type"] = contentType;
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const suppliedId = request.headers.get("x-request-id") || "";
+  headers["X-Request-ID"] = /^[A-Za-z0-9_-]{8,64}$/.test(suppliedId)
+    ? suppliedId
+    : crypto.randomUUID();
+  try {
+    const response = await fetch(
+      `${base}/${endpoint}${request.nextUrl.search}`,
+      {
+        method: request.method,
+        headers,
+        body:
+          request.method === "GET" ? undefined : await request.arrayBuffer(),
+        cache: "no-store",
+        signal: AbortSignal.timeout(30000),
+      },
+    );
+    const body = await response.json();
+    const responseHeaders = {
+      "X-Request-ID":
+        response.headers.get("x-request-id") || headers["X-Request-ID"],
+    };
+    if (
+      endpoint === "auth/logout" &&
+      (response.ok || response.status === 401)
+    ) {
+      jar.delete("company-session");
+      return NextResponse.json({ ok: true }, { headers: responseHeaders });
+    }
+    if (endpoint === "auth/login" && response.ok) {
+      jar.set("company-session", body.access_token, {
+        httpOnly: true,
+        sameSite: "strict",
+        secure: process.env.COOKIE_SECURE === "true",
+        path: "/",
+        maxAge: 3600,
+      });
+      return NextResponse.json(
+        { user: body.user },
+        { headers: responseHeaders },
+      );
+    }
+    return NextResponse.json(body, {
+      status: response.status,
+      headers: responseHeaders,
+    });
+  } catch {
+    return NextResponse.json(
+      { detail: "Backend unavailable. Start the API and check its health." },
+      { status: 503 },
+    );
+  }
+}
+export const GET = proxy;
+export const POST = proxy;
+export const PATCH = proxy;
