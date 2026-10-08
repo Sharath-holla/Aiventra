@@ -16,11 +16,13 @@ The clean starting source was local/remote `b9e43cf`, preserving the previously 
 | Local restart | API/worker/web stopped and restarted; byte-identical conversation/message/workflow/document digest observed. Document DB hashes verified; subsequent recovery check also verifies private UTF-8 files |
 | Visual review | Actual desktop 1440px, laptop 1280px, mobile 390px chat captures plus connected project/old dashboard reviewed; private screenshots remain ignored under artifacts/ |
 | Publication secret scan | **288 blobs checked, 0 findings** before the source commit; private data/artifacts remain ignored |
-| Remote verification | New source commit and CI run pending publication; no new Docker/PostgreSQL passing claim yet |
+| Remote verification | Source **`4de41f57c3d0c999a98a9f453ded8f368dc29443`**, [Actions run 37818487850](https://github.com/Sharath-holla/Aiventra/actions/runs/37818487850): **all four jobs passed**, 81 Linux backend checks in 42.07 seconds, **seven browser checks in 26.2 seconds**, real Compose/PostgreSQL migrations and 13 BIGINT monetary/cap/login/audit contracts |
 
 Two browser failures found a missing accessible mode label and a saved-URL race behind a slower company-state refresh. The label and navigation sequence were repaired. Subsequent local startup/reload checks exceeded Playwright's default five-second expectation with accumulated real records, so asynchronous UI expectations now allow 15 seconds; the complete seven-test rerun passes. Expanded migration lint/format exposed generated legacy import/format issues; formatting-only repairs pass. No tests were removed, assertions replaced with fake responses, or live outcomes invented.
 
-Fixtures/control adapters in backend and browser tests are explicit. No real AI provider inference or account billing was verified. SSE coverage establishes real saved-state updates, not provider-token streaming. Container restart comparisons are defined in CI and require a successful actual run before being reported as passed. Full company pagination/load, dedicated coding-runner containment, semantic memory, client delivery, S3/OIDC/OAuth and staging/production remain unverified or incomplete.
+Fixtures/control adapters in backend and browser tests are explicit. No real AI provider inference or account billing was verified. SSE coverage establishes real saved-state updates, not provider-token streaming. The actual container restart comparison passed: three saved conversations/turns and one private uploaded document had identical digests before/after API/worker/web restart, with readiness restored. This is persistence evidence, not a production backup/restore drill. Full company pagination/load, dedicated coding-runner containment, semantic memory, client delivery, S3/OIDC/OAuth and staging/production remain unverified or incomplete.
+
+Source was committed and pushed normally; `git ls-remote` confirmed its exact SHA. A documentation-only follow-up records final CI evidence without changing tested application code.
 
 All sections below preserve historical verification milestones; their old phase labels/source SHAs are not the latest increment.
 

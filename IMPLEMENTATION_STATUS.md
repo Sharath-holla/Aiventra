@@ -2,7 +2,7 @@
 
 Updated October 8, 2026. The current roadmap is [PRODUCTION_UPGRADE_SPEC.md](docs/PRODUCTION_UPGRADE_SPEC.md), supplied in the latest request. It supersedes the implementation order in the preserved [previous specification](docs/AIVENTRA_MASTER_SPEC.md) and [original brief](docs/MASTER_BUILD_PROMPT.md). Phase numbers below refer to the latest roadmap.
 
-**Phase 2 — Premium UI Foundation: implemented conversation milestone; final verification/publication in progress. Next implementation phase: Phase 3 — Real AI Runtime.** The wider UI redesign in Part 2 and Phase 9 remains incomplete. This application is not production-certified.
+**Phase 2 — Premium UI Foundation: verified and published conversation milestone. Next implementation phase: Phase 3 — Real AI Runtime.** The wider UI redesign in Part 2 and Phase 9 remains incomplete. This application is not production-certified.
 
 ## Functionality added in this increment
 
@@ -15,13 +15,13 @@ Updated October 8, 2026. The current roadmap is [PRODUCTION_UPGRADE_SPEC.md](doc
 - An explicit consultation action stages the existing seven-step specialist workflow atomically. Uploaded text feeds scoped consultation evidence. The conversation opens its exact requirement/proposal; existing version/hash approval opens the exact resulting project with four dependent planning tasks. This reuses working consultation/approval modules.
 - Paginated conversation history (50 per page), search and durable URL links. Snapshots expose the latest 100 turns and their total count; navigation to earlier turns within a conversation is pending.
 - Additive conversation migration `771bb4c719ce`, retaining populated SQLite data and audit protection; PostgreSQL conversation cap uses BIGINT (13 monetary columns total).
-- CI now checks migration formatting and compares conversation/document digests across actual API/worker/web container restarts. Local restart comparison also checks private file integrity. Remote results are recorded separately in TEST_REPORT.md.
+- CI now checks migration formatting and compares conversation/document digests across actual API/worker/web container restarts. Local restart comparison also checks private file integrity. All four remote CI jobs passed on `4de41f5`, including seven browser tests against real Compose/PostgreSQL and identical conversation/document digests after API/worker/web container restarts. Details are in TEST_REPORT.md.
 
 Fixture answers remain **explicitly selected local fixtures**, show no live inference, and carry no fabricated billing. The consultation coordinator acknowledgement is a deterministic saved-workflow acknowledgement; specialist model work appears separately.
 
 ## Source and verification baseline
 
-The clean local and remote starting commit was `b9e43cf` on `master`; source milestone `ca51145` previously passed all four CI jobs, 66 backend tests and three real Compose/PostgreSQL browser tests. This turn reran those 66 backend/three browser tests before editing. Earlier completed session/throttle/readiness/provider-wait/review-diversity/BIGINT repairs remain intact. Current test evidence, failures repaired and publication results are in TEST_REPORT.md.
+The clean local and remote starting commit was `b9e43cf` on `master`; source milestone `ca51145` previously passed all four CI jobs, 66 backend tests and three real Compose/PostgreSQL browser tests. This turn reran those 66 backend/three browser tests before editing. Earlier completed session/throttle/readiness/provider-wait/review-diversity/BIGINT repairs remain intact. Current source **`4de41f57c3d0c999a98a9f453ded8f368dc29443`** was pushed normally to `origin/master`; local/remote SHA matched. [All four CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/37818487850): 81 Linux backend tests, seven real Compose/PostgreSQL browser tests, 13 BIGINT monetary columns, atomic finance/login/audit contracts and actual container restart persistence. Current evidence and repaired failures are in TEST_REPORT.md.
 
 ## Latest phase coverage
 
@@ -38,7 +38,7 @@ The clean local and remote starting commit was `b9e43cf` on `master`; source mil
 | 9 — Full UI integration | Connected legacy operational views inherit the design tokens. Full workforce/organization/project/provider interaction redesign and accessibility audit pending |
 | 10 — DevOps/security | Local and ephemeral remote Compose contracts exist. Browser OIDC, trusted proxy limits, hardened runner, restore/load drills, managed secrets and external monitoring pending |
 | 11 — End-to-end delivery | No live coding/deployment/client acceptance completed. Actual owner crypto repository is still required |
-| 12 — Publication | Ordinary authenticated pushes are authorized. Publish this tested milestone and record its exact source/CI evidence; final product acceptance is not achieved |
+| 12 — Publication | Ordinary authenticated pushes are authorized. This source milestone is published with passing CI; final product acceptance is not achieved |
 
 ## Operational boundaries
 

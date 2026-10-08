@@ -2,6 +2,8 @@
 
 Follow [the latest production specification](docs/PRODUCTION_UPGRADE_SPEC.md), with evidence in IMPLEMENTATION_STATUS.md and TEST_REPORT.md. Prior master briefs remain preserved; their phase numbers are historical. Authorized remote: `origin` → `https://github.com/Sharath-holla/Aiventra.git`, ordinary pushes only.
 
+Tested source `4de41f57c3d0c999a98a9f453ded8f368dc29443` is published on `master`. [CI 37818487850](https://github.com/Sharath-holla/Aiventra/actions/runs/37818487850) passed all four jobs: 81 Linux backend tests, seven Compose/PostgreSQL browser tests, schema/13-column monetary contracts and real service-restart conversation/document recovery. Local tests passed 81 backend/seven browser checks; the app is running with worker readiness verified.
+
 ## Next phase — Phase 3: Real AI Runtime
 
 1. Add server-side provider connection tests and account-supported model discovery with timeouts, persisted outcomes, secret-free diagnostics and explicit owner controls. Configuration alone must never show Connected. Reuse the five existing adapters and registry instead of rebuilding them.

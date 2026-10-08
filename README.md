@@ -114,7 +114,7 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-Backend tests use isolated databases under `data/pytest-temp`. Browser tests create **fixture-labeled** local consulting records and projects. They do not certify live provider or Docker functionality.
+Backend tests use isolated databases under `data/pytest-temp`. Browser tests create **fixture-labeled** local consulting records and projects. They establish fixture-backed UI/backend integration and saved-state recovery; live inference and the separate dedicated coding runner remain unverified.
 Before committing/publishing, stage the intended files and run `.venv/Scripts/python.exe scripts/secret_scan.py --history`. It scans staged blobs and publishable branch/remote history without printing values. Keep ignored private configuration/data outside Git.
 
 ## Docker Compose
