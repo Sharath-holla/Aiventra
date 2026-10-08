@@ -4,6 +4,8 @@ Updated October 9, 2026. The authoritative request is [Phases 2–5](docs/PHASES
 
 **Current increment: Milestone A — Phase 2 workforce/provider foundation. Phase 2 is partially implemented; Phases 3–5 are not complete.** This increment adds real backend and UI functionality without certifying live AI or production deployment.
 
+Published application source: **c28582ee6aa3ac9ba936c149a428feeaf01a1d60**. [All four GitHub Actions jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/37829944013), including 98 Linux backend tests, nine real Compose/PostgreSQL browser tests and an actual container restart/integrity comparison. Local agent-work restart evidence and exact limits are recorded in TEST_REPORT.md.
+
 ## Implemented in this increment
 
 - AES-GCM provider credential vault with an independent 32-byte key, tenant/provider/version-bound authenticated encryption, write-only owner API, replacement and revocation. Environment fallback and vault availability are reported separately. No ciphertext or saved key is returned in application state.

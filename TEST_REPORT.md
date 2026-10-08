@@ -13,14 +13,19 @@ Starting repository: clean master ae10711; existing application source 4de41f5. 
 | Ruff | Lint passed; all 70 API/test/script/migration files formatted |
 | Web checks | TypeScript, Prettier and optimized production builds passed |
 | Migration | Existing SQLite backed up privately, additive b02442d39feb applied, populated data retained; alembic check reported no drift |
+| Actual local agent-work restart | API/worker/web stopped and restarted; byte-identical digest for 12 completed jobs/workflows, 24 executions/runs, 96 transition events, six meetings, 36 messages and 30 project artifacts. Database content and private artifact files matched their SHA-256; readiness restored |
 | Dependency checks | npm production audit: zero vulnerabilities. Python audit: no known vulnerabilities; the local application package is not on PyPI and is skipped |
 | Populated dashboard | One actual state request measured 1.241 seconds with worker ready after redaction/SQL aggregation improvements; this is not a load certification |
 | Publication secret scan | **360 staged/history blobs checked, 0 findings**; private configuration, database, logs and screenshots remain ignored |
-| Remote verification | Ordinary push and exact source GitHub Actions evidence are recorded below after completion |
+| Remote verification | Source **c28582ee6aa3ac9ba936c149a428feeaf01a1d60**, [Actions run 37829944013](https://github.com/Sharath-holla/Aiventra/actions/runs/37829944013): **all four jobs passed**. Linux backend: **98 passed**, one warning, 44.15 seconds. Real Compose/PostgreSQL browser suite: **nine passed**, 32.3 seconds |
 
 Failures repaired: initial new test fixtures had an expired detached ORM reference, an incorrect approval HTTP expectation and empty acceptance checks. An evaluation duplicate exposed an autoflush-before-error-handler defect; the transactional handler now returns a conflict. Event ordering needed a persisted per-execution sequence. Credential rotation and concurrent probe creation are fenced. The browser fixture initially used the wrong view URL and exact label matching without explicit select names. After those repairs, later status badges exposed a 20-pixel mobile summary overflow; summaries now wrap, bounded history expansion reduces accumulated page height, and meaningful screenshots wait for loaded state. Failed assertions were retained and repaired; no fake response substituted for the running backend.
 
 Controlled adapters test provider contracts and usage accounting; they do not prove a real account or live model. Fixture meeting/message outputs are explicitly labeled. Native provider streaming/tools, semantic retrieval, approved dynamic staffing, actual dedicated coding runner execution, repair/PR/merge, staging and complete client delivery remain unfinished. The current phase is a verified **Milestone A core increment**, not completion of all Phases 2–5.
+
+The successful integration job applied the migrations to real PostgreSQL, reported no schema drift, verified all 13 BIGINT monetary columns and competing large reservations, concurrent persistent login increments and single-row probe creation, and rejected audit UPDATE/DELETE. API/worker/web containers became healthy. Following the nine browser checks, actual container restarts preserved a byte-identical digest for three conversations/turns and one private uploaded document, with readiness restored. Compose execution keeps the coding runner disabled; it does not establish generated-code containment or live AI success.
+
+The tested source was committed and pushed normally to origin/master; git ls-remote confirmed its exact SHA. A documentation-only follow-up records this evidence and the completed publication step without changing the tested application source. Private configuration, recovery snapshots, screenshots and CI logs remain ignored.
 
 The sections below preserve historical milestones; their previous roadmap phase numbers and 'latest' labels refer to those historical source versions.
 

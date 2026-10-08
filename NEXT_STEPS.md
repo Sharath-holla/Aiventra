@@ -4,11 +4,12 @@ Follow [the current Phases 2–5 specification](docs/PHASES_2_5_SPEC.md). Preser
 
 ## Finish Milestone A — Phase 2
 
-1. Complete final local/remote verification of the new vault, catalogs, scoped routing, persisted runtime, durable messages and bounded meetings. Record the exact source SHA and CI jobs in TEST_REPORT.md.
-2. Add provider-native token streaming and native tool-call/cancellation contracts with a server tool registry, permission-bound dispatch and uncertain-usage handling. Current SSE streams saved workflow state, and current agent tools are server-directed workflow operations.
-3. Add explicit model-specific capability probes and a reproducible quality benchmark suite. Current catalog IDs are account facts; manually configured capabilities and owner grades are distinct from automatic verification.
-4. With a real API account or actual Ollama endpoint, discover a real model, configure documented capabilities/current prices, run the capped inference probe and verify usage/account charges. Run a real CEO answer, document task, message and bounded meeting. Configure distinct services/models for actual independent coding review.
-5. Extend role templates/tool metadata and recovery/dead-letter handling, then exercise concurrent/restart/failure behavior. Preserve no-charge waits, duplicate-request protection, lease fences and owner reconciliation for interrupted paid calls.
+The core increment is published at c28582e, with all four GitHub Actions jobs passing. Exact verification is in TEST_REPORT.md.
+
+1. Add provider-native token streaming and native tool-call/cancellation contracts with a server tool registry, permission-bound dispatch and uncertain-usage handling. Current SSE streams saved workflow state, and current agent tools are server-directed workflow operations.
+2. Add explicit model-specific capability probes and a reproducible quality benchmark suite. Current catalog IDs are account facts; manually configured capabilities and owner grades are distinct from automatic verification.
+3. With a real API account or actual Ollama endpoint, discover a real model, configure documented capabilities/current prices, run the capped inference probe and verify usage/account charges. Run a real CEO answer, document task, message and bounded meeting. Configure distinct services/models for actual independent coding review.
+4. Extend role templates/tool metadata and recovery/dead-letter handling, then exercise concurrent/restart/failure behavior. Preserve no-charge waits, duplicate-request protection, lease fences and owner reconciliation for interrupted paid calls.
 
 ## Milestone B — Phase 3 memory
 
