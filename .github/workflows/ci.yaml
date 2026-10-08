@@ -20,7 +20,8 @@ jobs:
       - run: uv sync --extra dev --locked
       - run: uv run --locked --extra dev python scripts/configure.py
       - run: uv run --locked --extra dev python -m company_os.cli init
-      - run: uv run --locked --extra dev ruff check apps/api tests scripts
+      - run: uv run --locked --extra dev ruff check apps/api tests scripts infrastructure/database/migrations
+      - run: uv run --locked --extra dev ruff format --check apps/api tests scripts infrastructure/database/migrations
       - run: uv run --locked --extra dev pytest -q
       - run: uv run --locked --extra dev pip-audit
   frontend:
@@ -49,5 +50,14 @@ jobs:
       - run: docker compose exec -T api python - --allow-test-records < scripts/verify_postgres.py
       - run: npm ci && npx playwright install --with-deps chromium && npm run test:e2e
         working-directory: apps/web
+      - name: Verify durable conversations across actual service restarts
+        run: |
+          docker compose exec -T api python - < scripts/verify_conversation_recovery.py > /tmp/conversations-before.json
+          docker compose restart api worker web
+          docker compose up -d --wait --wait-timeout 90
+          curl --fail http://localhost:8000/health/ready
+          docker compose exec -T api python - < scripts/verify_conversation_recovery.py > /tmp/conversations-after.json
+          cmp /tmp/conversations-before.json /tmp/conversations-after.json
+          cat /tmp/conversations-after.json
       - run: docker compose logs && docker compose down
         if: always()

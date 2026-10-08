@@ -146,6 +146,7 @@ def current_user(
                 algorithms=["RS256"],
                 issuer=config.oidc_issuer,
                 audience=config.oidc_audience,
+                options={"require": ["exp", "sub"]},
             )
             user = session.scalar(select(User).where(User.oidc_subject == claims["sub"]))
         else:
@@ -155,6 +156,7 @@ def current_user(
                 algorithms=["HS256"],
                 issuer="ai-company-os",
                 audience="company-web",
+                options={"require": ["exp", "sub", "jti"]},
             )
             user = session.get(User, claims["sub"])
             record = session.get(AuthSession, claims["jti"])
@@ -167,7 +169,8 @@ def current_user(
             ):
                 raise HTTPException(401, "Session expired or revoked")
             request.state.auth_session_id = record.id
-    except (jwt.PyJWTError, KeyError):
+        request.state.auth_expires_at = int(claims["exp"])
+    except (jwt.PyJWTError, KeyError, ValueError, TypeError):
         raise HTTPException(401, "Invalid or expired authentication") from None
     if not user or not user.enabled:
         raise HTTPException(401, "Identity is disabled or not provisioned")
@@ -187,6 +190,8 @@ def scoped(session: Session, model, record_id: str, user: User):
     if not row:
         raise HTTPException(404, "Record not found")
     if user.role != "owner":
+        if getattr(row, "conversation_id", None):
+            raise HTTPException(404, "Record not found")
         if isinstance(row, (Project, Requirement)) and row.client_id != user.client_id:
             raise HTTPException(404, "Record not found")
         if hasattr(row, "project_id") and row.project_id:

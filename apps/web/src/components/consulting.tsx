@@ -15,14 +15,20 @@ import { api, money } from "@/lib/api";
 import type { Project, Proposal, Requirement } from "@/lib/types";
 import { Badge, Button, Empty, Panel, Pretty, useApp } from "./common";
 
-export function Consulting({ approvals }: { approvals: boolean }) {
+export function Consulting({
+  approvals,
+  initialId = "",
+}: {
+  approvals: boolean;
+  initialId?: string;
+}) {
   const { state, run, busy, navigate } = useApp();
-  const [selected, setSelected] = useState("");
+  const [selected, setSelected] = useState(initialId);
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
   const [client, setClient] = useState(state.clients[0]?.id || "");
-  const [mode, setMode] = useState("mock");
+  const [mode, setMode] = useState("live");
   const [budget, setBudget] = useState("5");
   const [deadline, setDeadline] = useState("");
   const [constraints, setConstraints] = useState("");
@@ -329,7 +335,11 @@ export function Consulting({ approvals }: { approvals: boolean }) {
               </label>
               <label>
                 Execution mode
-                <select value={mode} onChange={(e) => setMode(e.target.value)}>
+                <select
+                  aria-label="Execution mode"
+                  value={mode}
+                  onChange={(e) => setMode(e.target.value)}
+                >
                   <option value="mock">Local fixture · no live AI</option>
                   <option value="live">
                     Live configured provider · paid usage
@@ -604,12 +614,15 @@ function ProposalReview({ proposal: p }: { proposal: Proposal }) {
             disabled={busy}
             onClick={() =>
               run(async () => {
-                await api<Project>(`/proposals/${p.id}/approve`, {
-                  version: p.version,
-                  content_hash: p.content_hash,
-                  selection,
-                });
-                navigate("projects");
+                const project = await api<Project>(
+                  `/proposals/${p.id}/approve`,
+                  {
+                    version: p.version,
+                    content_hash: p.content_hash,
+                    selection,
+                  },
+                );
+                navigate(`projects:${project.id}`);
               }, "Proposal approved. Project created with assigned, dependent tasks.")
             }
           >

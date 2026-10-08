@@ -130,6 +130,7 @@ def state(user: m.User = Depends(owner), session: Session = Depends(session_depe
         "audit": m.AuditEvent,
         "notifications": m.Notification,
         "approvals": m.Approval,
+        "conversations": m.Conversation,
     }
     result = {
         name: [serialize(row) for row in tenant_rows(session, model, user, 300)]

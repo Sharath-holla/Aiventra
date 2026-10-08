@@ -49,7 +49,7 @@ export function Overview() {
           </div>
           <h2>Big ideas. Coordinated execution.</h2>
           <p>
-            Your specialists are ready. Bring a requirement, review the options,
+            Define the work. Bring a requirement, review the options,
             <br className="desktop" /> and give the company a clear direction.
           </p>
           <Button onClick={() => navigate("chat")}>

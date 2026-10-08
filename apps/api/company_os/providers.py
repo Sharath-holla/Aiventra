@@ -221,7 +221,12 @@ class HTTPAdapter:
 def fixture(schema_name: str, context: dict) -> Response:
     """Explicit deterministic test fixtures. Never used in live mode."""
     analysis = context.get("analysis", {})
-    if schema_name == "Analysis":
+    if schema_name == "CEOAnswer":
+        data = {
+            "answer": "**Local fixture · no live AI call**\n\nThis response verifies conversation persistence and workflow execution. Configure a real model for an advisory answer.\n\n| Evidence | Status |\n| --- | --- |\n| Conversation | Persisted |\n| External actions | None |\n\n```text\nExplicit fixture; no generated code executed.\n```",
+            "questions": [],
+        }
+    elif schema_name == "Analysis":
         text = context.get("text", "")
         migration = any(word in text.lower() for word in ("migrat", "cloud", "lightning"))
         data = {

@@ -121,3 +121,25 @@ flowchart LR
 ```
 
 Production requires HTTPS, an OIDC identity provider, managed secrets, protected artifact storage, isolated dedicated runner hosts, backups and recovery exercises. Single-host development is not a hostile multi-tenant sandbox.
+
+
+## Durable CEO workspace
+
+```mermaid
+flowchart LR
+ Chat[Owner chat / private text uploads] --> API[Authenticated conversation API]
+ API --> History[(Conversations, ordered turns, private artifacts)]
+ API --> Dispatch[Unique durable turn workflow]
+ Dispatch --> Worker[Lease-fenced worker]
+ Worker --> Advisory[Read-only CEO gateway / scoped memory]
+ Worker --> Consult[Existing specialist consultation]
+ Consult --> Proposal[Versioned proposal]
+ Proposal --> Approval[Exact owner approval]
+ Approval --> Project[Persistent project / dependent planning tasks]
+ History --> SSE[Revocation-aware saved snapshots]
+ SSE --> Chat
+```
+
+Conversation/request uniqueness and optimistic versions prevent duplicate dispatch. Conversation and per-turn caps participate in the same atomic reservation transaction as company/project/agent/model/period caps. Cancelled lease tokens cannot publish delayed answers; uncertain provider usage still requires reconciliation. Consultation dispatch and its coordinator acknowledgement are committed together; no advisory text authorizes implementation.
+
+Current SSE carries persisted workflow state, not provider tokens. The browser supports reconnect plus polling recovery. Each iteration opens a short database session and checks identity/session/expiry. Uploaded UTF-8 documents are owner-scoped private artifacts; raw HTML and remote images are suppressed in response rendering. Additive migration `771bb4c719ce` adds conversation tables/links without rebuilding populated SQLite parent tables.

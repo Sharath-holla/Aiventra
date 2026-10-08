@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from .config import settings
 from .db import now, uid
 from .finance import reserve, settle, token_cost
-from .models import Agent, Budget, ModelConfig, ModelRun, Project, Provider, Workflow
+from .models import Agent, Budget, ConversationTurn, ModelConfig, ModelRun, Project, Provider, Workflow
 from .providers import (
     HTTPAdapter,
     ProviderError,
@@ -188,7 +188,19 @@ async def execute[T: BaseModel](
             f"day:{workflow.org_id}:{now() // 86400}",
             f"month:{workflow.org_id}:{time.strftime('%Y-%m', time.gmtime())}",
         ]
-        scopes.append(f"project:{project.id}" if project else f"requirement:{workflow.requirement_id}")
+        if workflow.conversation_turn_id:
+            turn = session.get(ConversationTurn, workflow.conversation_turn_id)
+            scopes.extend([f"conversation:{turn.conversation_id}", f"turn:{turn.id}"])
+            if project:
+                scopes.append(f"project:{project.id}")
+        else:
+            scopes.append(f"project:{project.id}" if project else f"requirement:{workflow.requirement_id}")
+            if workflow.requirement_id:
+                linked = session.scalar(
+                    select(ConversationTurn).where(ConversationTurn.requirement_id == workflow.requirement_id)
+                )
+                if linked:
+                    scopes.append(f"conversation:{linked.conversation_id}")
         if workflow.task_id:
             scopes.append(f"task:{workflow.task_id}")
         for scope in scopes:

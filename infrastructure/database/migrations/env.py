@@ -1,9 +1,8 @@
 from alembic import context
-from sqlalchemy import engine_from_config, pool
-
 from company_os import models  # noqa: F401
 from company_os.config import settings
 from company_os.db import Base
+from sqlalchemy import engine_from_config, pool
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings().database_url.replace("%", "%%"))

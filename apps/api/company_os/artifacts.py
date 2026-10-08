@@ -17,12 +17,14 @@ def save_artifact(
     project_id=None,
     task_id=None,
     agent_id=None,
+    conversation_id=None,
 ) -> Artifact:
     content = redact(content)
     artifact = Artifact(
         id=uid(),
         org_id=org_id,
         project_id=project_id,
+        conversation_id=conversation_id,
         task_id=task_id,
         agent_id=agent_id,
         name=name[:200],

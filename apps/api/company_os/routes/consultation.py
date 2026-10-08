@@ -41,6 +41,13 @@ def requirements(user: m.User = Depends(current_user), session: Session = Depend
 def intake(
     data: Intake, user: m.User = Depends(current_user), session: Session = Depends(session_dependency)
 ):
+    result = stage_intake(data, user, session)
+    session.commit()
+    return result
+
+
+def stage_intake(data: Intake, user: m.User, session: Session):
+    """Stage an intake and its workflow in the caller's atomic transaction."""
     client = scoped(session, m.Client, data.client_id, user)
     if user.role != "owner" and client.id != user.client_id:
         raise HTTPException(404, "Client not found")
@@ -53,7 +60,6 @@ def intake(
     session.flush()
     workflow = enqueue_consulting(session, requirement)
     audit(session, user.org_id, user.id, "requirement.submitted", requirement.id, {"mode": data.mode})
-    session.commit()
     return {**serialize(requirement), "workflow_id": workflow.id}
 
 

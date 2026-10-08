@@ -31,6 +31,10 @@ async function proxy(
     ? suppliedId
     : crypto.randomUUID();
   try {
+    const streaming =
+      request.method === "GET" &&
+      path[0] === "conversations" &&
+      path[2] === "events";
     const response = await fetch(
       `${base}/${endpoint}${request.nextUrl.search}`,
       {
@@ -39,14 +43,28 @@ async function proxy(
         body:
           request.method === "GET" ? undefined : await request.arrayBuffer(),
         cache: "no-store",
-        signal: AbortSignal.timeout(30000),
+        signal: streaming ? request.signal : AbortSignal.timeout(30000),
       },
     );
-    const body = await response.json();
     const responseHeaders = {
       "X-Request-ID":
         response.headers.get("x-request-id") || headers["X-Request-ID"],
     };
+    if (
+      streaming &&
+      response.ok &&
+      response.headers.get("content-type")?.startsWith("text/event-stream")
+    ) {
+      return new Response(response.body, {
+        headers: {
+          ...responseHeaders,
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          "X-Accel-Buffering": "no",
+        },
+      });
+    }
+    const body = await response.json();
     if (
       endpoint === "auth/logout" &&
       (response.ok || response.status === 401)

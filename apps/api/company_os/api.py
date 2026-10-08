@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .config import settings
 from .observability import configure_logging, request_trace
-from .routes import administration, business, consultation, engineering, identity
+from .routes import administration, business, consultation, conversations, engineering, identity
 
 
 @asynccontextmanager
@@ -31,5 +31,6 @@ for router in (
     administration.router,
     engineering.router,
     business.router,
+    conversations.router,
 ):
     app.include_router(router)

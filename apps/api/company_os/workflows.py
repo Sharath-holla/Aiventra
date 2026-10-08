@@ -400,6 +400,10 @@ async def tick(factory=SessionLocal) -> bool:
                 raise TimeoutError("Workflow time or iteration limit reached")
             if workflow.kind == "consulting":
                 await consulting_step(session, workflow, token)
+            elif workflow.kind == "conversation":
+                from .conversations import conversation_step
+
+                await conversation_step(session, workflow, token)
             elif workflow.kind == "document":
                 await document_step(session, workflow, token)
             elif workflow.kind == "coding":

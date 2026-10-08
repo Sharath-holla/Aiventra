@@ -1,12 +1,11 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Activity,
   ArrowRight,
   Bell,
   BookOpen,
   BriefcaseBusiness,
-  ChevronDown,
   CircleHelp,
   Command,
   Cpu,
@@ -15,6 +14,11 @@ import {
   LayoutDashboard,
   LogOut,
   MessageSquare,
+  Menu,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Moon,
+  Sun,
   Network,
   Plus,
   Search,
@@ -35,6 +39,7 @@ import { Governance } from "@/components/governance";
 import { Registry } from "@/components/registry";
 import { Business } from "@/components/business";
 import { Communications } from "@/components/communications";
+import { CEOChat, ConversationHistory } from "@/components/conversations";
 
 const groups = [
   {
@@ -42,6 +47,7 @@ const groups = [
     items: [
       ["overview", "Company overview", LayoutDashboard],
       ["chat", "Executive chat", MessageSquare],
+      ["conversations", "Conversations", MessageSquare],
       ["requirements", "Client requirements", Files],
       ["proposals", "Proposals & approvals", ShieldCheck],
       ["projects", "Project portfolio", BriefcaseBusiness],
@@ -66,10 +72,16 @@ const groups = [
       ["knowledge", "Knowledge & support", BookOpen],
       ["security", "Security & audit", ShieldCheck],
       ["settings", "System settings", Settings2],
+      ["commands", "Company commands", Command],
     ],
   },
 ] as const;
 const titles: Record<string, [string, string]> = {
+  conversations: [
+    "Conversations",
+    "Return to the context behind every decision.",
+  ],
+  commands: ["Company commands", "Direct, authenticated company operations."],
   overview: ["Company overview", "The big picture, down to every decision."],
   chat: [
     "Executive chat",
@@ -145,7 +157,15 @@ function Logo() {
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
   const [state, setState] = useState<State | null>(null);
-  const [view, setView] = useState("overview");
+  const [view, setView] = useState("chat");
+  const [conversationId, setConversationId] = useState("");
+  const [draft, setDraft] = useState(0);
+  const [projectId, setProjectId] = useState("");
+  const [requirementId, setRequirementId] = useState("");
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileMenu, setMobileMenu] = useState(false);
+  const [light, setLight] = useState(false);
+  const searchInput = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -158,9 +178,29 @@ export default function Home() {
     setState(result);
   }, []);
   const navigate = useCallback((target: string) => {
-    setView(target);
+    const [nextView, recordId] = target.split(":");
+    if (!titles[nextView]) return;
+    setView(nextView);
+    if (nextView === "chat") {
+      setConversationId(recordId || "");
+      if (!recordId) setDraft((current) => current + 1);
+    }
+    if (nextView === "projects") setProjectId(recordId || "");
+    if (["proposals", "requirements"].includes(nextView))
+      setRequirementId(recordId || "");
+    setMobileMenu(false);
     setSearch("");
-    window.history.replaceState({}, "", `/?view=${target}`);
+    const query = new URLSearchParams({ view: nextView });
+    if (recordId)
+      query.set(
+        nextView === "chat"
+          ? "conversation"
+          : nextView === "projects"
+            ? "project"
+            : "requirement",
+        recordId,
+      );
+    window.history.pushState({}, "", `/?${query}`);
   }, []);
   const run = useCallback(
     async (
@@ -185,6 +225,21 @@ export default function Home() {
   useEffect(() => {
     const initial = new URLSearchParams(window.location.search).get("view");
     if (initial && titles[initial]) setView(initial);
+    setConversationId(
+      new URLSearchParams(window.location.search).get("conversation") || "",
+    );
+    setProjectId(
+      new URLSearchParams(window.location.search).get("project") || "",
+    );
+    setRequirementId(
+      new URLSearchParams(window.location.search).get("requirement") || "",
+    );
+    const savedTheme = localStorage.getItem("aiventra-theme") === "light";
+    setLight(savedTheme);
+    document.documentElement.dataset.theme = savedTheme ? "light" : "dark";
+    setSidebarCollapsed(
+      localStorage.getItem("aiventra-sidebar") === "collapsed",
+    );
     api<User>("/auth/me")
       .then((result) => {
         setUser(result);
@@ -193,6 +248,29 @@ export default function Home() {
       .catch(() => undefined)
       .finally(() => setLoading(false));
   }, [refresh]);
+  useEffect(() => {
+    const keys = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === "k") {
+        event.preventDefault();
+        searchInput.current?.focus();
+      }
+      if (event.key === "Escape") setMobileMenu(false);
+    };
+    const history = () => {
+      const query = new URLSearchParams(window.location.search);
+      const target = query.get("view") || "chat";
+      if (titles[target]) setView(target);
+      setConversationId(query.get("conversation") || "");
+      setProjectId(query.get("project") || "");
+      setRequirementId(query.get("requirement") || "");
+    };
+    window.addEventListener("keydown", keys);
+    window.addEventListener("popstate", history);
+    return () => {
+      window.removeEventListener("keydown", keys);
+      window.removeEventListener("popstate", history);
+    };
+  }, []);
   useEffect(() => {
     if (!user || user.role !== "owner") return;
     const timer = setInterval(() => {
@@ -341,7 +419,7 @@ export default function Home() {
           .map((p) => ({
             id: p.id,
             title: p.name,
-            view: "projects",
+            view: `projects:${p.id}`,
             type: "Project",
           })),
         ...state.requirements
@@ -350,25 +428,86 @@ export default function Home() {
           .map((r) => ({
             id: r.id,
             title: r.title,
-            view: "requirements",
+            view: `requirements:${r.id}`,
             type: "Requirement",
           })),
       ]
     : [];
   return (
     <AppContext.Provider value={{ state, refresh, run, navigate, busy }}>
-      <div className="shell">
-        <aside className="sidebar">
-          <Logo />
+      <div
+        className={`shell ${sidebarCollapsed ? "sidebar-collapsed" : ""} ${mobileMenu ? "menu-open" : ""} ${view === "chat" ? "chat-shell" : ""}`}
+      >
+        {mobileMenu && (
+          <button
+            className="nav-backdrop"
+            aria-label="Close navigation"
+            onClick={() => setMobileMenu(false)}
+          />
+        )}
+        <aside className="sidebar" aria-label="Workspace sidebar">
+          <div className="brand-row">
+            <Logo />
+            <button
+              className="icon-button collapse-sidebar"
+              aria-label={
+                sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"
+              }
+              onClick={() => {
+                setSidebarCollapsed(!sidebarCollapsed);
+                localStorage.setItem(
+                  "aiventra-sidebar",
+                  sidebarCollapsed ? "expanded" : "collapsed",
+                );
+              }}
+            >
+              {sidebarCollapsed ? (
+                <PanelLeftOpen size={17} />
+              ) : (
+                <PanelLeftClose size={17} />
+              )}
+            </button>
+          </div>
+          <button
+            className="new-chat-button"
+            onClick={() => navigate("chat")}
+            aria-label="New chat"
+          >
+            <Plus size={18} />
+            <span>New chat</span>
+            <kbd>+</kbd>
+          </button>
           <div className="workspace-switch">
-            <span className="company-avatar">S</span>
+            <span className="company-avatar">
+              {state.organization.name[0]?.toUpperCase()}
+            </span>
             <div>
-              <strong>Your AI company</strong>
+              <strong>{state.organization.name}</strong>
               <small>Owner workspace</small>
             </div>
-            <ChevronDown size={14} />
           </div>
           <nav aria-label="Main navigation">
+            <div className="recent-conversations">
+              <span className="nav-label">RECENT CONVERSATIONS</span>
+              {state.conversations
+                .slice()
+                .sort((a, b) => b.updated_at - a.updated_at)
+                .slice(0, 4)
+                .map((conversation) => (
+                  <button
+                    className={`conversation-link ${conversationId === conversation.id && view === "chat" ? "selected" : ""}`}
+                    key={conversation.id}
+                    title={conversation.title}
+                    onClick={() => navigate(`chat:${conversation.id}`)}
+                  >
+                    <MessageSquare size={14} />
+                    <span>{conversation.title}</span>
+                  </button>
+                ))}
+              {!state.conversations.length && (
+                <small>Your conversations will appear here.</small>
+              )}
+            </div>
             {groups.map((group) => (
               <div className="nav-group" key={group.label}>
                 <span className="nav-label">{group.label}</span>
@@ -377,6 +516,8 @@ export default function Home() {
                     key={key}
                     aria-label={label}
                     className={`nav-item ${view === key ? "selected" : ""}`}
+                    aria-current={view === key ? "page" : undefined}
+                    title={label}
                     onClick={() => navigate(key)}
                   >
                     <Icon size={17} />
@@ -392,11 +533,13 @@ export default function Home() {
           <div className="sidebar-bottom">
             <div className="connection">
               <span
-                className={`dot ${state.organization.paused ? "amber" : ""}`}
+                className={`dot ${state.organization.paused || state.runtime.worker.status !== "ready" ? "amber" : ""}`}
               />
               {state.organization.paused
                 ? "Company paused"
-                : "Company connected"}
+                : state.runtime.worker.status === "ready"
+                  ? "Worker ready"
+                  : "Worker unavailable"}
               <Badge>{state.runtime.database}</Badge>
             </div>
             <button
@@ -405,7 +548,9 @@ export default function Home() {
               disabled={busy}
               aria-label="Sign out"
             >
-              <span className="owner-avatar">S</span>
+              <span className="owner-avatar">
+                {user.email[0]?.toUpperCase()}
+              </span>
               <div>
                 <strong>Company owner</strong>
                 <small>{user.email}</small>
@@ -416,6 +561,17 @@ export default function Home() {
         </aside>
         <div className="main-wrap">
           <header className="topbar">
+            <button
+              className="icon-button mobile-menu-button"
+              aria-label="Open navigation"
+              aria-expanded={mobileMenu}
+              onClick={() => {
+                setSidebarCollapsed(false);
+                setMobileMenu(!mobileMenu);
+              }}
+            >
+              <Menu size={20} />
+            </button>
             <div className="breadcrumb">
               Workspace <span>/</span> <strong>{titles[view][0]}</strong>
             </div>
@@ -424,11 +580,12 @@ export default function Home() {
                 <Search size={15} />
                 <input
                   aria-label="Search company"
+                  ref={searchInput}
                   placeholder="Search your company…"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
-                <kbd>⌘ K</kbd>
+                <kbd>Ctrl K</kbd>
                 {search && (
                   <div className="search-results">
                     {searchResults.length ? (
@@ -447,35 +604,59 @@ export default function Home() {
               </div>
               <button
                 className="icon-button"
+                aria-label={light ? "Use dark theme" : "Use light theme"}
+                onClick={() => {
+                  setLight(!light);
+                  document.documentElement.dataset.theme = light
+                    ? "dark"
+                    : "light";
+                  localStorage.setItem(
+                    "aiventra-theme",
+                    light ? "dark" : "light",
+                  );
+                }}
+              >
+                {light ? <Moon size={18} /> : <Sun size={18} />}
+              </button>
+              <button
+                className="icon-button"
                 aria-label="Monitoring alerts"
                 onClick={() => navigate("security")}
               >
                 <Bell size={18} />
                 {alerts > 0 && <i />}
               </button>
-              <span className="owner-avatar small">S</span>
+              <span className="owner-avatar small">
+                {user.email[0]?.toUpperCase()}
+              </span>
             </div>
           </header>
           <main className="content">
-            <div className="page-heading">
-              <div>
-                <div className="eyebrow">OWNER COMMAND CENTER</div>
-                <h1>{titles[view][0]}</h1>
-                <p>{titles[view][1]}</p>
+            {view !== "chat" && (
+              <div className="page-heading">
+                <div>
+                  <div className="eyebrow">OWNER COMMAND CENTER</div>
+                  <h1>{titles[view][0]}</h1>
+                  <p>{titles[view][1]}</p>
+                </div>
+                <div className="heading-actions">
+                  <Badge
+                    mode={state.organization.paused ? "blocked" : "active"}
+                  >
+                    <span className="dot" />
+                    {state.organization.paused
+                      ? "Work paused"
+                      : state.runtime.worker.status === "ready"
+                        ? "Worker ready"
+                        : "Worker unavailable"}
+                  </Badge>
+                  <Button onClick={() => navigate("requirements")}>
+                    <Plus size={16} />
+                    New requirement
+                  </Button>
+                </div>
               </div>
-              <div className="heading-actions">
-                <Badge mode={state.organization.paused ? "blocked" : "active"}>
-                  <span className="dot" />
-                  {state.organization.paused
-                    ? "Work paused"
-                    : "System connected"}
-                </Badge>
-                <Button onClick={() => navigate("requirements")}>
-                  <Plus size={16} />
-                  New requirement
-                </Button>
-              </div>
-            </div>
+            )}
             {error && (
               <div className="alert error" role="alert">
                 {error}
@@ -494,29 +675,54 @@ export default function Home() {
               <Workforce hierarchy={view === "organization"} />
             )}
             {["requirements", "proposals"].includes(view) && (
-              <Consulting approvals={view === "proposals"} />
+              <Consulting
+                key={`${view}:${requirementId}`}
+                approvals={view === "proposals"}
+                initialId={requirementId}
+              />
             )}
             {["projects", "engineering"].includes(view) && (
-              <Projects engineering={view === "engineering"} />
+              <Projects
+                key={`${view}:${projectId}`}
+                engineering={view === "engineering"}
+                initialId={projectId}
+              />
             )}
             {["finance", "security", "settings", "activity"].includes(view) && (
               <Governance view={view} />
             )}
             {view === "models" && <Registry />}
             {["crm", "knowledge"].includes(view) && <Business view={view} />}
-            {["chat", "meetings"].includes(view) && (
-              <Communications chat={view === "chat"} />
+            {["commands", "meetings"].includes(view) && (
+              <Communications chat={view === "commands"} />
             )}
-            <footer className="page-footer">
-              <span>
-                AI Company OS <span className="muted">/</span> Human direction.
-                Accountable execution.
-              </span>
-              <button onClick={() => navigate("settings")}>
-                <CircleHelp size={14} />
-                Runtime & limitations
-              </button>
-            </footer>
+            {view === "chat" && (
+              <CEOChat
+                key={`${conversationId}:${draft}`}
+                conversationId={conversationId}
+                onCreated={(id) => {
+                  setConversationId(id);
+                  window.history.replaceState(
+                    {},
+                    "",
+                    `/?view=chat&conversation=${id}`,
+                  );
+                }}
+              />
+            )}
+            {view === "conversations" && <ConversationHistory />}
+            {view !== "chat" && (
+              <footer className="page-footer">
+                <span>
+                  AI Company OS <span className="muted">/</span> Human
+                  direction. Accountable execution.
+                </span>
+                <button onClick={() => navigate("settings")}>
+                  <CircleHelp size={14} />
+                  Runtime & limitations
+                </button>
+              </footer>
+            )}
           </main>
         </div>
       </div>

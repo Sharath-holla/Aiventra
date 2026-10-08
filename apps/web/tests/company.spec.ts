@@ -21,7 +21,7 @@ test("owner consults, approves and inspects a real persistent project", async ({
     headers: { Origin: "http://localhost:3000" },
   });
   expect(login.status()).toBe(200);
-  await page.goto("/");
+  await page.goto("/?view=overview");
   await expect(
     page.getByRole("heading", { name: "Company overview", exact: true }),
   ).toBeVisible();
@@ -49,6 +49,7 @@ test("owner consults, approves and inspects a real persistent project", async ({
     .click();
   const title = `Browser fixture migration ${Date.now()}`;
   await page.getByLabel("Requirement title", { exact: true }).fill(title);
+  await page.getByLabel("Execution mode", { exact: true }).selectOption("mock");
   await page
     .getByLabel("Client requirement", { exact: true })
     .fill(
@@ -67,10 +68,7 @@ test("owner consults, approves and inspects a real persistent project", async ({
   await page
     .getByRole("button", { name: "Approve selected solution", exact: true })
     .click();
-  await expect(
-    page.getByRole("heading", { name: "Your project portfolio", exact: true }),
-  ).toBeVisible();
-  await page.getByRole("button", { name: new RegExp(title) }).click();
+  await expect(page).toHaveURL(/view=projects&project=/);
   await expect(
     page.getByRole("heading", { name: title, exact: true }),
   ).toBeVisible();
@@ -157,7 +155,7 @@ test("mobile owner dashboard fits the viewport", async ({ page }) => {
   });
   expect(login.status()).toBe(200);
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/");
+  await page.goto("/?view=overview");
   await expect(
     page.getByRole("heading", { name: "Company overview", exact: true }),
   ).toBeVisible();

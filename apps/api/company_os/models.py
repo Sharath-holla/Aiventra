@@ -199,6 +199,7 @@ class Workflow(Tenant, Base):
     __tablename__ = "workflows"
     requirement_id: Mapped[str | None] = mapped_column(ForeignKey("requirements.id"))
     task_id: Mapped[str | None] = mapped_column(ForeignKey("tasks.id"))
+    conversation_turn_id: Mapped[str | None] = mapped_column(ForeignKey("conversation_turns.id"))
     kind: Mapped[str] = mapped_column(default="consulting")
     mode: Mapped[str] = mapped_column(default="mock")
     revision: Mapped[int] = mapped_column(default=1)
@@ -212,6 +213,7 @@ class Workflow(Tenant, Base):
     last_error: Mapped[str] = mapped_column(Text, default="")
     wait_context: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
     __table_args__ = (
+        Index("uq_workflows_conversation_turn", "conversation_turn_id", unique=True),
         Index("uq_workflows_task", "task_id", unique=True),
         Index("uq_workflows_requirement_revision", "requirement_id", "revision", unique=True),
     )
@@ -294,6 +296,7 @@ class Transaction(Tenant, Base):
 class Artifact(Tenant, Base):
     __tablename__ = "artifacts"
     project_id: Mapped[str | None] = mapped_column(ForeignKey("projects.id"), index=True)
+    conversation_id: Mapped[str | None] = mapped_column(ForeignKey("conversations.id"), index=True)
     task_id: Mapped[str | None] = mapped_column(ForeignKey("tasks.id"))
     agent_id: Mapped[str | None] = mapped_column(ForeignKey("agents.id"))
     name: Mapped[str] = mapped_column(String(200))
@@ -357,3 +360,32 @@ class Notification(Tenant, Base):
     title: Mapped[str] = mapped_column(String(200))
     subject_id: Mapped[str] = mapped_column(String(36))
     acknowledged: Mapped[bool] = mapped_column(default=False)
+
+
+class Conversation(Tenant, Base):
+    __tablename__ = "conversations"
+    owner_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    client_id: Mapped[str] = mapped_column(ForeignKey("clients.id"))
+    project_id: Mapped[str | None] = mapped_column(ForeignKey("projects.id"))
+    title: Mapped[str] = mapped_column(String(200), default="New conversation")
+    mode: Mapped[str] = mapped_column(default="live")
+    budget_micro: Mapped[int] = mapped_column(MONEY, default=1_000_000)
+    version: Mapped[int] = mapped_column(default=1)
+    updated_at: Mapped[int] = mapped_column(default=now, index=True)
+
+
+class ConversationTurn(Tenant, Base):
+    __tablename__ = "conversation_turns"
+    conversation_id: Mapped[str] = mapped_column(ForeignKey("conversations.id"), index=True)
+    request_id: Mapped[str] = mapped_column(String(36))
+    request_hash: Mapped[str] = mapped_column(String(64))
+    position: Mapped[int] = mapped_column()
+    intent: Mapped[str] = mapped_column(default="chat")
+    content: Mapped[str] = mapped_column(Text)
+    response: Mapped[str] = mapped_column(Text, default="")
+    attachment_ids: Mapped[list[str]] = mapped_column(JSON, default=list)
+    requirement_id: Mapped[str | None] = mapped_column(ForeignKey("requirements.id"))
+    __table_args__ = (
+        UniqueConstraint("conversation_id", "request_id"),
+        UniqueConstraint("conversation_id", "position"),
+    )

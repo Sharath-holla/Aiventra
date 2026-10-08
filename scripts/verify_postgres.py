@@ -24,7 +24,7 @@ def verify():
             if column.name.endswith("_micro") or column.name.endswith("_micro_per_million"):
                 assert isinstance(stored[column.name], BigInteger), f"Narrow money column: {table.name}"
                 checked += 1
-    assert checked == 12
+    assert checked == 13
 
     marker = uid()
     with SessionLocal() as session:
@@ -83,7 +83,7 @@ def verify():
                 raise AssertionError("Database allowed audit mutation")
         assert verify_audit(session, org_id)["valid"]
     print(
-        "PostgreSQL verified: 12 BIGINT money columns, large atomic caps, concurrent login counters, append-only audit"
+        "PostgreSQL verified: 13 BIGINT money columns, large atomic caps, concurrent login counters, append-only audit"
     )
 
 

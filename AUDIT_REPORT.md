@@ -2,6 +2,16 @@
 
 Audit date: October 8, 2026. Source inspected directly under `apps/api/company_os`, `apps/web/src`, `infrastructure`, `scripts` and `tests`. This is a local engineering audit, not an independent penetration test.
 
+## Latest production-upgrade audit
+
+The next session began with clean local/remote `b9e43cf` and verified previous source `ca51145`. The actual source and prior 66 backend/three browser tests were inspected/rerun before changes. The newly supplied production specification supersedes earlier phase ordering: Phase 2 prioritizes design system, shell, CEO chat and connected real state. It is preserved as docs/PRODUCTION_UPGRADE_SPEC.md.
+
+The existing command chat had no natural-language gateway, saved conversation history, attachments or stream. This increment adds real conversation tables/worker dispatch/caps/cancellation/SSE and connects chat consultation to existing exact approval/project modules. Dark/light tokens and responsive navigation improve existing screens without inventing active agents or live responses. The latest 81 backend checks pass; final browser/publication evidence is in TEST_REPORT.md.
+
+Remaining substantive gaps are provider connection/discovery/live account evidence and token streaming, semantic memory, dynamic allocation, actual isolated coding/QA, full screen integration, production operations and client delivery. Docker/Ollama/gh remain absent locally. GitHub authentication is available through the configured Git credential manager; credentials are never printed.
+
+The tables below are **historical findings from the preceding audit**, not current completion claims. Current phase coverage is maintained in IMPLEMENTATION_STATUS.md.
+
 ## Baseline evidence
 
 - Git: initial `master` branch, no commits and no remotes before this audit; all product source untracked. The explicitly authorized target `https://github.com/Sharath-holla/Aiventra.git` responds to `git ls-remote` with success and no advertised refs. Read access alone does not prove push permission.

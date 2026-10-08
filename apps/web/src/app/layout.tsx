@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./premium.css";
 export const metadata: Metadata = {
   title: "Aiventra OS — Command Center",
   description: "A supervised operating system for your AI workforce.",

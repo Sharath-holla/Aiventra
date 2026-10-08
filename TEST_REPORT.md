@@ -1,5 +1,29 @@
 # Aiventra verification report
 
+## Premium conversation foundation — October 8, 2026
+
+The clean starting source was local/remote `b9e43cf`, preserving the previously CI-verified `ca51145`. Before editing, the current 66 backend tests and three browser tests were rerun successfully against actual code/services. The latest production specification is preserved in docs/PRODUCTION_UPGRADE_SPEC.md; its phase ordering now governs development.
+
+| Check | Observed result |
+|---|---|
+| Full backend `pytest -q` | **81 passed, 0 failed**, 1 Starlette/httpx dependency warning, 58.72 seconds |
+| New conversation checks | 15 checks: saved history/idempotence, concurrent duplicate dispatch, conflict/pending rejection, private uploads and scope, live no-provider/no-charge waiting, linked consultation, budget refusal, cancellation of delayed output, SSE revocation and missing JWT expiry |
+| Actual browser/API/worker `npm run test:e2e` | **7 passed, 0 failed**, 1.6 minutes. Three existing acceptance tests retained plus four conversation tests |
+| Browser conversation coverage | Explicit fixture upload/Markdown table/code/run evidence, saved URL/reload/search, real SSE snapshots, keyboard preview focus, persistent theme/sidebar, honest live waiting/cancel/reload, 390px mobile/1280px laptop sizing, chat → specialist proposal → exact approval → persistent project/four tasks |
+| Frontend checks | Strict typecheck, Prettier and optimized Next.js production build passed; production npm audit **0 vulnerabilities** |
+| Python checks | Ruff lint/format across **60 files** passed; locked dependencies valid; `pip-audit`: no known vulnerabilities in audited packages (local app package skipped) |
+| Database | Populated local migration head **771bb4c719ce**; Alembic metadata check reports no drift; existing migration preservation tests pass in combined suite |
+| Local restart | API/worker/web stopped and restarted; byte-identical conversation/message/workflow/document digest observed. Document DB hashes verified; subsequent recovery check also verifies private UTF-8 files |
+| Visual review | Actual desktop 1440px, laptop 1280px, mobile 390px chat captures plus connected project/old dashboard reviewed; private screenshots remain ignored under artifacts/ |
+| Publication secret scan | **288 blobs checked, 0 findings** before the source commit; private data/artifacts remain ignored |
+| Remote verification | New source commit and CI run pending publication; no new Docker/PostgreSQL passing claim yet |
+
+Two browser failures found a missing accessible mode label and a saved-URL race behind a slower company-state refresh. The label and navigation sequence were repaired. Subsequent local startup/reload checks exceeded Playwright's default five-second expectation with accumulated real records, so asynchronous UI expectations now allow 15 seconds; the complete seven-test rerun passes. Expanded migration lint/format exposed generated legacy import/format issues; formatting-only repairs pass. No tests were removed, assertions replaced with fake responses, or live outcomes invented.
+
+Fixtures/control adapters in backend and browser tests are explicit. No real AI provider inference or account billing was verified. SSE coverage establishes real saved-state updates, not provider-token streaming. Container restart comparisons are defined in CI and require a successful actual run before being reported as passed. Full company pagination/load, dedicated coding-runner containment, semantic memory, client delivery, S3/OIDC/OAuth and staging/production remain unverified or incomplete.
+
+All sections below preserve historical verification milestones; their old phase labels/source SHAs are not the latest increment.
+
 ## 0.2.0 — October 8, 2026
 
 The original 44-test baseline was rerun successfully before changes. After the foundation work, portability fixes and monetary migration, the latest combined backend suite passed **66 tests, 0 failed, 1 dependency deprecation warning in 64.76 seconds**. Ruff lint and formatting passed across 49 API/test/script files. The warning does not establish an application failure.

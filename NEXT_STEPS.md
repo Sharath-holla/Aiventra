@@ -1,45 +1,40 @@
 # Work queue
 
-See `IMPLEMENTATION_STATUS.md` for verified progress. Continue in dependency order, updating evidence after each milestone.
+Follow [the latest production specification](docs/PRODUCTION_UPGRADE_SPEC.md), with evidence in IMPLEMENTATION_STATUS.md and TEST_REPORT.md. Prior master briefs remain preserved; their phase numbers are historical. Authorized remote: `origin` → `https://github.com/Sharath-holla/Aiventra.git`, ordinary pushes only.
 
-## Immediate Aiventra continuation
+## Next phase — Phase 3: Real AI Runtime
 
-Current phase: **Phase 1 — Production Foundation**. Preserve the verified 0.2.0 modules. The authorized Git remote is `origin` → `https://github.com/Sharath-holla/Aiventra.git`; push only with ordinary Git updates, never force.
-Source milestone `ca51145` is published on `master`. [All four CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/37804290311): 66 Linux backend tests, frontend build/audit, secret scan and real PostgreSQL/Compose plus 3 browser tests. PostgreSQL BIGINT storage, large concurrent reservations, concurrent login counters, audit mutation rejection and schema drift checks passed. Windows backend tests also passed 66 checks. The first run's Linux import/hostname failures are repaired.
+1. Add server-side provider connection tests and account-supported model discovery with timeouts, persisted outcomes, secret-free diagnostics and explicit owner controls. Configuration alone must never show Connected. Reuse the five existing adapters and registry instead of rebuilding them.
+2. Probe model-specific structured-output/capability support, surface actual failure/retry/fallback details and integrate verified provider state into the UI. Add provider-native token streaming with fenced cancellation and uncertain-call accounting; current conversation SSE streams saved workflow snapshots only.
+3. With a real API credential or running Ollama endpoint, register an available model with documented capabilities/prices. Run a small owner-capped CEO answer and consultation, verify saved model identity, usage/ledger/failure recovery and actual account charges. A distinct second model/provider is required for genuine cross-model review evidence.
+4. Confirm pause/readiness/revocation and same-step recovery using real provider failure/restart evidence. Preserve no-charge waits and uncertain paid-request reconciliation; never silently fall back to fixtures.
 
-1. Configure one supported real provider in the private environment, or a running local Ollama instance. Register the exact available model/capabilities and documented pricing. Run a small owner-capped consultation, verify persisted usage and compare actual account billing; configure a distinct reviewer model/service for live review evidence.
-2. Make a dedicated Docker runner available. Compose services already pass remotely, but code execution remains disabled there. Exercise an approved Python/Node coding task with nonempty actual tests, independent review and failed-test/timeout/output-limit behavior. Then validate service/host restart persistence and PostgreSQL load beyond these contract checks. Existing loopback development services must be stopped before local Compose startup.
-3. Finish operational validation: pin/review deployed images, test encrypted backup/restore and real failures, and verify trusted proxy source limits plus session/heartbeat retention. The passing ephemeral CI stack is not a production restore/load certificate.
-4. Finish foundation: secure invitation provisioning/client scope, browser OIDC if required, trusted source-rate-limit integration, operational session/heartbeat retention, robust health/error monitoring and restore drill. Then proceed to Phase 2 registry/runtime depth and Phase 3 benchmarks/memory. Do not jump to a decorative Phase 8 redesign in place of these gates.
+No API credentials or running Ollama instance were available for this milestone. Steps 1-2 can be implemented without inventing live results; step 3 requires the external configuration.
 
-Later phase priorities remain dynamic workforce allocation, autonomous repair and security/PM acceptance, client delivery/acceptance, semantic memory, durable communication and supported staging connectors. The actual crypto repository is required for Phase 11 evidence.
+## Remaining UI foundation and full integration
 
-## Next verification milestones
+- Add navigation for conversation turns older than the latest 100, optional title editing/retention controls, syntax highlighting, direct specialist discussions and links from completed approvals to project delivery context.
+- Finish the Phase 9 workforce drawer/organization map, richer project activity/memory/task tabs, provider diagnostics and full accessible mobile/keyboard behavior. Current private document preview has focus trapping/restoration; no comprehensive accessibility certification is claimed.
+- Paginate legacy state collections and test large-company latency. Conversation history already has search/50-record pagination; snapshot/query load still needs production measurements.
+- Add PDF/image ingestion and permission-scoped repository URL import with real evidence extraction. Current attachments are small UTF-8 text files; local repository discovery remains a separate approved engineering operation.
 
-1. Configure one real provider in the private server environment and register an account-supported model with official capabilities and source-backed prices. Run a small capped live consultation; compare actual usage, failures and account billing. Keep fixture and live evidence separate.
-2. Use a dedicated Docker runner in a suitable environment. Basic PostgreSQL migrations, audit triggers and concurrent cap/login contracts are verified remotely; extend distributed claims/load/restart evidence and exercise an approved Python/Node coding task with actual nonempty tests. Validate failed-test, timeout, output-limit and independent-review behavior. Do not execute generated code directly on the host.
-3. Supply a copy of the owner's actual crypto repository under the configured root, preserving uncommitted work and excluding wallet/exchange secrets. Inspect its discovery report before selecting its runner/test framework. Record genuine baseline evidence; authorize specific changes only after the scope is concrete.
+## Later phases in dependency order
 
-## Core workflow extensions
+4. Routing: measured capability/quality/latency evaluations, explicit model overrides, adjustable scoring, invoice and cached/reasoning usage reconciliation.
+5. Memory: scoped semantic indexing/retrieval, provenance, versioning and retention/erasure, preserving client/project boundaries.
+6. Orchestration: durable message dispatch/acknowledgement/retries, dynamic approved delegation, dead letters and distributed restart/load tests.
+7. Consulting/workforce: invitation-based client access, live research/complete rate comparisons, exact staffing and budget approvals, dynamic PM/team plans.
+8. Coding/QA: dedicated hardened Docker runner, successful nonempty baseline/final tests, real independent reviews, bounded repair and security/PM acceptance. Compose integration does not certify the separate code runner.
+9. UI integration: complete the remaining connected workspaces against real backend data/actions.
+10. DevOps/security: browser OIDC if required, trusted edge address limits, session/heartbeat retention, encrypted restore drills, metrics/traces, secret manager and adversarial isolation/load verification.
+11. Delivery: approved staging connector, health/smoke/rollback, client acceptance and genuine end-to-end implementation. Supply the actual owner crypto repository before its baseline/feature/testnet work.
+12. Publication: run local/CI checks, staged/history secret scans, ordinary commits/pushes, verify remote SHA and record CI outcomes. Never mark the whole product complete based on fixture workflows.
 
-- Add measured benchmark/evaluation records, routing override and configurable cost/quality weights. Import provider invoices and reconcile cached/reasoning usage. Sync agent cost-setting changes with existing cap records and define approval semantics for cap increases.
-- Add exact approval records for budget changes, environment changes and external actions. Revocable local sessions and database login limits are now implemented; add invitation provisioning, OIDC browser login, retention and the client review portal.
-- Expand PM planning to epics/sprints, capacity, deadlines, accepted deliverables and parallel isolated coding tasks. Add bounded repair, dependency installation with approval, framework runners, coverage, commits, reviewed PRs and merge-conflict handling.
-- Build a general durable communication delivery service with idempotent receivers, acknowledgments, bounded retries and escalation. Preserve correlation and authorization throughout the dispatch.
-- Improve retrieval with permission-scoped pgvector indexing and citation provenance. Add supported rich document ingestion and memory retention/erasure policy. Do not mix client/project context.
-- Add pagination/search for all collections, richer run/approval details, direct employee conversations and agent/organization performance metrics. Keep every visible action connected to a meaningful server operation.
+## External configuration still required
 
-## External operations
+- One supported provider API key and available model, or an actual running local Ollama instance; second independent model/provider for live verification.
+- Dedicated Docker runner access for generated-code tests. Docker is absent on the current Windows host; Compose services can run in ephemeral GitHub CI.
+- Actual owner crypto repository, excluding wallet/exchange secrets.
+- Production identity/invitations, optional S3 storage, staging/cloud and OAuth mail/calendar accounts only when those phases are implemented and authorized.
 
-- Implement staging deployment with QA evidence, exact environment approvals, smoke tests and rollback before offering production deployment.
-- Implement supported OAuth mail/calendar connectors, drafts/replies and explicit external-effect approval. Add authorized lead research and CRM integrations. Never treat a saved draft as a sent message.
-- Provide normalized department workflows for HR, sales, marketing, finance, support and legal work; generic document tasks alone do not fulfill their entire operating scope.
-
-## Production hardening
-
-- Adopt/test Temporal or a comparably verified distributed workflow engine, preserving uncertain-request reconciliation and idempotency.
-- Exercise encrypted backup/restore and real process/host/network failures. Add metrics, trace export, log retention, alert delivery and independent audit anchoring.
-- Use a managed secret store, least-privilege database roles and dedicated hardened runner hosts. Complete adversarial sandbox/tenant tests, PostgreSQL/load tests and security review before public deployment.
-- Preserve the passing remote backend/frontend/secret/Compose/browser gates and add container/image scans. Record each source commit's actual result; local success is not remote CI evidence.
-
-Update IMPLEMENTATION_STATUS.md, TEST_REPORT.md and CHANGELOG.md after each milestone. Keep the full original brief as the acceptance target.
+Do not expose private `.env`, credentials, database contents or uploaded documents in commits, logs or screenshots. Keep code execution disabled until the dedicated runner is verified.

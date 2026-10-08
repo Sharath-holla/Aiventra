@@ -4,7 +4,7 @@ A working Next.js + FastAPI application for supervising a configurable AI workfo
 
 **This is a tested local foundation, not a finished production enterprise platform.** Read [implementation status](IMPLEMENTATION_STATUS.md) and [test evidence](TEST_REPORT.md) before enabling live integrations. The full build target is preserved in [the master brief](docs/MASTER_BUILD_PROMPT.md).
 
-The current upgrade specification is [Aiventra master specification](docs/AIVENTRA_MASTER_SPEC.md). The source audit is in [AUDIT_REPORT.md](AUDIT_REPORT.md). Current phase: Production Foundation. Repository: [Sharath-holla/Aiventra](https://github.com/Sharath-holla/Aiventra).
+The current upgrade specification is [Production engineering and premium UI](docs/PRODUCTION_UPGRADE_SPEC.md); the [previous specification](docs/AIVENTRA_MASTER_SPEC.md) is preserved. The source audit is in [AUDIT_REPORT.md](AUDIT_REPORT.md). Current milestone: Phase 2 Premium UI Foundation; next phase: Phase 3 Real AI Runtime. Repository: [Sharath-holla/Aiventra](https://github.com/Sharath-holla/Aiventra).
 
 ## Start on Windows 11
 
@@ -55,6 +55,22 @@ Linux/macOS: use `.venv/bin/python` and run the API, worker and frontend in sepa
 API documentation: http://localhost:8000/docs. Public health: http://localhost:8000/health. All business operations require authentication. The web proxy keeps the session token in an HttpOnly cookie.
 Liveness is `/health/live`; readiness is `/health/ready` and requires the expected migration plus a fresh worker heartbeat. Existing pre-0.2 tokens need a new sign-in. Public signup is intentionally unavailable; the owner is provisioned during setup.
 
+## Executive chat
+
+The default workspace saves real conversations and connects questions to the separate worker. **Live AI** is the default and waits for an eligible configured provider. Choose **Local fixture** explicitly for an offline example; fixture output never claims live inference. Inspect actual workflow/model/cost evidence below each turn.
+
+Attach small UTF-8 `.txt`, `.md`, `.csv` or `.json` files (16 KB each, four per turn). Preview their saved content/hash, search recent conversations and reopen their URLs after reload/restart. SSE streams saved workflow state; provider token streaming and rich PDF/image ingestion are pending. Stop cancels publication of the response; in-flight paid usage may still be charged.
+
+Choose **Start consultation** to invoke the existing specialist flow. Its review button opens the exact requirement; versioned approval opens the exact persistent project with dependent planning tasks. The separate **Company commands** view retains the earlier bounded operations interface. Theme/sidebar preferences persist locally.
+
+## Executive chat
+
+The default workspace saves real conversations and connects questions to the separate worker. **Live AI** is the default and waits for an eligible configured provider. Choose **Local fixture** explicitly for an offline example; fixture output never claims live inference. Inspect actual workflow/model/cost evidence below each turn.
+
+Attach small UTF-8 `.txt`, `.md`, `.csv` or `.json` files (16 KB each, four per turn). Preview their saved content/hash, search recent conversations and reopen their URLs after reload/restart. SSE streams saved workflow state; provider token streaming and rich PDF/image ingestion are pending. Stop cancels publication of the response; in-flight paid usage may still be charged.
+
+Choose **Start consultation** to invoke the existing specialist flow. Its review button opens the exact requirement; versioned approval opens the exact persistent project with dependent planning tasks. The separate **Company commands** view retains the earlier bounded operations interface. Theme/sidebar preferences persist locally.
+
 ## What works
 
 - 16 departments and 136 initial employees; optional crypto specialists; instance cloning, tool permissions and routing controls.
@@ -66,7 +82,7 @@ Liveness is `/health/live`; readiness is `/health/ready` and requires the expect
 - Owner-assigned specialist document work and permission-scoped project keyword memory.
 - Durable separate worker, atomic job claims, checkpoints, failure bounds, owner notifications and uncertain-paid-call reconciliation.
 - Configurable adapters for OpenAI Responses, Anthropic Messages, Gemini, Ollama and compatible chat-completion endpoints. No live model IDs or prices are invented or preloaded.
-- Capability, quality, sensitivity, context, freshness and availability routing filters; bounded fallback; atomic company/project/task/agent/model/day/month spending reservations.
+- Capability, quality, sensitivity, context, freshness and availability routing filters; bounded fallback; atomic company/project/task/conversation/turn/agent/model/day/month spending reservations.
 - Read-only local repository discovery, approved isolated Git worktrees, structured file patches, independent reviewer boundary and restricted container QA implementation.
 - Failed/empty baseline blocking, one/two review passes, owner-approved model/provider diversity policy and persisted achieved-diversity evidence.
 - Company/project/agent/provider controls, independent watchdog, messages, meetings, audit chain with database mutation guards.
@@ -82,7 +98,9 @@ The local workflow engine is a tested transactional database state machine. SQLi
 ## Verify
 
 ```powershell
-.venv/Scripts/ruff.exe check apps/api tests
+.venv/Scripts/ruff.exe check apps/api tests scripts infrastructure/database/migrations
+.venv/Scripts/ruff.exe format --check apps/api tests scripts infrastructure/database/migrations scripts infrastructure/database/migrations
+.venv/Scripts/ruff.exe format --check apps/api tests scripts infrastructure/database/migrations
 .venv/Scripts/python.exe -m pytest -q
 .venv/Scripts/python.exe -m alembic check
 .venv/Scripts/python.exe -m pip_audit

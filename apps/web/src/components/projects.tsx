@@ -11,9 +11,15 @@ import { api, date, money } from "@/lib/api";
 import type { Task } from "@/lib/types";
 import { Badge, Button, Empty, Panel, Pretty, useApp } from "./common";
 
-export function Projects({ engineering }: { engineering: boolean }) {
+export function Projects({
+  engineering,
+  initialId = "",
+}: {
+  engineering: boolean;
+  initialId?: string;
+}) {
   const { state, run, busy } = useApp();
-  const [selected, setSelected] = useState("");
+  const [selected, setSelected] = useState(initialId);
   const [tab, setTab] = useState("board");
   const [path, setPath] = useState("");
   const [repoName, setRepoName] = useState("");

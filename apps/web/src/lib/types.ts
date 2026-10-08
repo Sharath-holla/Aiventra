@@ -221,6 +221,7 @@ export interface Notification extends Entity {
   subject_id: string;
 }
 export interface State {
+  conversations: Conversation[];
   organization: {
     id: string;
     name: string;
@@ -270,4 +271,36 @@ export interface State {
     version: number;
     expires_at: number;
   })[];
+}
+
+export interface Conversation extends Entity {
+  owner_id: string;
+  client_id: string;
+  project_id: string | null;
+  title: string;
+  mode: "live" | "mock";
+  budget_micro: number;
+  version: number;
+  updated_at: number;
+}
+export interface ConversationTurn extends Entity {
+  conversation_id: string;
+  position: number;
+  intent: "chat" | "consult";
+  content: string;
+  response: string;
+  attachment_ids: string[];
+  workflow: Workflow | null;
+  runs: Run[];
+  consultation: {
+    requirement: Requirement;
+    workflow: Workflow | null;
+    proposals: Proposal[];
+  } | null;
+}
+export interface ConversationSnapshot {
+  conversation: Conversation;
+  turns: ConversationTurn[];
+  total_turns: number;
+  attachments: Omit<Artifact, "content">[];
 }
