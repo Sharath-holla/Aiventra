@@ -59,7 +59,7 @@ Liveness is `/health/live`; readiness is `/health/ready` and requires the expect
 
 The default workspace saves real conversations and connects questions to the separate worker. **Live AI** is the default and waits for an eligible configured provider. Choose **Local fixture** explicitly for an offline example; fixture output never claims live inference. Inspect actual workflow/model/cost evidence below each turn.
 
-Attach small UTF-8 `.txt`, `.md`, `.csv` or `.json` files (16 KB each, four per turn). Preview their saved content/hash, search recent conversations and reopen their URLs after reload/restart. SSE streams saved workflow state; provider token streaming and rich PDF/image ingestion are pending. Stop cancels publication of the response; in-flight paid usage may still be charged.
+Attach small UTF-8 `.txt`, `.md`, `.csv` or `.json` files (16 KB each, four per turn). Preview their saved content/hash, search recent conversations and reopen their URLs after reload/restart. SSE streams saved workflow state and provisional native output for models explicitly configured with streaming. Rich PDF/image ingestion remains pending. Stop cancels publication of the response; in-flight paid usage may still be charged.
 
 Choose **Start consultation** to invoke the existing specialist flow. Its review button opens the exact requirement; versioned approval opens the exact persistent project with dependent planning tasks. The separate **Company commands** view retains the earlier bounded operations interface. Theme/sidebar preferences persist locally.
 
@@ -91,7 +91,7 @@ Meetings & messages can queue a scoped artifact task or a bounded 2–8 particip
 
 ## Explicit limits
 
-Live provider calls require your API credentials and valid configured models/prices. No live credentials were available during this build. Docker is unavailable on the build host, so actual generated-code execution and container-based QA have **not** been verified. Cloud deployment is intentionally rejected until a supported connector and environment-specific approval exist. No mail/calendar OAuth, external sending, GitHub PR creation, semantic pgvector retrieval, automatic model benchmark program or Temporal production orchestration is claimed.
+Live provider calls require your API credentials and valid configured models/prices. No live credentials were available during this build. Docker is unavailable on the build host, so actual generated-code execution and container-based QA have **not** been verified. Cloud deployment is intentionally rejected until a supported connector and environment-specific approval exist. No mail/calendar OAuth, external sending, GitHub PR creation, semantic pgvector retrieval, comprehensive model quality certification or Temporal production orchestration is claimed.
 
 The local workflow engine is a tested transactional database state machine. SQLite is for a trusted owner's local development. Hostile multi-tenant production execution requires hardened dedicated runners and PostgreSQL verification. The existing crypto repository has not been supplied; its integration remains pending.
 
@@ -142,3 +142,5 @@ docs/                 architecture, operations, provider setup, user guide and f
 ```
 
 See [architecture](docs/architecture.md), [database design](docs/database.md), [provider setup](docs/providers.md), [security](docs/security.md), [operating guide](docs/user-guide.md), [crypto import](docs/repositories.md), [deployment/recovery](docs/operations.md), [testing](docs/testing.md) and [API reference](docs/api.md).
+
+Native streaming, closed server tools/peer documents and the Benchmarks tab: see [NATIVE_EXECUTION.md](NATIVE_EXECUTION.md). Latest request: docs/LIVE_EXECUTION_SPEC.md. Phases 3–5 remain incomplete.

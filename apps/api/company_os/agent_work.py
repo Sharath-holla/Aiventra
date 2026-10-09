@@ -40,7 +40,15 @@ async def work_step(session: Session, workflow: m.Workflow, token: str):
     project = session.get(m.Project, work.project_id) if work.project_id else None
     if project:
         project_authority(session, project)
-    if work.kind == "probe":
+    if work.kind == "tools":
+        from .tools import tool_step
+
+        await tool_step(session, workflow, token, work, project)
+    elif work.kind == "benchmark":
+        from .benchmarks import benchmark_step
+
+        await benchmark_step(session, workflow, token, work)
+    elif work.kind == "probe":
         model = session.get(m.ModelConfig, work.input["model_override"])
         provider = session.get(m.Provider, work.subject_id)
         if (

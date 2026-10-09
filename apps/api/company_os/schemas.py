@@ -101,7 +101,9 @@ class ProviderInput(Strict):
 class ModelInput(Strict):
     provider_id: str
     identifier: str = Field(min_length=1, max_length=200)
-    capabilities: list[Literal["structured", "reasoning", "coding", "tools"]] = Field(min_length=1)
+    capabilities: list[Literal["structured", "reasoning", "coding", "tools", "streaming"]] = Field(
+        min_length=1
+    )
     context_tokens: int = Field(ge=1024, le=10**7)
     quality: int = Field(ge=0, le=100)
     reliability: int = Field(ge=0, le=100, default=100)
@@ -117,7 +119,7 @@ class AgentUpdate(Strict):
     tools: (
         list[Literal["read_context", "write_artifact", "propose_patch", "run_tests", "review_diff"]] | None
     ) = None
-    routing_policy: Literal["economy", "balanced", "quality", "fastest"] | None = None
+    routing_policy: Literal["economy", "balanced", "quality", "fastest", "manual"] | None = None
     max_iterations: int | None = Field(default=None, ge=1, le=5)
     max_cost_micro: int | None = Field(default=None, ge=0, le=10**10)
     max_runtime_seconds: int | None = Field(default=None, ge=10, le=180)

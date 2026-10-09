@@ -290,6 +290,7 @@ export function Workforce({ hierarchy }: { hierarchy: boolean }) {
                 <option value="economy">Economy</option>
                 <option value="balanced">Balanced</option>
                 <option value="quality">Quality first</option>
+                <option value="manual">Manual exact model override</option>
                 <option value="fastest">Fastest</option>
               </select>
             </label>

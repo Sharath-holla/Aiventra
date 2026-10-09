@@ -4,6 +4,7 @@ import { ArrowRight, MessageSquare, Send, Users } from "lucide-react";
 import { api, date } from "@/lib/api";
 import { Badge, Button, Empty, Panel, Pretty, useApp } from "./common";
 import { AgentWorkControls } from "./agent-work-controls";
+import { NativeExecution } from "./native-execution";
 export function Communications({ chat }: { chat: boolean }) {
   const { state, run, busy } = useApp();
   const [text, setText] = useState("");
@@ -129,6 +130,7 @@ export function Communications({ chat }: { chat: boolean }) {
   return (
     <>
       <AgentWorkControls />
+      <NativeExecution />
       <Panel
         title="Internal consulting meetings"
         subtitle="Independent contributions, one synthesis round, recorded decision"

@@ -223,6 +223,26 @@ export interface Notification extends Entity {
   subject_id: string;
 }
 export interface State {
+  run_traces: RunTrace[];
+  tool_invocations: (Entity & {
+    workflow_id: string;
+    name: string;
+    status: string;
+    result: Record<string, unknown>;
+  })[];
+  benchmark_results: (Entity & {
+    work_id: string;
+    model_id: string;
+    case_name: string;
+    status: string;
+    score: number;
+    metrics: { cost_micro: number; duration_ms: number };
+  })[];
+  benchmark_profiles: (Entity & {
+    model_id: string;
+    suite_version: string;
+    metrics: { quality: number; [key: string]: unknown };
+  })[];
   provider_probes: (Entity & {
     provider_id: string;
     status: string;
@@ -353,6 +373,7 @@ export interface Conversation extends Entity {
   updated_at: number;
 }
 export interface ConversationTurn extends Entity {
+  run_traces: RunTrace[];
   conversation_id: string;
   position: number;
   intent: "chat" | "consult";
@@ -366,6 +387,15 @@ export interface ConversationTurn extends Entity {
     workflow: Workflow | null;
     proposals: Proposal[];
   } | null;
+}
+
+export interface RunTrace extends Entity {
+  run_id: string;
+  state: string;
+  preview: string;
+  event_count: number;
+  tool_count: number;
+  usage_known: boolean;
 }
 export interface ConversationSnapshot {
   conversation: Conversation;

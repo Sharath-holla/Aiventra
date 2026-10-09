@@ -460,3 +460,49 @@ class AgentWork(Tenant, Base):
     participants: Mapped[list[str]] = mapped_column(JSON, default=list)
     input: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
     result: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+
+
+class RunTrace(Tenant, Base):
+    __tablename__ = "run_traces"
+    run_id: Mapped[str] = mapped_column(ForeignKey("model_runs.id"), unique=True)
+    state: Mapped[str] = mapped_column(default="streaming")
+    preview: Mapped[str] = mapped_column(Text, default="")
+    event_count: Mapped[int] = mapped_column(default=0)
+    tool_count: Mapped[int] = mapped_column(default=0)
+    usage_known: Mapped[bool] = mapped_column(default=False)
+
+
+class ToolInvocation(Tenant, Base):
+    __tablename__ = "tool_invocations"
+    workflow_id: Mapped[str] = mapped_column(ForeignKey("workflows.id"), index=True)
+    run_id: Mapped[str] = mapped_column(ForeignKey("model_runs.id"))
+    agent_id: Mapped[str] = mapped_column(ForeignKey("agents.id"))
+    project_id: Mapped[str | None] = mapped_column(ForeignKey("projects.id"))
+    call_id: Mapped[str] = mapped_column(String(200))
+    step_name: Mapped[str] = mapped_column(String(100))
+    name: Mapped[str] = mapped_column(String(100))
+    arguments: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    result: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    status: Mapped[str] = mapped_column(default="rejected")
+    __table_args__ = (UniqueConstraint("workflow_id", "step_name", "call_id"),)
+
+
+class BenchmarkResult(Tenant, Base):
+    __tablename__ = "benchmark_results"
+    work_id: Mapped[str] = mapped_column(ForeignKey("agent_work.id"), index=True)
+    model_id: Mapped[str] = mapped_column(ForeignKey("model_configs.id"), index=True)
+    case_name: Mapped[str] = mapped_column(String(100))
+    score: Mapped[int] = mapped_column(default=0)
+    status: Mapped[str] = mapped_column()
+    metrics: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    __table_args__ = (UniqueConstraint("work_id", "case_name"),)
+
+
+class BenchmarkProfile(Tenant, Base):
+    __tablename__ = "benchmark_profiles"
+    model_id: Mapped[str] = mapped_column(ForeignKey("model_configs.id"), unique=True)
+    work_id: Mapped[str] = mapped_column(ForeignKey("agent_work.id"))
+    suite_version: Mapped[str] = mapped_column(String(100))
+    fingerprint: Mapped[str] = mapped_column(String(64))
+    checked_at: Mapped[int] = mapped_column(default=now)
+    metrics: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)

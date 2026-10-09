@@ -1,10 +1,28 @@
 # Implementation status
 
+Updated October 9, 2026. The latest request is [LIVE_EXECUTION_SPEC.md](docs/LIVE_EXECUTION_SPEC.md), extending the preserved Phases 2–5 specification.
+
+**Current increment: Milestone A native execution and model measurement. Phase 2 remains partial; Phases 3–5 are incomplete.**
+
+- Native OpenAI Responses, Anthropic Messages, Gemini, xAI, Ollama and compatible streaming parsers, plus complete-response native tools. Transport, output, arguments, rounds, time and usage are bounded. Interrupted/unknown usage remains reserved for owner reconciliation; known usage survives malformed/incomplete output.
+- Closed calculator/project memory/artifact/document/handoff tools with strict argument validation, role/tenant/project/approval checks, per-round deduplication and durable results. One selected peer document task shares the job cap and produces an actual stored artifact. Parent cancellation also fences pending peer tasks/workflows.
+- Persisted, redacted execution traces and provisional CEO output through authenticated conversation SSE. Final answers still require validation; no hidden reasoning text is retained.
+- Automatic eight-case micro-v1 benchmarks, actual tool-result exercise, persisted scores/profiles/run provenance/cost/latency/reliability, model/price/credential invalidation and 30-day freshness. Current profiles inform constrained routing and explainable recommendations; manual selection uses an exact override or employee preference. Profiles do not grant registry capabilities.
+- Connected Benchmarks tab and Native tool execution form, actual job status/cost/case results/cancellation/peer evidence and trace inspection. Streaming is now an accepted model registration capability.
+- Additive migration 4666ed0d2d17 adds four tables; existing records and 13 monetary BIGINT columns are retained. A private pre-migration backup was taken; local Alembic check reports no drift.
+
+Latest local verification: 129 backend tests and ten real-service browser checks passed, with one dependency deprecation warning. Exact final checks, repaired failures and remote source/CI evidence are in TEST_REPORT.md. Controlled adapter tests are not live model verification. The benchmark is a small deterministic rubric, not comprehensive quality or production code certification. See [NATIVE_EXECUTION.md](NATIVE_EXECUTION.md).
+
+Next: bounded live provider/account checks and broader benchmark/recovery/role coverage; then Milestone B semantic memory, C workforce planning, D isolated coding/repair and E delivery. Docker/Ollama and real provider credentials remain unavailable locally; later production identity/cloud/target-repository configuration is still required.
+
+## Previous provider/workforce foundation
+
+
 Updated October 9, 2026. The authoritative request is [Phases 2–5](docs/PHASES_2_5_SPEC.md). Earlier roadmap phase numbers are historical. The audit began on clean `master` at `ae10711`; the previous tested application source was `4de41f5`.
 
-**Current increment: Milestone A — Phase 2 workforce/provider foundation. Phase 2 is partially implemented; Phases 3–5 are not complete.** This increment adds real backend and UI functionality without certifying live AI or production deployment.
+**Previous increment: Milestone A — Phase 2 workforce/provider foundation. Phase 2 is partially implemented; Phases 3–5 are not complete.** This increment adds real backend and UI functionality without certifying live AI or production deployment.
 
-Published application source: **c28582ee6aa3ac9ba936c149a428feeaf01a1d60**. [All four GitHub Actions jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/37829944013), including 98 Linux backend tests, nine real Compose/PostgreSQL browser tests and an actual container restart/integrity comparison. Local agent-work restart evidence and exact limits are recorded in TEST_REPORT.md.
+Previous published application source: **c28582ee6aa3ac9ba936c149a428feeaf01a1d60**. [All four GitHub Actions jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/37829944013), including 98 Linux backend tests, nine real Compose/PostgreSQL browser tests and an actual container restart/integrity comparison. Local agent-work restart evidence and exact limits are recorded in TEST_REPORT.md.
 
 ## Implemented in this increment
 
@@ -24,13 +42,13 @@ Published application source: **c28582ee6aa3ac9ba936c149a428feeaf01a1d60**. [All
 
 See [TEST_REPORT.md](TEST_REPORT.md) for exact final counts, repaired failures and CI evidence. Controlled HTTP adapters and explicit fixtures test contracts; they do not establish live provider access. The local app was migrated and schema drift checked. Docker and Ollama remain unavailable on this Windows host.
 
-Provider-native token streaming, native tool-call adapters/dispatch, model-specific automatic capability/benchmark probes, broader tool registry/templates, comprehensive recovery/load certification and lifecycle retention remain Phase 2 work. Existing workflow SSE streams committed snapshots. Job bodies and responses remain bounded; general autonomous delegation is not enabled.
+Native streaming/complete-response adapters, a scoped tool registry and versioned automatic microbenchmarks are now implemented. Broader tools/templates, comprehensive quality evaluations, recovery/load certification and lifecycle retention remain Phase 2 work. Existing workflow SSE streams committed snapshots. Job bodies and responses remain bounded; general autonomous delegation is not enabled.
 
 ## Remaining milestones
 
 | Milestone | Actual state |
 |---|---|
-| A — Phase 2 | Core vault/catalog/routing/runtime/messages/meetings implemented; 98 backend and nine browser checks passed locally. Remote verification is recorded in TEST_REPORT.md. Live verification and remaining adapter/tool work pending |
+| A — Phase 2 | Vault/catalog/routing/runtime/messages/meetings plus native execution and microbenchmarks implemented; latest verification is recorded above and in TEST_REPORT.md. Remote verification is recorded in TEST_REPORT.md. Live verification, broader model evaluation and distributed recovery/load coverage pending |
 | B — Phase 3 memory | Scoped keyword memory and saved conversation/artifact history exist; semantic embeddings/indexing, layered memory, version/provenance/retention still missing |
 | C — Phase 3 workforce | Registered roles and fixed approved planning tasks exist; requirements-based team plans, staffing approval and distributed scheduling still missing |
 | D — Phase 4 coding | Approved Git worktrees, actual patch/diff workflow and restricted runner implementation exist; Docker runner evidence, bounded repair, commits/PR/merge lifecycle and broader QA incomplete |

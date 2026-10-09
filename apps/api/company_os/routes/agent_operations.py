@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import Field
-from sqlalchemy import update
+from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -52,6 +52,17 @@ class ProbeInput(Strict):
     request_id: UUID
     model_id: str
     budget_micro: int = Field(default=100000, ge=1000, le=1000000)
+
+
+class ToolsInput(WorkInput):
+    project_id: str
+    agent_id: str
+    peer_ids: list[str] = Field(default_factory=list, max_length=8)
+    objective: str = Field(min_length=10, max_length=12000)
+
+
+class BenchmarkInput(ProbeInput):
+    budget_micro: int = Field(default=1000000, ge=1000, le=5000000)
 
 
 def approved_project(session: Session, project_id: str, user: m.User):
@@ -148,13 +159,123 @@ def runtime(user: m.User = Depends(owner), session: Session = Depends(session_de
     return snapshot(session, user.org_id)
 
 
+@router.post("/agent-tool-jobs", status_code=201)
+def start_tools(
+    data: ToolsInput, user: m.User = Depends(owner), session: Session = Depends(session_dependency)
+):
+    previous = existing_work(session, data.request_id, user, digest(data.model_dump(mode="json")))
+    if previous:
+        return previous
+    if data.mode != "live":
+        raise HTTPException(422, "Native tools require live mode; deterministic adapter tests are separate")
+    project = approved_project(session, data.project_id, user)
+    agent = authorized_agent(session, data.agent_id, user, project, "write_artifact")
+    if len(set(data.peer_ids)) != len(data.peer_ids) or agent.id in data.peer_ids:
+        raise HTTPException(422, "Choose distinct peer agents")
+    peers = [
+        authorized_agent(session, record_id, user, project, "write_artifact") for record_id in data.peer_ids
+    ]
+    return enqueue(
+        session,
+        user,
+        data,
+        "tools",
+        agent.id,
+        [agent.id],
+        {
+            "objective": data.objective,
+            "peer_agents": [{"id": a.id, "name": a.name} for a in peers],
+            "model_override": data.model_override,
+        },
+        project=project,
+    )
+
+
+@router.post("/model-benchmarks", status_code=201)
+def start_benchmark(
+    data: BenchmarkInput, user: m.User = Depends(owner), session: Session = Depends(session_dependency)
+):
+    from ..benchmarks import SUITE, fingerprint
+
+    previous = existing_work(session, data.request_id, user, digest(data.model_dump(mode="json")))
+    if previous:
+        return previous
+    model = scoped(session, m.ModelConfig, data.model_id, user)
+    provider = scoped(session, m.Provider, model.provider_id, user)
+    if provider.kind == "mock":
+        raise HTTPException(422, "Benchmarks require a real-provider registry entry")
+    agent = agent_for(session, user.org_id, "CEO")
+    authorized_agent(session, agent.id, user)
+    return enqueue(
+        session,
+        user,
+        data,
+        "benchmark",
+        model.id,
+        [agent.id],
+        {
+            "model_override": model.id,
+            "suite_version": SUITE,
+            "fingerprint": fingerprint(session, model, provider),
+        },
+    )
+
+
+@router.get("/model-recommendations")
+def recommendations(user: m.User = Depends(owner), session: Session = Depends(session_dependency)):
+    from ..benchmarks import current_profile
+    from ..gateway import eligible_models
+    from ..providers import configured
+
+    result = {}
+    for policy in ("economy", "balanced", "quality"):
+        candidates = [
+            (model, provider)
+            for model, provider in eligible_models(
+                session, user.org_id, "live", {"structured"}, 70, "internal", 8192, policy
+            )
+            if configured(provider) and current_profile(session, model, provider)
+        ]
+        if candidates:
+            model, provider = candidates[0]
+            profile = current_profile(session, model, provider)
+            result[policy] = {
+                "model_id": model.id,
+                "metrics": profile.metrics,
+                "reason": f"{policy}: current measured profile, structured/internal, quality >=70, context >=8192, fresh registered prices; job-specific scope/caps are rechecked",
+            }
+        else:
+            result[policy] = {
+                "model_id": None,
+                "reason": "No measured, configured model meets the current default advice constraints",
+            }
+    result["manual"] = {
+        "model_id": None,
+        "reason": "Use an exact job override or the employee's selected model preference; no automatic fallback",
+    }
+    return result
+
+
 @router.post("/agent-work/{record_id}/cancel")
 def cancel_work(
     record_id: str, user: m.User = Depends(owner), session: Session = Depends(session_dependency)
 ):
     work = scoped(session, m.AgentWork, record_id, user)
+    session.execute(
+        update(m.Organization).where(m.Organization.id == user.org_id).values(paused=m.Organization.paused)
+    )
+    session.execute(
+        update(m.Workflow).where(m.Workflow.id == work.workflow_id).values(lease_until=m.Workflow.lease_until)
+    )
     workflow = session.get(m.Workflow, work.workflow_id)
-    if workflow.status in {"completed", "cancelled"}:
+    children = [
+        task
+        for task in session.scalars(
+            select(m.Task).where(m.Task.org_id == user.org_id, m.Task.project_id == work.project_id)
+        )
+        if task.payload.get("job_id") == work.id and task.status not in {"completed", "cancelled", "failed"}
+    ]
+    if workflow.status == "cancelled" or (workflow.status == "completed" and not children):
         raise HTTPException(409, "Agent work already finished")
     session.execute(
         update(m.Workflow)
@@ -166,6 +287,12 @@ def cancel_work(
     workflow_state(
         session, workflow, "BLOCKED", {"reason": "owner cancelled; in-flight usage may still be charged"}
     )
+    for task in children:
+        task.status = "cancelled"
+        child = session.scalar(select(m.Workflow).where(m.Workflow.task_id == task.id))
+        if child:
+            child.status, child.lease_until, child.lease_token = "cancelled", 0, uid()
+            workflow_state(session, child, "BLOCKED", {"reason": "owner cancelled parent job"})
     audit(session, user.org_id, user.id, "agent_work.cancelled", work.id, project_id=work.project_id)
     session.commit()
     return serialize(workflow)

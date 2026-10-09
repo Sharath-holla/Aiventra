@@ -3,7 +3,7 @@
 Current work follows [Phases 2–5](docs/PHASES_2_5_SPEC.md): Milestone A core increment; the wider four-phase request is incomplete. See IMPLEMENTATION_STATUS.md and TEST_REPORT.md for implementation and evidence.
 
 - No live provider account or Ollama inference was verified locally. Stored credentials, catalog access and actual successful inference are separate facts. Consumer subscriptions do not establish API access.
-- Provider-native streaming/tools and automatic capability/benchmark probes remain incomplete. SSE streams saved workflow state. Owner quality scores do not certify semantic correctness.
+- Native streaming/complete-response tools and automatic microbenchmarks are implemented, with deterministic protocol tests. Live integration remains pending. The eight-case AST/keyword/calculator rubric is deliberately limited and does not certify general reasoning or production code quality; owner grades do not certify semantic correctness.
 - Durable messages and bounded meetings now execute through the worker; broader autonomous delegation, lifecycle retention, dead letters and distributed-load certification remain pending.
 - Semantic indexing, layered memory, provenance/version/erasure controls and requirements-based approved team allocation remain missing.
 - Fixed planning tasks and saved documents do not establish completed software, client delivery or acceptance.

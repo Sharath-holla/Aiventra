@@ -57,6 +57,14 @@ def turn_data(session, turn):
         else []
     )
     result["consultation"] = None
+    result["run_traces"] = [
+        serialize(row)
+        for row in session.scalars(
+            select(m.RunTrace).where(
+                m.RunTrace.org_id == turn.org_id, m.RunTrace.run_id.in_([run["id"] for run in result["runs"]])
+            )
+        )
+    ]
     if turn.requirement_id:
         requirement = session.get(m.Requirement, turn.requirement_id)
         consultation = session.scalar(

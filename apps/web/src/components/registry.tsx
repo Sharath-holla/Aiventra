@@ -4,6 +4,7 @@ import { Cpu, Plus, Server } from "lucide-react";
 import { api, money } from "@/lib/api";
 import { Badge, Button, Empty, Panel, useApp } from "./common";
 import { ModelPolicyForm, ProviderControls } from "./provider-controls";
+import { NativeExecution } from "./native-execution";
 export function Registry() {
   const { state, run, busy } = useApp();
   const [tab, setTab] = useState("models");
@@ -51,6 +52,15 @@ export function Registry() {
         >
           Routing policy
         </button>
+        <button
+          className={tab === "benchmarks" ? "active" : ""}
+          onClick={() => {
+            setTab("benchmarks");
+            setShow(false);
+          }}
+        >
+          Benchmarks
+        </button>
       </div>
       <div className="alert info">
         Live model IDs, capabilities, quality evaluations and current prices
@@ -59,20 +69,24 @@ export function Registry() {
         dedicated environment credential. Catalog checks and inference evidence
         are separate.
       </div>
-      <Panel
-        title="Connection readiness"
-        subtitle="Configuration facts; a configured credential is not a verified live connection"
-      >
-        {state.runtime.providers.map((connection) => (
-          <div key={connection.id} className="notification-row">
-            <Server size={18} />
-            <strong>{connection.name}</strong>
-            <Badge>{connection.mode}</Badge>
-            <Badge>{connection.status}</Badge>
-          </div>
-        ))}
-      </Panel>
-      {tab === "routing" ? (
+      {tab !== "benchmarks" && (
+        <Panel
+          title="Connection readiness"
+          subtitle="Configuration facts; a configured credential is not a verified live connection"
+        >
+          {state.runtime.providers.map((connection) => (
+            <div key={connection.id} className="notification-row">
+              <Server size={18} />
+              <strong>{connection.name}</strong>
+              <Badge>{connection.mode}</Badge>
+              <Badge>{connection.status}</Badge>
+            </div>
+          ))}
+        </Panel>
+      )}
+      {tab === "benchmarks" ? (
+        <NativeExecution benchmark />
+      ) : tab === "routing" ? (
         <Panel
           title="Quality-aware, cost-aware routing"
           subtitle="Mandatory filters run before scoring"

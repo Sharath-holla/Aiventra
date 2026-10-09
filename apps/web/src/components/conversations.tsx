@@ -429,6 +429,22 @@ export function CEOChat({
                         {providerMode === "mock" ? "Fixture" : "Live"}
                       </Badge>
                     </div>
+                    {!turn.response &&
+                      turn.workflow?.status === "running" &&
+                      turn.run_traces
+                        ?.filter(
+                          (trace) =>
+                            trace.state === "streaming" && trace.preview,
+                        )
+                        .map((trace) => (
+                          <div key={trace.id} className="native-preview">
+                            <small>
+                              Provisional native output · awaiting validation
+                              and usage
+                            </small>
+                            <pre>{trace.preview}</pre>
+                          </div>
+                        ))}
                     {turn.response ? (
                       <ResponseBody text={turn.response} />
                     ) : (
@@ -564,6 +580,16 @@ export function CEOChat({
                           {run.error && (
                             <p className="error-text">{run.error}</p>
                           )}
+                          {turn.run_traces
+                            ?.filter((trace) => trace.run_id === run.id)
+                            .map((trace) => (
+                              <p key={trace.id}>
+                                Native stream: {trace.state} ·{" "}
+                                {trace.event_count} events · {trace.tool_count}{" "}
+                                calls · usage{" "}
+                                {trace.usage_known ? "recorded" : "unresolved"}
+                              </p>
+                            ))}
                         </div>
                       ))}
                     </details>

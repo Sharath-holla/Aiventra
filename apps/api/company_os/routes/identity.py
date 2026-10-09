@@ -137,6 +137,10 @@ def state(user: m.User = Depends(owner), session: Session = Depends(session_depe
         "agent_executions": m.AgentExecution,
         "agent_state_events": m.AgentStateEvent,
         "agent_work": m.AgentWork,
+        "run_traces": m.RunTrace,
+        "tool_invocations": m.ToolInvocation,
+        "benchmark_results": m.BenchmarkResult,
+        "benchmark_profiles": m.BenchmarkProfile,
     }
     result = {
         name: [serialize(row) for row in tenant_rows(session, model, user, 300)]

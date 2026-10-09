@@ -1406,3 +1406,10 @@ summary {
   flex-wrap: wrap;
   overflow-wrap: anywhere;
 }
+.native-preview pre {
+  max-height: 240px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--muted);
+}

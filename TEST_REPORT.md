@@ -1,5 +1,26 @@
 # Aiventra verification report
 
+## Native execution and microbenchmarks — October 9, 2026
+
+Audited clean local/remote master 1d50728, with prior tested source c28582e. The latest continuation is preserved in docs/LIVE_EXECUTION_SPEC.md. Before editing, the existing 98 backend tests passed in 90.80 seconds. Docker/Ollama CLIs remain absent locally; no live provider account was verified.
+
+| Check | Observed result |
+|---|---|
+| Backend regression | 129 tests passed in 142.04 seconds, zero failed, one Starlette/httpx deprecation warning; remote run is recorded below |
+| New native/backend checks | 31 checks include six streaming and six complete-response protocols, native call/result round trips and Gemini signatures, incomplete/unknown usage and bounds, split-secret redaction, no-provider deduplication, actual controlled-adapter peer artifact, peer cancellation, in-flight cancellation/transport closure, rejected arguments/scope, eight-case benchmark completion/rejection/costs/profiles, profile invalidation, constrained recommendations and exact manual routing |
+| Browser regression | Ten real-service checks passed in 2.4 minutes; new UI flow queues benchmark/tools, verifies reload/no-charge waiting, cancels and checks mobile sizing. Recommendation-control follow-up passed in 59.0 seconds; the final affected flow after delegated-cost aggregation passed again in 56.8 seconds. Remote evidence is recorded below |
+| Web verification | TypeScript, Prettier and optimized production build passed; npm production audit: zero vulnerabilities |
+| Python verification | Ruff lint passed, all 75 files formatted; pip-audit: no known vulnerabilities, local application package skipped |
+| Publication secret scan | 427 staged/history blobs checked, zero findings; private configuration, database, logs and screenshots remain ignored |
+| Migration | Private pre-migration SQLite backup; additive 4666ed0d2d17 applied; Alembic check: no drift. Existing 13 monetary columns retained |
+| Persistence | Independent database sessions/checkpoints exercise native jobs, results, traces and artifacts. CI's actual container-restart digest now includes scoped agent jobs and related evidence; its observed counts/limits are recorded after CI completes |
+
+Repaired failures: two new tests initially expected a nested approval response instead of the existing direct project object. Final benchmark profile creation exposed a required-field autoflush defect and is fixed. Registering streaming was initially blocked by the model input enum and is now supported. The first expanded browser run passed nine and failed one on duplicate accessible labels between meeting and handoff checkboxes; peer controls now have distinct names and all ten passed afterward. Assertions were retained. Screenshots now capture the relevant tab/form after navigation settles rather than old provider/history rows.
+
+The benchmark is explicitly micro-v1: small arithmetic/instruction/keyword/AST/calculator checks. Generated code is never executed on the host. Scores do not establish general architecture/coding ability, production correctness or invoice accuracy; costs use current registered rates and actual recorded usage. Controlled adapters are deterministic contract tests, not successful live inference. Live provider streams/tool calls/benchmark suites, dedicated coding containers, semantic memory, dynamic staffing, staging and complete delivery remain unverified or unfinished. Phase 2/Milestone A has advanced; Phases 3–5 are incomplete.
+
+Exact source publication, secret scan and final GitHub Actions evidence are appended after verified completion. Historical sections below remain unchanged in meaning.
+
 ## Milestone A workforce/provider core — October 9, 2026
 
 Starting repository: clean master ae10711; existing application source 4de41f5. The new authoritative request is docs/PHASES_2_5_SPEC.md. Before editing, 81 backend tests (63.74 seconds), seven browser tests (2.1 minutes), TypeScript and formatting passed. Docker/Ollama were checked and remain unavailable locally.

@@ -4,12 +4,12 @@ Follow [the current Phases 2–5 specification](docs/PHASES_2_5_SPEC.md). Preser
 
 ## Finish Milestone A — Phase 2
 
-The core increment is published at c28582e, with all four GitHub Actions jobs passing. Exact verification is in TEST_REPORT.md.
+The vault/workforce core and native execution/microbenchmark increments are implemented. The latest continuation is [LIVE_EXECUTION_SPEC.md](docs/LIVE_EXECUTION_SPEC.md); TEST_REPORT.md records exact tested source and publication evidence.
 
-1. Add provider-native token streaming and native tool-call/cancellation contracts with a server tool registry, permission-bound dispatch and uncertain-usage handling. Current SSE streams saved workflow state, and current agent tools are server-directed workflow operations.
-2. Add explicit model-specific capability probes and a reproducible quality benchmark suite. Current catalog IDs are account facts; manually configured capabilities and owner grades are distinct from automatic verification.
-3. With a real API account or actual Ollama endpoint, discover a real model, configure documented capabilities/current prices, run the capped inference probe and verify usage/account charges. Run a real CEO answer, document task, message and bounded meeting. Configure distinct services/models for actual independent coding review.
-4. Extend role templates/tool metadata and recovery/dead-letter handling, then exercise concurrent/restart/failure behavior. Preserve no-charge waits, duplicate-request protection, lease fences and owner reconciliation for interrupted paid calls.
+1. With a real provider account or actual Ollama, register a documented model/current rates, run bounded streaming/complete-response inference, a native tool task and a selected peer handoff, then micro-v1. Compare recorded usage to actual account billing; verify distinct real reviewer models. No live account has been verified.
+2. Broaden model evaluation beyond micro-v1: representative business/architecture/coding/repair cases, independent assessment and reproducible isolated code-test evidence. Current keyword/AST/calculator scores are limited measurements, not broad semantic-quality certification.
+3. Extend role templates/tool metadata, dead letters, distributed capacity/recovery/load coverage and retention. Preserve closed tools, no-charge waits, paid-call reconciliation, lease fences and shared handoff caps. Provider idle cancellation is bounded by the 15-second read timeout and cannot guarantee upstream billing stopped.
+4. Proceed to Milestone B's provider-independent/local embeddings and scoped semantic persistence, then C–E below. Do not rebuild current working workflows or claim generated-code execution from native document tools.
 
 ## Milestone B — Phase 3 memory
 
