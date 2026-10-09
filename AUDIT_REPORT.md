@@ -4,7 +4,7 @@
 
 The latest request (docs/LIVE_EXECUTION_SPEC.md) began on clean local/remote 1d50728, with the actual 98-test baseline rerun successfully. Source inspection confirmed that streaming, native function dispatch and automatic benchmarks were missing. The implemented increment adds six-provider native streaming/complete-response contracts, redacted persisted traces, a closed authorized tool registry with shared-cap peer documents/cancellation, and versioned microbenchmarks with constrained model recommendations. NATIVE_EXECUTION.md and TEST_REPORT.md record exact behavior, tests and limits. Live provider success, comprehensive quality certification, semantic memory, dynamic staffing, actual coding runner execution, staging and delivery are not claimed.
 
-## Current Phases 2–5 audit
+## Previous provider/workforce audit
 
 The latest audit started from clean `master` at ae10711, with the actual source and prior 81 backend/seven browser tests checked before implementation. It identified the next incomplete foundation: provider verification, runtime states, routing configuration and durable general messaging/meetings. [The preserved gap analysis](docs/PHASES_2_5_GAP_ANALYSIS.md) classifies the starting state; IMPLEMENTATION_STATUS.md describes the new increment.
 

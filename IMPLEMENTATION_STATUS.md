@@ -13,6 +13,8 @@ Updated October 9, 2026. The latest request is [LIVE_EXECUTION_SPEC.md](docs/LIV
 
 Latest local verification: 129 backend tests and ten real-service browser checks passed, with one dependency deprecation warning. Exact final checks, repaired failures and remote source/CI evidence are in TEST_REPORT.md. Controlled adapter tests are not live model verification. The benchmark is a small deterministic rubric, not comprehensive quality or production code certification. See [NATIVE_EXECUTION.md](NATIVE_EXECUTION.md).
 
+Published application source: **8263fbde21b06b0b23408045f2a5219f60f109f4**. [All four CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/37929934962), including 129 backend tests, ten actual Compose/PostgreSQL browser checks and a byte-identical service-restart comparison. The new native jobs in that restart check were waiting/cancelled with no inference; controlled backend contracts establish completed tool/handoff/benchmark behavior. No live model success is claimed.
+
 Next: bounded live provider/account checks and broader benchmark/recovery/role coverage; then Milestone B semantic memory, C workforce planning, D isolated coding/repair and E delivery. Docker/Ollama and real provider credentials remain unavailable locally; later production identity/cloud/target-repository configuration is still required.
 
 ## Previous provider/workforce foundation

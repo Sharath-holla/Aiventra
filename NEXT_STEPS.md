@@ -6,6 +6,8 @@ Follow [the current Phases 2–5 specification](docs/PHASES_2_5_SPEC.md). Preser
 
 The vault/workforce core and native execution/microbenchmark increments are implemented. The latest continuation is [LIVE_EXECUTION_SPEC.md](docs/LIVE_EXECUTION_SPEC.md); TEST_REPORT.md records exact tested source and publication evidence.
 
+Completed publication: source **8263fbd**, ordinary origin/master push, [all four CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/37929934962). A documentation-only follow-up records the result. Begin the next increment from the actual current Git HEAD and preserve this tested implementation.
+
 1. With a real provider account or actual Ollama, register a documented model/current rates, run bounded streaming/complete-response inference, a native tool task and a selected peer handoff, then micro-v1. Compare recorded usage to actual account billing; verify distinct real reviewer models. No live account has been verified.
 2. Broaden model evaluation beyond micro-v1: representative business/architecture/coding/repair cases, independent assessment and reproducible isolated code-test evidence. Current keyword/AST/calculator scores are limited measurements, not broad semantic-quality certification.
 3. Extend role templates/tool metadata, dead letters, distributed capacity/recovery/load coverage and retention. Preserve closed tools, no-charge waits, paid-call reconciliation, lease fences and shared handoff caps. Provider idle cancellation is bounded by the 15-second read timeout and cannot guarantee upstream billing stopped.
