@@ -30,6 +30,14 @@ class Settings(BaseSettings):
     s3_bucket: str = ""
     s3_endpoint: str = ""
     provider_secret_key: str = ""
+    embedding_provider: str = Field(
+        default="fastembed", pattern="^(disabled|fastembed|ollama|deterministic_test)$"
+    )
+    embedding_model: str = "BAAI/bge-small-en-v1.5"
+    embedding_cache: Path = Path("data/embeddings")
+    embedding_endpoint: str = "http://127.0.0.1:11434"
+    memory_context_chars: int = Field(default=12000, ge=1000, le=24000)
+    scheduler_concurrency: int = Field(default=4, ge=1, le=16)
     login_window_seconds: int = Field(ge=10, le=3600, default=60)
     login_account_limit: int = Field(ge=1, le=100, default=10)
     login_source_limit: int = Field(ge=1, le=10000, default=100)

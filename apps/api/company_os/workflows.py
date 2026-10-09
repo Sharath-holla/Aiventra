@@ -535,6 +535,16 @@ async def run() -> None:
                 with SessionLocal() as session:
                     for org in session.scalars(select(Organization)).all():
                         inspect(session, org.id)
+                        from .semantic_memory import backfill
+
+                        backfill(session, org.id)
+                from .semantic_memory import index_pending
+
+                def index_memory():
+                    with SessionLocal() as index_session:
+                        index_pending(index_session)
+
+                await asyncio.to_thread(index_memory)
                 last_inspection = now()
             active = await tick()
             await asyncio.sleep(0.2 if active else 1)

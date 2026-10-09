@@ -1,7 +1,8 @@
 from typing import Any
 
+from pgvector.sqlalchemy import Vector
 from sqlalchemy import JSON, BigInteger, ForeignKey, Index, Integer, String, Text, UniqueConstraint
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .db import Base, now, uid
 
@@ -506,3 +507,69 @@ class BenchmarkProfile(Tenant, Base):
     fingerprint: Mapped[str] = mapped_column(String(64))
     checked_at: Mapped[int] = mapped_column(default=now)
     metrics: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+
+
+class MemoryEntry(Tenant, Base):
+    __tablename__ = "memory_entries"
+    source_key: Mapped[str] = mapped_column(String(120))
+    kind: Mapped[str] = mapped_column(String(60))
+    title: Mapped[str] = mapped_column(String(200))
+    project_id: Mapped[str | None] = mapped_column(ForeignKey("projects.id"), index=True)
+    agent_id: Mapped[str | None] = mapped_column(ForeignKey("agents.id"))
+    conversation_id: Mapped[str | None] = mapped_column(ForeignKey("conversations.id"))
+    client_id: Mapped[str | None] = mapped_column(ForeignKey("clients.id"))
+    visibility: Mapped[str] = mapped_column(default="owner")
+    version: Mapped[int] = mapped_column(default=1)
+    content_hash: Mapped[str] = mapped_column(String(64))
+    deleted: Mapped[bool] = mapped_column(default=False)
+    index_status: Mapped[str] = mapped_column(default="pending", index=True)
+    embedding_fingerprint: Mapped[str] = mapped_column(default="")
+    index_error: Mapped[str] = mapped_column(default="")
+    updated_at: Mapped[int] = mapped_column(default=now)
+    __table_args__ = (UniqueConstraint("org_id", "source_key"),)
+
+
+class MemoryVersion(Tenant, Base):
+    __tablename__ = "memory_versions"
+    entry_id: Mapped[str] = mapped_column(ForeignKey("memory_entries.id"), index=True)
+    entry: Mapped[MemoryEntry] = relationship()
+    version: Mapped[int] = mapped_column()
+    content: Mapped[str] = mapped_column(Text)
+    summary: Mapped[str] = mapped_column(Text)
+    content_hash: Mapped[str] = mapped_column(String(64))
+    provenance: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    __table_args__ = (UniqueConstraint("entry_id", "version"),)
+
+
+class MemoryChunk(Tenant, Base):
+    __tablename__ = "memory_chunks"
+    entry_id: Mapped[str] = mapped_column(ForeignKey("memory_entries.id"), index=True)
+    version_id: Mapped[str] = mapped_column(ForeignKey("memory_versions.id"), index=True)
+    version_record: Mapped[MemoryVersion] = relationship()
+    position: Mapped[int] = mapped_column()
+    content: Mapped[str] = mapped_column(Text)
+    embedding: Mapped[Any | None] = mapped_column(Vector(384).with_variant(JSON(), "sqlite"))
+    fingerprint: Mapped[str] = mapped_column(default="")
+    __table_args__ = (
+        UniqueConstraint("version_id", "position"),
+        Index(
+            "ix_memory_chunks_vector_hnsw",
+            "embedding",
+            postgresql_using="hnsw",
+            postgresql_ops={"embedding": "vector_cosine_ops"},
+        ),
+    )
+
+
+class MemoryGrant(Base):
+    __tablename__ = "memory_grants"
+    entry_id: Mapped[str] = mapped_column(ForeignKey("memory_entries.id"), primary_key=True)
+    entry: Mapped[MemoryEntry] = relationship()
+    agent_id: Mapped[str] = mapped_column(ForeignKey("agents.id"), primary_key=True)
+
+
+class MemoryCursor(Tenant, Base):
+    __tablename__ = "memory_cursors"
+    source: Mapped[str] = mapped_column(String(100))
+    last_id: Mapped[str] = mapped_column(default="")
+    __table_args__ = (UniqueConstraint("org_id", "source"),)

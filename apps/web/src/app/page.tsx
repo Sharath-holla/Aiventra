@@ -38,6 +38,7 @@ import { Projects } from "@/components/projects";
 import { Governance } from "@/components/governance";
 import { Registry } from "@/components/registry";
 import { Business } from "@/components/business";
+import { MemoryBrowser } from "@/components/memory-browser";
 import { Communications } from "@/components/communications";
 import { CEOChat, ConversationHistory } from "@/components/conversations";
 
@@ -70,6 +71,7 @@ const groups = [
       ["models", "Models & providers", Cpu],
       ["crm", "Sales & clients", BriefcaseBusiness],
       ["knowledge", "Knowledge & support", BookOpen],
+      ["memory", "Semantic memory", BookOpen],
       ["security", "Security & audit", ShieldCheck],
       ["settings", "System settings", Settings2],
       ["commands", "Company commands", Command],
@@ -77,6 +79,10 @@ const groups = [
   },
 ] as const;
 const titles: Record<string, [string, string]> = {
+  memory: [
+    "Company memory",
+    "Retrieve the evidence behind your company's decisions.",
+  ],
   conversations: [
     "Conversations",
     "Return to the context behind every decision.",
@@ -693,6 +699,7 @@ export default function Home() {
             )}
             {view === "models" && <Registry />}
             {["crm", "knowledge"].includes(view) && <Business view={view} />}
+            {view === "memory" && <MemoryBrowser />}
             {["commands", "meetings"].includes(view) && (
               <Communications chat={view === "commands"} />
             )}

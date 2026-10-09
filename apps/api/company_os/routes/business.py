@@ -80,6 +80,9 @@ def update_record(
     session: Session = Depends(session_dependency),
 ):
     record = scoped(session, m.BusinessRecord, record_id, user)
+    session.execute(
+        update(m.Organization).where(m.Organization.id == user.org_id).values(paused=m.Organization.paused)
+    )
     result = session.execute(
         update(m.BusinessRecord)
         .where(m.BusinessRecord.id == record.id, m.BusinessRecord.version == data.version)
@@ -87,6 +90,10 @@ def update_record(
     )
     if not result.rowcount:
         raise HTTPException(409, "Record changed; refresh")
+    session.refresh(record)
+    from ..semantic_memory import sync_source
+
+    sync_source(session, record)
     audit(session, user.org_id, user.id, "record.updated", record.id, data.model_dump())
     session.commit()
     session.refresh(record)

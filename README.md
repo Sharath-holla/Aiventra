@@ -79,7 +79,7 @@ Meetings & messages can queue a scoped artifact task or a bounded 2–8 particip
 - Persisted requirements, clarification, uploads of UTF-8 text documents, source retrieval, bounded specialist contributions, CFO interpretation and proposal alternatives.
 - Deterministic source-backed **partial estimates**; absent rates remain unknown.
 - Exact proposal hash/version approval, project creation, dependent planning tasks and saved artifacts.
-- Owner-assigned specialist document work and permission-scoped project keyword memory.
+- Owner-assigned specialist document work and permission-scoped versioned semantic memory with PostgreSQL/pgvector, CPU-local embeddings and an explicit keyword fallback. See [SEMANTIC_MEMORY.md](SEMANTIC_MEMORY.md).
 - Durable separate worker, atomic job claims, checkpoints, failure bounds, owner notifications and uncertain-paid-call reconciliation.
 - Configurable adapters for OpenAI Responses, Anthropic Messages, Gemini, xAI, Ollama and compatible chat-completion endpoints. No live model IDs or prices are invented or preloaded.
 - Capability, quality, sensitivity, context, freshness and availability routing filters; bounded fallback; atomic company/project/task/conversation/turn/agent/model/day/month spending reservations.
@@ -91,7 +91,7 @@ Meetings & messages can queue a scoped artifact task or a bounded 2–8 particip
 
 ## Explicit limits
 
-Live provider calls require your API credentials and valid configured models/prices. No live credentials were available during this build. Docker is unavailable on the build host, so actual generated-code execution and container-based QA have **not** been verified. Cloud deployment is intentionally rejected until a supported connector and environment-specific approval exist. No mail/calendar OAuth, external sending, GitHub PR creation, semantic pgvector retrieval, comprehensive model quality certification or Temporal production orchestration is claimed.
+Live provider calls require API credentials and valid configured models/prices; the owner has deferred provider connection. Local semantic embeddings and provider-free development do not require paid credentials. Docker is unavailable on the local build host; CI separately checks actual Compose/PostgreSQL services, vector retrieval and restarts. Generated-code runner evidence is recorded separately in TEST_REPORT.md. Cloud deployment requires a supported connector and environment-specific approval. No mail/calendar OAuth, external sending, GitHub PR creation, comprehensive model quality certification or Temporal production orchestration is claimed.
 
 The local workflow engine is a tested transactional database state machine. SQLite is for a trusted owner's local development. Hostile multi-tenant production execution requires hardened dedicated runners and PostgreSQL verification. The existing crypto repository has not been supplied; its integration remains pending.
 

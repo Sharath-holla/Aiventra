@@ -1,5 +1,18 @@
 # Aiventra verification report
 
+## Phase 3 semantic memory — October 9, 2026
+
+Starting source was clean 1670e83, preserving CI-tested 8263fbd. Re-ran all 129 original backend tests: passed in 72.05 seconds. Docker/Ollama remain absent locally. Installed locked pgvector and optional CPU-local embedding dependencies; explicitly downloaded BAAI/bge-small-en-v1.5 weights and observed real 384-dimensional inference without paid credentials. Baseline features were retained.
+
+- Combined backend: **136 passed**, zero failed, one existing Starlette/httpx deprecation warning, final run 115.88 seconds. Seven new checks cover version history/stale edits/purge, scoped vector ranking/revocation/automatic context, source capture/restart sessions, provider-free fallback/no paid runs, production rejection of deterministic vectors, concurrent revisions and foreign scope rejection. Affected memory checks after hybrid retrieval also passed.
+- Local SQLite backup taken before additive dc1275532cfb migration; upgrade/check passed with no metadata drift. Ruff and strict TypeScript passed. Dependency audit found no known vulnerabilities; local application package skipped.
+- Browser: all ten existing journeys passed; the new memory save/revise/search/reload/mobile/purge journey passed in 21.1 seconds after repairing labels. Initial new-browser failures were exact accessible-label matching for selects and a populated textarea; explicit labels now remain stable across revisions. No assertions were removed. TypeScript/Prettier/production build and npm production audit passed; zero vulnerabilities. Final post-label TypeScript/Prettier/optimized build passed; publication scan checked 475 staged/history blobs with zero findings.
+- Actual offline CPU-local paraphrase retrieval passed against two fixture documents using the real cached model (payment recovery ranked above gardening, cosine 0.71571). Actual PostgreSQL/pgvector/HNSW/local-model/restart evidence is recorded after CI execution below. Added CI checks are not claimed as passed merely because the script exists.
+
+Repaired failures: missing ORM relationship ordering initially violated memory foreign keys; explicit relationships now order entry/version/chunk inserts. Memory context initially made an existing native-handoff prompt exceed its registered context limit; retrieval now has a compact remaining-context budget and the original handoff checks pass. Backfill scope initialization was misplaced and corrected. SQL bulk business-record updates now capture source revisions explicitly; the history test verifies both versions. A new test mistakenly created a duplicate workflow for an already scheduled task and now inspects the actual existing workflow.
+
+Default cached local-model semantics and explicitly labeled deterministic vector tests are distinct. The hash test adapter is not live semantic-model evidence. No paid-model inference is claimed. Semantic memory is an implemented increment; staffing, complete Phase 3 orchestration and Phase 4 runner work remain next.
+
 ## Native execution and microbenchmarks — October 9, 2026
 
 Audited clean local/remote master 1d50728, with prior tested source c28582e. The latest continuation is preserved in docs/LIVE_EXECUTION_SPEC.md. Before editing, the existing 98 backend tests passed in 90.80 seconds. Docker/Ollama CLIs remain absent locally; no live provider account was verified.

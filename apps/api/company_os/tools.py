@@ -9,7 +9,6 @@ from sqlalchemy import select, update
 from . import models as m
 from .artifacts import save_artifact
 from .db import now, uid
-from .memory import retrieve
 from .providers import strict_schema
 from .schemas import Strict
 from .security import audit, check_agent, clean
@@ -141,7 +140,9 @@ def invoke(session, workflow, agent, project, step, run_id, call, allowed):
         elif not project:
             raise PermissionError("Project-scoped tool requires approval")
         elif call.name == "read_project_memory":
-            result = {"records": retrieve(session, workflow.org_id, project.id, args.query)}
+            from .semantic_memory import search
+
+            result = search(session, workflow.org_id, args.query, project_id=project.id, agent=agent)
         elif call.name == "read_artifact":
             artifact = session.get(m.Artifact, str(args.artifact_id))
             if (

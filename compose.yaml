@@ -23,7 +23,7 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg://company:${DB_PASSWORD}@database/company
     ports: ["127.0.0.1:8000:8000"]
-    volumes: ["artifacts:/app/artifacts", "repositories:/app/data/repositories"]
+    volumes: ["artifacts:/app/artifacts", "repositories:/app/data/repositories", "embeddings:/app/data/embeddings"]
     depends_on: {migrate: {condition: service_completed_successfully}}
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
@@ -36,7 +36,7 @@ services:
       DATABASE_URL: postgresql+psycopg://company:${DB_PASSWORD}@database/company
       EXECUTION_ENABLED: "false"
     command: ["python", "-m", "company_os.workflows"]
-    volumes: ["artifacts:/app/artifacts", "repositories:/app/data/repositories"]
+    volumes: ["artifacts:/app/artifacts", "repositories:/app/data/repositories", "embeddings:/app/data/embeddings"]
     depends_on: {migrate: {condition: service_completed_successfully}}
     healthcheck:
       test: ["CMD", "python", "-c", "from company_os.db import SessionLocal; from company_os.health import workers; import sys; session=SessionLocal(); state=workers(session); session.close(); sys.exit(state['status'] != 'ready')"]
@@ -55,4 +55,4 @@ services:
       interval: 10s
       start_period: 20s
       retries: 3
-volumes: {database: {}, artifacts: {}, repositories: {}}
+volumes: {database: {}, artifacts: {}, repositories: {}, embeddings: {}}

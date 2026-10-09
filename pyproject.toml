@@ -8,14 +8,26 @@ version = "0.1.0"
 description = "Durable, approval-controlled AI company operating system"
 requires-python = ">=3.12"
 dependencies = [
-  "fastapi>=0.115,<1", "uvicorn[standard]>=0.34,<1", "sqlalchemy>=2.0.38,<3",
-  "alembic>=1.14,<2", "psycopg[binary]>=3.2,<4", "pydantic-settings>=2.8,<3",
-  "httpx>=0.28,<1", "PyJWT[crypto]>=2.10,<3", "pwdlib[argon2]>=0.2,<1",
-  "python-multipart>=0.0.20,<1", "boto3>=1.37,<2", "opentelemetry-api>=1.30,<2"
+  "fastapi>=0.115,<1",
+  "uvicorn[standard]>=0.34,<1",
+  "sqlalchemy>=2.0.38,<3",
+  "alembic>=1.14,<2",
+  "psycopg[binary]>=3.2,<4",
+  "pydantic-settings>=2.8,<3",
+  "httpx>=0.28,<1",
+  "PyJWT[crypto]>=2.10,<3",
+  "pwdlib[argon2]>=0.2,<1",
+  "python-multipart>=0.0.20,<1",
+  "boto3>=1.37,<2",
+  "opentelemetry-api>=1.30,<2",
+  "pgvector>=0.4,<1",
 ]
 
 [project.optional-dependencies]
 dev = ["pytest>=9.0.3,<10", "pytest-asyncio>=1.4,<2", "ruff>=0.11,<1", "pip-audit>=2.8,<3"]
+local-embeddings = [
+    "fastembed>=0.7,<1",
+]
 
 [tool.setuptools.packages.find]
 where = ["apps/api"]

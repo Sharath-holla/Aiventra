@@ -1,5 +1,16 @@
 # Next steps
 
+## Current owner order — Phase 3, then Phase 4
+
+Follow [PHASE3_MEMORY_WORKFORCE_SPEC.md](docs/PHASE3_MEMORY_WORKFORCE_SPEC.md). Provider keys are deferred; do not request them as a prerequisite.
+
+1. Finish and publish the semantic-memory vertical increment after actual PostgreSQL/pgvector/local-model and restart CI evidence. Preserve bounded source/version/ACL behavior, local cached embeddings and honest keyword fallback.
+2. Implement requirements-based workforce plans, editable exact approval, logical worker capacity, model/skill/cost evidence, dependency scheduling, pause/resume/reassignment/utilization and connected monitoring. Preserve existing approved document tasks and avoid duplicate work or uncontrolled model concurrency.
+3. Complete actual dedicated runner isolation checks using a harmless sample, then bounded repair/build/test/diff/independent-review and PR preparation. Do not execute generated code on API/worker hosts or pass host secrets/Docker control into generated-code containers.
+4. Continue client delivery and operational certification only from verified execution evidence. Existing Phase 1–2 features and tests remain regression requirements.
+
+The prior provider-first roadmap below is historical; it does not override the owner's explicit provider-free development order.
+
 Follow [the current Phases 2–5 specification](docs/PHASES_2_5_SPEC.md). Preserve existing working modules and publish verified increments to [the authorized repository](https://github.com/Sharath-holla/Aiventra) with ordinary pushes.
 
 ## Finish Milestone A — Phase 2

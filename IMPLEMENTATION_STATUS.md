@@ -1,5 +1,17 @@
 # Implementation status
 
+## Phase 3 — semantic-memory increment, October 9, 2026
+
+Latest instructions: [PHASE3_MEMORY_WORKFORCE_SPEC.md](docs/PHASE3_MEMORY_WORKFORCE_SPEC.md). Actual starting HEAD was clean local master 1670e83; all 129 existing backend tests were rerun successfully in 72.05 seconds. Provider credentials are deferred by the owner; they do not block this work.
+
+Implemented transactional versioned source capture/backfill, PostgreSQL pgvector storage/HNSW, local CPU embeddings and explicit keyword fallback, scoped current-version semantic retrieval, organization/project/agent/conversation access, architecture decisions and source/error/resolution history, bounded automatic agent context and connected memory browsing/edit/history/index/purge UI. Local weights were explicitly cached and real 384-dimensional inference observed. See [SEMANTIC_MEMORY.md](SEMANTIC_MEMORY.md). Additive migration dc1275532cfb preserves prior data; a private SQLite backup was taken and local schema check passed.
+
+Local combined backend verification: 136 passed, one dependency warning; the final affected memory checks and browser/CI evidence are recorded in TEST_REPORT.md. Actual PostgreSQL/local-model/restart checks are added to CI and must pass before their results are claimed.
+
+Phase 3 is not complete: dynamic staffing and expanded scheduling/orchestration are the next increment. Phase 4's real isolated runner/repair/PR preparation follows staffing. Earlier provider milestones below remain historical evidence; no provider-key request or fabricated live activity is required to continue.
+
+## Previous native execution increment
+
 Updated October 9, 2026. The latest request is [LIVE_EXECUTION_SPEC.md](docs/LIVE_EXECUTION_SPEC.md), extending the preserved Phases 2–5 specification.
 
 **Current increment: Milestone A native execution and model measurement. Phase 2 remains partial; Phases 3–5 are incomplete.**

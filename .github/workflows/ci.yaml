@@ -48,16 +48,24 @@ jobs:
       - run: curl --fail http://localhost:8000/health/ready
       - run: docker compose exec -T api python -m alembic check
       - run: docker compose exec -T api python - --allow-test-records < scripts/verify_postgres.py
+      - name: Verify actual local embeddings and PostgreSQL vector retrieval
+        run: |
+          docker compose exec -T api python -m company_os.embeddings --download
+          docker compose exec -T api python - --prepare < scripts/verify_semantic_memory.py
       - run: npm ci && npx playwright install --with-deps chromium && npm run test:e2e
         working-directory: apps/web
       - name: Verify durable conversations across actual service restarts
         run: |
           docker compose exec -T api python - < scripts/verify_conversation_recovery.py > /tmp/conversations-before.json
+          docker compose exec -T api python - < scripts/verify_semantic_memory.py > /tmp/memory-before.json
           docker compose restart api worker web
           docker compose up -d --wait --wait-timeout 90
           curl --fail http://localhost:8000/health/ready
           docker compose exec -T api python - < scripts/verify_conversation_recovery.py > /tmp/conversations-after.json
           cmp /tmp/conversations-before.json /tmp/conversations-after.json
           cat /tmp/conversations-after.json
+          docker compose exec -T api python - < scripts/verify_semantic_memory.py > /tmp/memory-after.json
+          cmp /tmp/memory-before.json /tmp/memory-after.json
+          cat /tmp/memory-after.json
       - run: docker compose logs && docker compose down
         if: always()

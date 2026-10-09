@@ -1413,3 +1413,9 @@ summary {
   overflow-wrap: anywhere;
   color: var(--muted);
 }
+.memory-excerpt {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 24rem;
+  overflow-y: auto;
+}

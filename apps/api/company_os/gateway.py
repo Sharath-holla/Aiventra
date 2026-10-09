@@ -183,6 +183,19 @@ async def execute[T: BaseModel](
         "No invented sources, provider rates or arithmetic. Mark unknowns. Never include credentials. "
         "No external action is authorized."
     )
+    from .semantic_memory import automatic_context
+
+    context = {
+        **context,
+        "retrieved_memory": automatic_context(
+            session,
+            workflow,
+            agent,
+            project,
+            str(context.get("objective", context.get("task", context.get("text", step))))[:500],
+            char_budget=max(0, min(3000, 24000 - len(canonical(context)) - len(system))),
+        ),
+    }
     context = clean(context)
     prompt = canonical(context)
     if native_tools:

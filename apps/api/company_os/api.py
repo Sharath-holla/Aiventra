@@ -13,6 +13,7 @@ from .routes import (
     conversations,
     engineering,
     identity,
+    memory_operations,
     provider_operations,
 )
 
@@ -43,5 +44,6 @@ for router in (
     conversations.router,
     provider_operations.router,
     agent_operations.router,
+    memory_operations.router,
 ):
     app.include_router(router)
