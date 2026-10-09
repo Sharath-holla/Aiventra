@@ -15,19 +15,24 @@ const headers = { Origin: "http://localhost:3000" };
 test("workforce UI edits exact staffing, approves real tasks, pauses and recovers saved state", async ({
   page,
 }) => {
-  test.setTimeout(120000);
+  test.setTimeout(180000);
   const request = page.context().request;
-  expect(
-    (
-      await request.post("/api/auth/login", {
-        headers,
-        data: {
-          email: setting("OWNER_EMAIL"),
-          password: setting("OWNER_PASSWORD"),
-        },
-      })
-    ).status(),
-  ).toBe(200);
+  await expect
+    .poll(
+      async () => {
+        const response = await request.post("/api/auth/login", {
+          headers,
+          data: {
+            email: setting("OWNER_EMAIL"),
+            password: setting("OWNER_PASSWORD"),
+          },
+        });
+        expect([200, 429]).toContain(response.status());
+        return response.status();
+      },
+      { timeout: 75000, intervals: [10000] },
+    )
+    .toBe(200);
   const state = await (await request.get("/api/state")).json();
   const name = `Workforce browser fixture ${Date.now()}`;
   const requirement = await (

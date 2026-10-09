@@ -2,6 +2,8 @@
 
 ## Workforce verification in progress — October 9, 2026
 
+First staffing remote run 37951263042 passed backend/frontend/secrets and 11 browser checks. Its new twelfth login hit the real persistent 10-per-minute account throttle in fast CI. The browser check now waits within the existing throttle window and accepts only 200/429 while waiting; production limits and authorization assertions are unchanged. The complete remote restart comparison will be rerun.
+
 Final local staffing verification: **145 backend tests passed**, zero failed, one existing dependency warning, 132.52 seconds; **12 real-service browser checks passed**, zero failed, 3.0 minutes. Ruff lint/format (86 files), Prettier, strict TypeScript and optimized production build passed. The actual managed API/worker/web processes were stopped and restarted; the byte-identical paused-workforce digest and readiness passed. Remote Compose/PostgreSQL restart checks are included in CI and remain to be observed for this source increment.
 
 Memory source **4e57760**: [all four remote jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/37948166635). Actual PostgreSQL pgvector/HNSW and local 384-dimensional paraphrase retrieval passed. The restart snapshots matched for two entries, three versions and three vectors, in addition to prior conversation recovery. The intermediate 8863d36 integration run also passed, with 11 browser checks in 51.4 seconds; its lean backend dependency regression was corrected in 4e57760.
