@@ -5,3 +5,5 @@ Before the local zero-cost migration, the managed services were stopped and Pyth
 For restore, stop managed services, back up the current database first, restore to a separate candidate file, run integrity/migration checks and verify scoped business records before explicitly changing the configured path. Do not overwrite the active database during an unverified restore. Preserve the private vault key, artifacts and repository data in encrypted backups; never publish them.
 
 Actual service restart comparisons exist for PostgreSQL/pgvector memory, conversations, staffing and runner results in GitHub Actions. `scripts/verify_zero_cost_recovery.py` adds digest comparison of saved zero-cost waits and verification records. These restart checks are not disaster-recovery restoration drills. Automated encrypted PostgreSQL backups, PITR, retention and offsite restore drills remain incomplete.
+
+The current Compose comparison restarts API/worker/web while PostgreSQL retains its named volume; the database container itself is not restarted by that check. A database crash/restart and backup restoration drill remains a separate next-step requirement.

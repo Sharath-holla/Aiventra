@@ -1,5 +1,8 @@
 # End-to-end acceptance evidence
 
+Current milestone evidence is published in source **0e8797d1e255af68bb80d9db868eb818151c7719** with [all five CI jobs passing](https://github.com/Sharath-holla/Aiventra/actions/runs/37983863735), 197 backend tests and 13 actual-service browser journeys. Local/CI saved-workflow restart digests match. This accepts the stated zero-cost vertical slice, not the full enterprise roadmap.
+
+
 Current milestone: strict zero-cost policy, not full enterprise acceptance.
 
 Production-policy tests exercise blocked remote structured/native inference with synthetic credentials and zero rates, cloud aliases, unavailable/malformed local metadata, embedding cloud denial, scoped owner verification, exact task revision invalidation, durable waits without spending, explicit resume and fixture local execution. Legacy external protocol/accounting tests are explicitly isolated with nonnetwork test adapters.

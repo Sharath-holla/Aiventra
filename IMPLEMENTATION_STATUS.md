@@ -2,13 +2,16 @@
 
 ## Current enterprise milestone — strict ZERO_COST_ONLY
 
+Published application source: **0e8797d1e255af68bb80d9db868eb818151c7719**. [All five GitHub Actions jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/37983863735): backend, frontend, secrets, PostgreSQL/pgvector integration and dedicated restricted Docker runner. CI reran 197 Linux backend checks and 13 actual Compose browser journeys. The integration restart comparison preserved one saved zero-cost workflow, plus existing memory/conversation/staffing digests; local service restart comparison preserved five saved workflows. No live LLM or remote-free entitlement is claimed.
+
+
 The October 10 continuation began on clean `master` at `3a70a283ab0d3e8e3877aac1fe5094ffd64c91d3`. The current milestone implements the new enterprise specification's highest-priority missing control: every model invocation is subject to a fail-closed zero-cost policy. Remote inference is blocked even with keys, zero declared rates, promotional credits, model overrides or available budgets. No external AI inference or paid call was made.
 
 Implemented: local installed-model checks before every Ollama inference/embedding, configuration-bound persistent verification, additive migration `a31d07edc482`, durable `WAITING_FOR_FREE_PROVIDER`, owner notification/audit, exact scoped explicit resume, benchmark wait propagation, superseded requirement cancellation, connected eligibility/resume UI, global zero-cost badge, Compose enforcement and restart verification in CI. Local successful inference is fixture-tested only; no local LLM daemon was available for live verification.
 
 Phase 3 memory/staffing and the prior Phase 4 runner increment are preserved. The enterprise roadmap is not complete. Current phase: enterprise milestone 1, followed by milestone 2 (authorized PostgreSQL/local inference setup). Active data remains SQLite; PostgreSQL 18 is accepting connections but inspecting its databases/extensions requires authentication. No data was silently moved or reset. Docker/Ollama commands are unavailable on this workstation.
 
-See IMPLEMENTATION_LEDGER.md, ZERO_COST_AI_POLICY.md, PROVIDER_ELIGIBILITY.md and docs/ENTERPRISE_AUDIT.md. TEST_REPORT.md records current verification; local verification passed 197 full backend checks, 33 policy checks, all 13 browser journeys, type/format/build and restart comparison. Source/CI publication details will be recorded after the tested commit is pushed. Earlier sections below are historical evidence, not current provider eligibility claims.
+See IMPLEMENTATION_LEDGER.md, ZERO_COST_AI_POLICY.md, PROVIDER_ELIGIBILITY.md and docs/ENTERPRISE_AUDIT.md. TEST_REPORT.md records current verification; local verification passed 197 full backend checks, 33 policy checks, all 13 browser journeys, type/format/build and restart comparison. Published source and CI evidence are recorded above. Earlier sections below are historical evidence, not current provider eligibility claims.
 
 
 ## Current verified status — Phase 3 complete; Phase 4 runner increment

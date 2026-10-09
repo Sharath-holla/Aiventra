@@ -2,6 +2,9 @@
 
 ## Current enterprise continuation — after zero-cost milestone
 
+Enterprise milestone 1 is published as **0e8797d1e255af68bb80d9db868eb818151c7719** with [all five CI jobs passing](https://github.com/Sharath-holla/Aiventra/actions/runs/37983863735). Continue milestone 2; do not rebuild the preserved foundations or relax ZERO_COST_ONLY.
+
+
 1. Keep `AI_SPENDING_MODE=ZERO_COST_ONLY`. Revoke credentials disclosed in chat; none were installed or used by this milestone. Do not enable remote inference from zero prices, subscriptions, credits or catalog success.
 2. Enterprise milestone 2: obtain authorized access to the existing local PostgreSQL 18 instance, inspect database ownership/migrations/pgvector, and prepare a backed-up, reversible SQLite-to-PostgreSQL transition. Preserve all records and explicitly select one authoritative database. Do not guess credentials or silently replace the current SQLite database.
 3. Provision an approved local Ollama service/model without automatic large downloads; read-only inventory reports 7.3 GiB system RAM, six CPU cores and an RX 6500M, with compatibility still unverified. Verify installed GGUF metadata and real local inference, then capability benchmarks and independent review. Docker Compose needs an explicit isolated local inference service design; host loopback is not container loopback.
