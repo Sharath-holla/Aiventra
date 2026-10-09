@@ -13,6 +13,8 @@ Repaired failures: missing ORM relationship ordering initially violated memory f
 
 Default cached local-model semantics and explicitly labeled deterministic vector tests are distinct. The hash test adapter is not live semantic-model evidence. No paid-model inference is claimed. Semantic memory is an implemented increment; staffing, complete Phase 3 orchestration and Phase 4 runner work remain next.
 
+First memory CI source 165e772, run 37947164061: frontend/backend/secrets passed, with **136 backend tests** and **11 Compose/PostgreSQL browser tests** passing. Actual vector extension/HNSW and real local-model paraphrase retrieval passed. The restart digest then failed before restart because pgvector 0.5 returned a Python list while the helper assumed NumPy `.tolist()`. The helper now normalizes either representation and a new regression covers both. A successful restart is not claimed until the corrective CI run passes.
+
 ## Native execution and microbenchmarks — October 9, 2026
 
 Audited clean local/remote master 1d50728, with prior tested source c28582e. The latest continuation is preserved in docs/LIVE_EXECUTION_SPEC.md. Before editing, the existing 98 backend tests passed in 90.80 seconds. Docker/Ollama CLIs remain absent locally; no live provider account was verified.

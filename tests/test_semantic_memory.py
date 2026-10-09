@@ -281,6 +281,19 @@ def test_concurrent_memory_revisions_preserve_history(company):
         )
 
 
+def test_recovery_digest_accepts_pgvector_list_and_array():
+    import numpy as np
+
+    from scripts.verify_semantic_memory import row_payload
+
+    vector = [1.0] + [0.0] * 383
+    row = m.MemoryChunk(embedding=vector)
+    expected = row_payload(row)
+    row.embedding = np.array(vector, dtype=np.float32)
+    assert row_payload(row) == expected
+    assert expected["embedding"] == vector
+
+
 def test_foreign_memory_apis_reject_access(http):
     assert http.get(f"/semantic-memory/{uuid4()}/versions").status_code == 404
     assert (

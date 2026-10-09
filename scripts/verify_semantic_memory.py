@@ -12,6 +12,16 @@ from sqlalchemy import select, text
 PREFIX = "Semantic recovery verification fixture"
 
 
+def row_payload(row):
+    payload = {"table": row.__tablename__}
+    for column in row.__table__.columns:
+        value = getattr(row, column.name)
+        if column.name == "embedding" and value is not None:
+            value = [float(n) for n in value]
+        payload[column.name] = value
+    return payload
+
+
 def prepare():
     with SessionLocal() as session:
         assert session.bind.dialect.name == "postgresql", "Run this check against actual PostgreSQL"
@@ -81,20 +91,7 @@ def snapshot():
             )
         )
         assert len(entries) == 2 and len(versions) == 3 and len(chunks) == 3
-        payload = [
-            {
-                "table": r.__tablename__,
-                **{
-                    c.name: (
-                        getattr(r, c.name).tolist()
-                        if c.name == "embedding" and getattr(r, c.name) is not None
-                        else getattr(r, c.name)
-                    )
-                    for c in r.__table__.columns
-                },
-            }
-            for r in [*entries, *versions, *chunks]
-        ]
+        payload = [row_payload(r) for r in [*entries, *versions, *chunks]]
         result = search(session, org.id, "Recovering interrupted financial purchases safely")
         assert result["mode"] == "semantic" and result["results"][0]["title"] == "Payment recovery"
         return {
