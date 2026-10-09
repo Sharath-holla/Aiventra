@@ -14,6 +14,7 @@ STATES = {
     "ASSIGNED",
     "RUNNING",
     "WAITING_FOR_PROVIDER",
+    "WAITING_FOR_FREE_PROVIDER",
     "WAITING_FOR_INPUT",
     "WAITING_FOR_APPROVAL",
     "BLOCKED",
@@ -28,6 +29,7 @@ TRANSITIONS = {
     "ASSIGNED": {
         "RUNNING",
         "WAITING_FOR_PROVIDER",
+        "WAITING_FOR_FREE_PROVIDER",
         "WAITING_FOR_INPUT",
         "WAITING_FOR_APPROVAL",
         "BLOCKED",
@@ -36,6 +38,7 @@ TRANSITIONS = {
     },
     "RUNNING": {"COMPLETED", "FAILED", "BLOCKED", "DISABLED"},
     "WAITING_FOR_PROVIDER": {"ASSIGNED", "BLOCKED", "FAILED", "DISABLED"},
+    "WAITING_FOR_FREE_PROVIDER": {"ASSIGNED", "BLOCKED", "FAILED", "DISABLED"},
     "WAITING_FOR_INPUT": {"ASSIGNED", "BLOCKED", "DISABLED"},
     "WAITING_FOR_APPROVAL": {"ASSIGNED", "BLOCKED", "DISABLED"},
     "BLOCKED": {"ASSIGNED", "FAILED", "DISABLED"},
@@ -77,7 +80,10 @@ def transition(
                 sequence=1,
             )
         )
-    if state in {"RUNNING", "WAITING_FOR_PROVIDER"} and execution.state != "ASSIGNED":
+    if (
+        state in {"RUNNING", "WAITING_FOR_PROVIDER", "WAITING_FOR_FREE_PROVIDER"}
+        and execution.state != "ASSIGNED"
+    ):
         transition(session, workflow, agent, "ASSIGNED", step, detail={"mode": workflow.mode})
     if state != execution.state and state not in TRANSITIONS[execution.state]:
         raise ValueError(f"Invalid agent state transition: {execution.state} to {state}")
@@ -142,7 +148,7 @@ def snapshot(session: Session, org_id: str) -> list[dict]:
             and row.state == "RUNNING"
         ):
             rank = 0
-        elif workflow and workflow.status == "waiting_for_provider":
+        elif workflow and workflow.status in {"waiting_for_provider", "waiting_for_free_provider"}:
             rank = 1
         elif workflow and workflow.status == "queued" and row.state == "ASSIGNED":
             rank = 2
@@ -153,7 +159,9 @@ def snapshot(session: Session, org_id: str) -> list[dict]:
     tasks = session.scalars(
         select(m.Task).where(
             m.Task.org_id == org_id,
-            m.Task.status.in_(["queued", "in_progress", "waiting_for_provider", "blocked"]),
+            m.Task.status.in_(
+                ["queued", "in_progress", "waiting_for_provider", "waiting_for_free_provider", "blocked"]
+            ),
         )
     ).all()
     assigned = {task.assigned_agent_id for task in tasks}
@@ -182,8 +190,8 @@ def snapshot(session: Session, org_id: str) -> list[dict]:
             state = "DISABLED"
         elif workflow and workflow.status == "cancelled":
             state = "BLOCKED"
-        elif workflow and workflow.status == "waiting_for_provider":
-            state = "WAITING_FOR_PROVIDER"
+        elif workflow and workflow.status in {"waiting_for_provider", "waiting_for_free_provider"}:
+            state = workflow.status.upper()
         elif state == "RUNNING" and (
             not workflow or workflow.status != "running" or workflow.lease_until < now()
         ):

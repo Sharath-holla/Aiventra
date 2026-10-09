@@ -1,4 +1,14 @@
+import pytest
+from company_os.security import redact
+
 from scripts.secret_scan import findings
+
+
+@pytest.mark.parametrize("prefix", ["gsk_", "github_pat_"])
+def test_additional_provider_and_fine_grained_token_patterns_are_redacted_and_blocked(prefix):
+    synthetic = prefix + "z" * 40
+    assert redact(synthetic, ()) == "[REDACTED]"
+    assert "provider/GitHub token" in findings("src/sample.py", synthetic.encode(), set())
 
 
 def test_publication_scan_detects_configured_secrets_tokens_and_private_files():

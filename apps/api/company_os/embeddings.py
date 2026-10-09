@@ -47,6 +47,9 @@ def embed(texts: list[str]) -> list[list[float]]:
             # Local only: project/private context never goes to an arbitrary embedding endpoint.
             base = validate_endpoint(config.embedding_endpoint, "localhost,127.0.0.1", local_allowed=True)
             with httpx.Client(timeout=20, trust_env=False, follow_redirects=False) as client:
+                from .spending import authorize_embedding
+
+                authorize_embedding(client, base, config.embedding_model)
                 result = client.post(
                     base + "/api/embed", json={"model": config.embedding_model, "input": texts}
                 )

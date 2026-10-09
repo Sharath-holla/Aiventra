@@ -21,7 +21,7 @@ from ..schemas import Strict
 from ..security import audit, clean, digest, owner, scoped
 
 router = APIRouter(prefix="/conversations", tags=["conversations"])
-ACTIVE = {"queued", "running", "waiting_for_provider"}
+ACTIVE = {"queued", "running", "waiting_for_provider", "waiting_for_free_provider"}
 
 
 class ConversationInput(Strict):

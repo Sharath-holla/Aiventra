@@ -426,6 +426,9 @@ class NativeAdapter:
         emit=None,
         stream=True,
     ):
+        from . import spending
+
+        await spending.authorize(provider, model)
         base = validate_endpoint(
             provider.base_url, settings().provider_allowed_hosts, local_allowed=provider.kind == "ollama"
         )

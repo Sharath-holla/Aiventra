@@ -1,5 +1,16 @@
 # Next steps
 
+## Current enterprise continuation — after zero-cost milestone
+
+1. Keep `AI_SPENDING_MODE=ZERO_COST_ONLY`. Revoke credentials disclosed in chat; none were installed or used by this milestone. Do not enable remote inference from zero prices, subscriptions, credits or catalog success.
+2. Enterprise milestone 2: obtain authorized access to the existing local PostgreSQL 18 instance, inspect database ownership/migrations/pgvector, and prepare a backed-up, reversible SQLite-to-PostgreSQL transition. Preserve all records and explicitly select one authoritative database. Do not guess credentials or silently replace the current SQLite database.
+3. Provision an approved local Ollama service/model without automatic large downloads; read-only inventory reports 7.3 GiB system RAM, six CPU cores and an RX 6500M, with compatibility still unverified. Verify installed GGUF metadata and real local inference, then capability benchmarks and independent review. Docker Compose needs an explicit isolated local inference service design; host loopback is not container loopback.
+4. Implement remote-free entitlement verifiers only where provider-enforced no-billing evidence is available. Until then remote inference stays denied. No paid fallback or mode is implemented.
+5. Continue exact-approved generated branch/PR publication using PR_PUBLICATION_WORKFLOW.md; then client delivery/acceptance, invitations/OIDC, independent watchdog, encrypted offsite restore drills and production hardening.
+
+Current implementation: enterprise milestone 1, with Phase 3 foundations and the verified Phase 4 runner increment preserved. No production deployment, live provider success, generated remote PR publication or imported-crypto execution is claimed. Historical next-step lists below retain prior numbering.
+
+
 ## Current verified milestone order
 
 Phase 3 memory, staffing and persistent orchestration are complete. Published source c6dd90e has all five CI jobs green, including actual PostgreSQL/pgvector recovery and dedicated Docker runner isolation/build/test/cancellation/restart evidence. Provider credentials remain deferred. Older "not implemented" entries below are historical, not the current source audit.

@@ -145,7 +145,7 @@ test("live conversation waits honestly and cancellation persists after reload", 
     );
   await page.getByRole("button", { name: "Send message", exact: true }).click();
   await expect(
-    page.getByText("Waiting for an eligible AI provider", { exact: true }),
+    page.getByText("Waiting for an eligible free AI model", { exact: true }),
   ).toBeVisible({ timeout: 15000 });
   await expect(page.locator(".markdown")).toHaveCount(0);
   await page

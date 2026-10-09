@@ -180,6 +180,7 @@ export function Projects({
                 "blocked",
                 "awaiting_approval",
                 "waiting_for_provider",
+                "waiting_for_free_provider",
               ],
             },
             {

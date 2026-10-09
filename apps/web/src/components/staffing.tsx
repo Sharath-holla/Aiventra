@@ -508,9 +508,12 @@ export function Staffing() {
                   {task &&
                     plan.status === "active" &&
                     item.kind === "document" &&
-                    ["blocked", "ready", "waiting_for_provider"].includes(
-                      task.status,
-                    ) && (
+                    [
+                      "blocked",
+                      "ready",
+                      "waiting_for_provider",
+                      "waiting_for_free_provider",
+                    ].includes(task.status) && (
                       <form
                         onSubmit={(e) => {
                           e.preventDefault();

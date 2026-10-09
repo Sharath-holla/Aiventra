@@ -9,6 +9,8 @@ from company_os.providers import HTTPAdapter, ProviderError
 from company_os.schemas import Analysis
 from sqlalchemy import select
 
+pytestmark = pytest.mark.usefixtures("contract_inference")
+
 ANALYSIS = {
     "project_type": "migration",
     "objectives": ["Lower cost"],

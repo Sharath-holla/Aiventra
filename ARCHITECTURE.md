@@ -1,5 +1,16 @@
 # Aiventra OS architecture
 
+## Current zero-cost authorization layer
+
+The modular FastAPI/Next.js architecture is retained. `company_os.spending` is a mandatory domain guard independent of preference/ranking and financial caps. The gateway filters forbidden models and verifies local installed-model metadata before reservation; structured/native transports verify again before inference. Ollama embeddings have the same local/cloud boundary; cached Fastembed remains CPU-local. No remote entitlement verifier is implemented, so remote inference fails closed.
+
+`local_model_verifications` stores tenant/model, endpoint/model/rate/enablement fingerprint, state/reason, check time and metadata digest. Migration `a31d07edc482` adds it without changing existing records. The dashboard's five-minute evidence expires on configuration changes and never replaces per-request local checks. The trusted local daemon is an explicit boundary, not cryptographic host attestation.
+
+Workflow/agent states now include WAITING_FOR_FREE_PROVIDER with durable routing context, notifications and append-only audit. Configuration changes cannot auto-resume these waits. The owner-only spending router verifies an eligible unexpired/reconciled workflow before queueing its saved step; worker permissions, review independence, approval, budget and leases remain mandatory. Revised requirements cancel obsolete saved workflows. Benchmarks propagate provider-wait subclasses rather than recording fabricated failed results.
+
+Compose pins ZERO_COST_ONLY for migration/API/worker. Local storage remains the existing SQLite database; PostgreSQL 18 service discovery did not authorize a database switch. CI retains actual Postgres/pgvector and Docker runner verification and adds saved zero-cost-state restart comparison. ZERO_COST_AI_POLICY.md and docs/ENTERPRISE_AUDIT.md define current scope; older phase descriptions below are historical.
+
+
 Current published source **c6dd90ed08b243af4553bc949cb4422cbec976ea** passed all five jobs, including PostgreSQL/pgvector restart and dedicated Docker runner isolation, in [GitHub Actions](https://github.com/Sharath-holla/Aiventra/actions/runs/37974429455). Phase 3 memory, staffing and persistent orchestration are implemented. Phase 4's authenticated runner broker is isolated from API/worker hosts; code is copied through bounded snapshots and executes only in the restricted Docker service. Local Docker remains unavailable on the Windows development host.
 
 Phase 3 boundaries: [SEMANTIC_MEMORY.md](SEMANTIC_MEMORY.md) describes transactional versioned source capture, 384-dimensional PostgreSQL vectors/HNSW, local embeddings and authorized current-version retrieval. Missing local weights use explicit keyword fallback. [WORKFORCE_PLANNING.md](WORKFORCE_PLANNING.md) describes exact approved plan revisions, skills/role assignment, DAG/cost/capacity policies, organization-serialized admission and bounded worker concurrency. Connected memory and allocation screens consume persisted backend records. Existing tenant, approval, budget, audit, and lease checks remain authoritative.

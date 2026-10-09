@@ -60,7 +60,7 @@ async def test_live_chat_waits_without_fabricated_answer_or_charge_and_cancels(h
     turn = send(http, conversation)
     assert await tick(company["factory"])
     result = http.get(f"/conversations/{conversation['id']}").json()["turns"][0]
-    assert result["workflow"]["status"] == "waiting_for_provider"
+    assert result["workflow"]["status"] == "waiting_for_free_provider"
     assert not result["response"] and not result["runs"]
     with company["factory"]() as session:
         assert all(row.spent_micro == row.reserved_micro == 0 for row in session.scalars(select(Budget)))

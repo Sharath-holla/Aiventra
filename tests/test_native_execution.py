@@ -15,6 +15,8 @@ from company_os.tools import ToolCall, guard, invoke
 from company_os.workflows import tick
 from sqlalchemy import select
 
+pytestmark = pytest.mark.usefixtures("contract_inference")
+
 KINDS = ["openai", "anthropic", "gemini", "xai", "ollama", "compatible"]
 
 
@@ -389,7 +391,7 @@ async def test_tool_job_waits_without_credentials_and_deduplicates(http, company
     await tick(company["factory"])
     state = http.get("/state").json()
     workflow = next(w for w in state["workflows"] if w["id"] == response.json()["workflow"]["id"])
-    assert workflow["status"] == "waiting_for_provider"
+    assert workflow["status"] == "waiting_for_free_provider"
     assert not [r for r in state["runs"] if r["workflow_id"] == workflow["id"]]
     assert not state["tool_invocations"]
 

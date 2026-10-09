@@ -117,6 +117,16 @@ class ModelConfig(Tenant, Base):
     __table_args__ = (UniqueConstraint("provider_id", "identifier"),)
 
 
+class LocalModelVerification(Tenant, Base):
+    __tablename__ = "local_model_verifications"
+    model_id: Mapped[str] = mapped_column(ForeignKey("model_configs.id"), unique=True)
+    fingerprint: Mapped[str] = mapped_column(String(64))
+    checked_at: Mapped[int] = mapped_column()
+    state: Mapped[str] = mapped_column(String(40))
+    reason: Mapped[str] = mapped_column(Text)
+    evidence_digest: Mapped[str] = mapped_column(String(64), default="")
+
+
 class Requirement(Tenant, Base):
     __tablename__ = "requirements"
     client_id: Mapped[str] = mapped_column(ForeignKey("clients.id"))

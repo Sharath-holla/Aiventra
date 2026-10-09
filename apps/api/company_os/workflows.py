@@ -342,7 +342,9 @@ def schedule(session: Session) -> None:
 def wake_waiting(session: Session):
     from .gateway import eligible_models, review_candidates
 
-    for workflow in session.scalars(select(Workflow).where(Workflow.status == "waiting_for_provider")):
+    for workflow in session.scalars(
+        select(Workflow).where(Workflow.status.in_(["waiting_for_provider", "waiting_for_free_provider"]))
+    ):
         config = workflow.wait_context
         if workflow.deadline_at <= now():
             workflow.status, workflow.last_error = (
@@ -359,6 +361,8 @@ def wake_waiting(session: Session):
             )
             audit(session, workflow.org_id, "worker", "workflow.provider_wait_expired", workflow.id)
             continue
+        if workflow.status == "waiting_for_free_provider":
+            continue  # Credentials/configuration changes cannot authorize automatic free-policy resumption.
         if not config:
             continue
         candidates = eligible_models(
@@ -461,27 +465,44 @@ async def tick(factory=SessionLocal) -> bool:
             workflow = session.get(Workflow, workflow.id)
             if workflow.lease_token != token:
                 return True
-            workflow.status, workflow.lease_until = "waiting_for_provider", 0
+            from .providers import FreeProviderUnavailable
+
+            waiting_status = (
+                "waiting_for_free_provider"
+                if isinstance(exc, FreeProviderUnavailable)
+                else "waiting_for_provider"
+            )
+            workflow.status, workflow.lease_until = waiting_status, 0
             workflow.wait_context, workflow.last_error = exc.context, str(exc)
             from .agent_runtime import transition
 
             waiting_agent = session.get(Agent, exc.context["agent_id"])
             transition(
-                session, workflow, waiting_agent, "WAITING_FOR_PROVIDER", exc.context.get("step_name", "")
+                session,
+                workflow,
+                waiting_agent,
+                waiting_status.upper(),
+                exc.context.get("step_name", ""),
+                detail={"reason": str(exc), "spending_mode": exc.context.get("spending_mode")},
             )
             if workflow.requirement_id:
-                session.get(Requirement, workflow.requirement_id).status = "waiting_for_provider"
+                session.get(Requirement, workflow.requirement_id).status = waiting_status
             if workflow.task_id:
-                session.get(Task, workflow.task_id).status = "waiting_for_provider"
+                session.get(Task, workflow.task_id).status = waiting_status
             audit(
                 session,
                 workflow.org_id,
                 "worker",
-                "workflow.waiting_for_provider",
+                "workflow." + waiting_status,
                 workflow.id,
                 {"routing": exc.context},
                 task_id=workflow.task_id,
                 authorization="no eligible configured provider",
+            )
+            session.add(
+                Notification(
+                    org_id=workflow.org_id, severity="warning", title=str(exc), subject_id=workflow.id
+                )
             )
             session.commit()
         except Exception as exc:

@@ -268,9 +268,14 @@ test("agent message and meeting UI produce persistent fixture evidence and runti
   await page.getByLabel("Find employee", { exact: true }).fill(recipient.name);
   await page.locator(".agent-card").first().click();
   await expect(
-    page.getByText("COMPLETED", { exact: true }).first(),
-  ).toBeVisible();
-  await expect(
     page.getByText("Recorded execution transitions", { exact: true }),
+  ).toBeVisible();
+  // An older active provider wait can correctly outrank this completed job in
+  // the employee's current runtime. Verify completion in its persisted history.
+  await page
+    .getByText("Recorded execution transitions", { exact: true })
+    .click();
+  await expect(
+    page.getByText("COMPLETED", { exact: true }).first(),
   ).toBeVisible();
 });

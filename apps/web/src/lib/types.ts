@@ -310,6 +310,16 @@ export interface State {
     deployments_paused: boolean;
   };
   runtime: {
+    ai_spending_mode: "ZERO_COST_ONLY";
+    inference_eligibility: {
+      model_id: string;
+      provider_id: string;
+      allowed: boolean;
+      state: string;
+      reason: string;
+      local_candidate: boolean;
+      evidence_digest: string;
+    }[];
     mock_enabled: boolean;
     execution_enabled: boolean;
     database: string;

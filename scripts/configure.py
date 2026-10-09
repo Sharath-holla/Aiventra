@@ -20,6 +20,9 @@ if not env.exists():
 else:
     print("Existing .env preserved.")
     current = env.read_text(encoding="utf-8")
+    if "AI_SPENDING_MODE=" not in current:
+        with env.open("a", encoding="utf-8") as output:
+            output.write("\nAI_SPENDING_MODE=ZERO_COST_ONLY\n")
     if "RUNNER_TOKEN=" not in current:
         with env.open("a", encoding="utf-8") as output:
             output.write("\nRUNNER_TOKEN=" + secrets.token_urlsafe(48) + "\n")

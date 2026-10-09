@@ -11,6 +11,34 @@ from sqlalchemy.orm import sessionmaker
 
 
 @pytest.fixture
+def contract_inference(monkeypatch):
+    """Legacy protocol/accounting fixtures, explicitly isolated from real networking.
+
+    Production policy tests never request this fixture. There is no production
+    configuration switch permitting remote inference in ZERO_COST_ONLY.
+    """
+    from company_os import spending
+
+    def prohibit_network(*args, **kwargs):
+        raise AssertionError("Contract inference fixture attempted real network access")
+
+    async def prohibit_async(*args, **kwargs):
+        prohibit_network()
+
+    async def authorize(*args):
+        return spending.Decision(True, "DETERMINISTIC_TEST", "Controlled adapter contract only")
+
+    monkeypatch.setattr("httpx.AsyncHTTPTransport.handle_async_request", prohibit_async)
+    monkeypatch.setattr("httpx.HTTPTransport.handle_request", prohibit_network)
+    monkeypatch.setattr(
+        spending,
+        "assess",
+        lambda *args: spending.Decision(True, "DETERMINISTIC_TEST", "Controlled adapter contract only"),
+    )
+    monkeypatch.setattr(spending, "authorize", authorize)
+
+
+@pytest.fixture
 def company(tmp_path, monkeypatch):
     config = settings()
     monkeypatch.setattr(config, "jwt_secret", "test-suite-auth-secret-32-characters-long")

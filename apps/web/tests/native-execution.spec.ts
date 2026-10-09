@@ -82,11 +82,11 @@ test("native tools and benchmark UI queue scoped live work, wait without credent
         return snapshot.workflows.find((w) => w.id === job?.workflow_id)
           ?.status;
       })
-      .toBe("waiting_for_provider");
+      .toBe("waiting_for_free_provider");
     await page.reload();
     await page.getByRole("button", { name: "Benchmarks", exact: true }).click();
     await expect(
-      page.getByText("waiting_for_provider", { exact: true }).first(),
+      page.getByText("waiting_for_free_provider", { exact: true }).first(),
     ).toBeVisible();
     await page.screenshot({
       path: "../../artifacts/native-benchmarks.png",
@@ -159,7 +159,7 @@ test("native tools and benchmark UI queue scoped live work, wait without credent
         return snapshot.workflows.find((w) => w.id === job?.workflow_id)
           ?.status;
       })
-      .toBe("waiting_for_provider");
+      .toBe("waiting_for_free_provider");
     await page.reload();
     const panel = page.locator("section").filter({
       has: page.getByRole("heading", {
@@ -169,7 +169,7 @@ test("native tools and benchmark UI queue scoped live work, wait without credent
     });
     await panel.locator("details").first().locator("summary").click();
     await expect(
-      panel.getByText("waiting_for_provider", { exact: true }).first(),
+      panel.getByText("waiting_for_free_provider", { exact: true }).first(),
     ).toBeVisible();
     await panel
       .getByRole("button", { name: "Cancel execution", exact: true })

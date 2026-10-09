@@ -43,7 +43,11 @@ def redact(text: str, secrets: tuple[str, ...] | None = None) -> str:
         r"\1=[REDACTED]",
         text,
     )
-    text = re.sub(r"\b(?:sk-[A-Za-z0-9_-]{16,}|gh[pousr]_[A-Za-z0-9_]{16,})\b", "[REDACTED]", text)
+    text = re.sub(
+        r"\b(?:sk-[A-Za-z0-9_-]{16,}|gsk_[A-Za-z0-9_-]{16,}|gh[pousr]_[A-Za-z0-9_]{16,}|github_pat_[A-Za-z0-9_]{16,})\b",
+        "[REDACTED]",
+        text,
+    )
     text = re.sub(
         r"-----BEGIN [^-]*PRIVATE KEY-----[\s\S]*?-----END [^-]*PRIVATE KEY-----",
         "[REDACTED PRIVATE KEY]",

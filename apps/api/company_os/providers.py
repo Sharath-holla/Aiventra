@@ -29,6 +29,14 @@ class ProviderUnavailable(ProviderError):
         self.context = context
 
 
+class FreeProviderUnavailable(ProviderUnavailable):
+    def __init__(self, context: dict):
+        super().__init__(context)
+        self.args = (
+            "WAITING_FOR_FREE_PROVIDER: no eligible zero-cost model; saved work requires owner resumption",
+        )
+
+
 def scrub_secret(value, secret: str):
     if isinstance(value, str):
         return value.replace(secret, "[REDACTED]") if secret else value
@@ -86,6 +94,9 @@ class HTTPAdapter:
         schema: dict,
         max_output: int = 2048,
     ) -> Response:
+        from . import spending
+
+        await spending.authorize(provider, model)
         base = validate_endpoint(
             provider.base_url, settings().provider_allowed_hosts, local_allowed=provider.kind == "ollama"
         )

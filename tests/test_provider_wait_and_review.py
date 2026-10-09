@@ -7,6 +7,8 @@ from company_os.schemas import ReviewResult
 from company_os.workflows import tick
 from sqlalchemy import select
 
+pytestmark = pytest.mark.usefixtures("contract_inference")
+
 ANALYSIS = {
     "project_type": "migration",
     "objectives": ["Reduce cost"],
@@ -61,7 +63,7 @@ async def test_live_workflow_waits_without_spending_then_resumes_once(http, comp
     assert not await tick(company["factory"])
     with company["factory"]() as session:
         workflow = session.get(Workflow, workflow_id)
-        assert workflow.status == "waiting_for_provider" and workflow.attempts == workflow.step == 0
+        assert workflow.status == "waiting_for_free_provider" and workflow.attempts == workflow.step == 0
         assert session.scalar(select(ModelRun)) is None
         assert all(row.reserved_micro == row.spent_micro == 0 for row in session.scalars(select(Budget)))
         provider_model(session, company, "api.openai.com", "controlled-contract-model")
@@ -74,6 +76,7 @@ async def test_live_workflow_waits_without_spending_then_resumes_once(http, comp
         return Response(ANALYSIS, 10, 10)
 
     monkeypatch.setattr("company_os.providers.HTTPAdapter.request", contract)
+    assert http.post(f"/workflows/{workflow_id}/resume-free").status_code == 200
     assert await tick(company["factory"])
     with company["factory"]() as session:
         workflow = session.get(Workflow, workflow_id)

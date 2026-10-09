@@ -17,6 +17,8 @@ from company_os.schemas import DocumentResult
 from company_os.workflows import tick
 from sqlalchemy import select
 
+pytestmark = pytest.mark.usefixtures("contract_inference")
+
 
 def live_model(session, company, kind="openai"):
     provider = m.Provider(
@@ -341,12 +343,12 @@ async def test_missing_provider_wait_records_runtime_and_probe_never_falls_back(
     assert await tick(company["factory"])
     state = http.get("/state").json()
     workflow = next(w for w in state["workflows"] if w["id"] == response.json()["workflow"]["id"])
-    assert workflow["status"] == "waiting_for_provider" and workflow["attempts"] == 0
+    assert workflow["status"] == "waiting_for_free_provider" and workflow["attempts"] == 0
     assert not state["runs"] and not state["provider_probes"]
     runtime = next(
         r for r in state["agent_runtime"] if r["agent_id"] == response.json()["work"]["participants"][0]
     )
-    assert runtime["state"] == "WAITING_FOR_PROVIDER"
+    assert runtime["state"] == "WAITING_FOR_FREE_PROVIDER"
     monkeypatch.setenv("AGENT_CONTRACT_API_KEY", "controlled-probe-test")
     calls = []
 
@@ -355,6 +357,7 @@ async def test_missing_provider_wait_records_runtime_and_probe_never_falls_back(
         return Response({"value": "aiventra_probe_ok"}, 5, 5)
 
     monkeypatch.setattr(HTTPAdapter, "request", contract)
+    assert http.post(f"/workflows/{workflow['id']}/resume-free").status_code == 200
     assert await tick(company["factory"])
     state = http.get("/state").json()
     assert calls == [model.id] and state["provider_probes"][0]["inference_model_id"] == model.id

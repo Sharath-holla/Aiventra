@@ -1,5 +1,10 @@
 # Model routing and provider evidence
 
+## Current mandatory filter: zero-cost eligibility
+
+Before every routing preference or budget decision, ZERO_COST_ONLY blocks remote paid/unknown-cost models. Registry zero prices, keys and catalog success are not free-entitlement proof. Local Ollama requires credential-free loopback configuration and installed-GGUF metadata before each inference. Missing eligibility preserves WAITING_FOR_FREE_PROVIDER for explicit scoped owner resumption. See ZERO_COST_AI_POLICY.md and PROVIDER_ELIGIBILITY.md; historical remote adapter contracts below are fixture tests, not live authorization.
+
+
 The gateway supports OpenAI Responses, Anthropic Messages, Gemini generateContent, xAI/compatible chat completions and Ollama generate. All output is validated against an explicit schema; malformed output retains real usage before bounded fallback. Native streaming and complete-response function interfaces now use the bounded adapters described in NATIVE_EXECUTION.md.
 
 Catalog discovery uses actual account identifiers and bounded pages/bytes/time. It does not infer capability, quality, price, or successful inference. Catalog status and successful structured inference time/model are distinct persisted facts. Replacing a vault credential resets its evidence; rotation during a check prevents stale certification.

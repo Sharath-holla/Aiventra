@@ -588,6 +588,7 @@ export default function Home() {
               Workspace <span>/</span> <strong>{titles[view][0]}</strong>
             </div>
             <div className="topbar-right">
+              <Badge>ZERO-COST AI MODE</Badge>
               <div className="global-search">
                 <Search size={15} />
                 <input

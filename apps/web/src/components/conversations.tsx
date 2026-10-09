@@ -29,7 +29,12 @@ import type {
 } from "@/lib/types";
 import { Badge, Button, Empty, Pretty, useApp } from "./common";
 
-const activeStatuses = ["queued", "running", "waiting_for_provider"];
+const activeStatuses = [
+  "queued",
+  "running",
+  "waiting_for_provider",
+  "waiting_for_free_provider",
+];
 const starters = [
   {
     title: "Plan a new application",
@@ -453,8 +458,11 @@ export function CEOChat({
                           <LoaderCircle className="spin" size={16} />
                         )}
                         <strong>
-                          {turn.workflow?.status === "waiting_for_provider"
-                            ? "Waiting for an eligible AI provider"
+                          {[
+                            "waiting_for_provider",
+                            "waiting_for_free_provider",
+                          ].includes(turn.workflow?.status || "")
+                            ? "Waiting for an eligible free AI model"
                             : turn.workflow?.status === "cancelled"
                               ? "Response stopped"
                               : turn.workflow?.status === "needs_attention"
@@ -464,14 +472,20 @@ export function CEOChat({
                                   : "Queued for the worker"}
                         </strong>
                         <p>
-                          {turn.workflow?.status === "waiting_for_provider"
-                            ? "Configure a model and its credentials. This request will resume from its saved step."
+                          {[
+                            "waiting_for_provider",
+                            "waiting_for_free_provider",
+                          ].includes(turn.workflow?.status || "")
+                            ? "Your request is saved. Verify a local model, then authorize resumption in Models & providers. Remote inference is blocked by ZERO_COST_ONLY."
                             : turn.workflow?.last_error ||
                               (turn.workflow?.status === "cancelled"
                                 ? "No response was published. In-flight provider usage may still be charged."
                                 : "Status comes from the persistent workflow.")}
                         </p>
-                        {turn.workflow?.status === "waiting_for_provider" && (
+                        {[
+                          "waiting_for_provider",
+                          "waiting_for_free_provider",
+                        ].includes(turn.workflow?.status || "") && (
                           <button
                             className="text-button"
                             onClick={() => navigate("models")}

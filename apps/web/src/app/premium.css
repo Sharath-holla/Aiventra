@@ -347,6 +347,7 @@ label {
 }
 .badge.mock,
 .badge.waiting_for_provider,
+.badge.waiting_for_free_provider,
 .badge.awaiting_approval,
 .badge.paused {
   color: var(--warning);

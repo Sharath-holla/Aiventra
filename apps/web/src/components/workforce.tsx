@@ -36,8 +36,10 @@ export function Workforce({ hierarchy }: { hierarchy: boolean }) {
         <span>
           <strong>
             {
-              state.agent_runtime.filter(
-                (r) => r.state === "WAITING_FOR_PROVIDER",
+              state.agent_runtime.filter((r) =>
+                ["WAITING_FOR_PROVIDER", "WAITING_FOR_FREE_PROVIDER"].includes(
+                  r.state,
+                ),
               ).length
             }
           </strong>{" "}

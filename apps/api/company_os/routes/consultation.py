@@ -95,7 +95,19 @@ def clarify(
     session.refresh(requirement)
     session.execute(
         update(m.Workflow)
-        .where(m.Workflow.requirement_id == requirement.id, m.Workflow.status.in_(["queued", "running"]))
+        .where(
+            m.Workflow.requirement_id == requirement.id,
+            m.Workflow.status.in_(
+                [
+                    "queued",
+                    "running",
+                    "waiting_for_provider",
+                    "waiting_for_free_provider",
+                    "paused",
+                    "needs_attention",
+                ]
+            ),
+        )
         .values(status="cancelled", lease_token=uid())
     )
     old_proposals = session.scalars(

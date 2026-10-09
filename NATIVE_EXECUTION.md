@@ -1,5 +1,10 @@
 # Native execution and model measurements
 
+## Current zero-cost restriction
+
+Native streaming, tool loops, probes and benchmarks use the same mandatory ZERO_COST_ONLY guard as structured calls. All remote inference is currently denied. The existing external protocol tests use explicitly nonnetwork contract fixtures. Missing free providers retain saved agent/workflow state; benchmarks propagate that wait instead of recording invented rubric results. See ZERO_COST_AI_POLICY.md and the current TEST_REPORT.md. No live remote inference is claimed.
+
+
 The latest request is preserved in [docs/LIVE_EXECUTION_SPEC.md](docs/LIVE_EXECUTION_SPEC.md). This is the Milestone A native execution/benchmark increment. Phases 3–5 and production verification are still unfinished.
 
 In Models & providers, register documented model capabilities, sensitivity and current input/output rates. Add `streaming` only for an endpoint/model that supports it. Store a real key in the existing vault or configure an actual Ollama endpoint. Provider-free startup remains supported. Consumer subscriptions are not API credentials.

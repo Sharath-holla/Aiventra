@@ -8,7 +8,7 @@ from sqlalchemy import select
 from . import models as m
 from .credentials import credential_revision
 from .db import now
-from .providers import ProviderError
+from .providers import ProviderError, ProviderUnavailable
 from .schemas import Strict
 from .security import digest
 
@@ -186,7 +186,7 @@ async def benchmark_step(session, workflow, token, work):
         if score == 100:
             status = "passed"
     except ProviderError as exc:
-        if exc.uncertain or type(exc).__name__ == "ProviderUnavailable":
+        if exc.uncertain or isinstance(exc, ProviderUnavailable):
             raise
         error = str(exc)
         status = "provider_rejected"

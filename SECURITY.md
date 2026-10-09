@@ -1,5 +1,12 @@
 # Security
 
+## Mandatory zero-cost inference boundary
+
+ZERO_COST_AI_POLICY.md is authoritative for current inference eligibility. The sole accepted mode is ZERO_COST_ONLY. Neither credentials, owner model preferences, CEO instructions, claimed zero rates nor budget approval can authorize remote paid/unknown-cost inference. Raw structured/native transports also enforce the guard, and local embeddings reject cloud aliases. Catalog operations are distinct from inference and never prove zero billing.
+
+Only trusted local Ollama with current installed-GGUF metadata may infer, with no provider token charges. This is not cryptographic host/daemon attestation. Malicious local proxies, compromised hosts and production egress containment require additional operational controls. The new table exposes only metadata digests/fingerprints, never credentials; endpoint/model changes invalidate evidence. Owner resume is tenant-scoped and cannot bypass execution approvals, review independence or uncertain-usage reconciliation. Publicly disclosed credentials must be revoked/replaced privately; none were stored or used here. Runtime redaction and publication scanning now recognize Groq-style and fine-grained GitHub token formats as well as existing formats.
+
+
 [Detailed threat model and controls](docs/security.md) remain authoritative. Local authentication now binds each JWT to an expiring database session. Logout revokes that session on the server; other sessions remain valid. The migration invalidates older sessionless tokens. Owner provisioning preserves existing credentials and public registration is deliberately absent.
 
 Account/source login counters are atomic persistent hashes. The browser proxy's source is shared; trusted edge client-address integration and retention policies are pending. Never trust arbitrary forwarded-address headers for authorization or throttling.

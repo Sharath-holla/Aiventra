@@ -157,6 +157,7 @@ def state(user: m.User = Depends(owner), session: Session = Depends(session_depe
     ]
     result["organization"] = serialize(session.get(m.Organization, user.org_id))
     result["runtime"] = {
+        "ai_spending_mode": settings().ai_spending_mode,
         "mock_enabled": settings().mock_enabled,
         "execution_enabled": settings().execution_enabled,
         "live_credentials_required": True,
@@ -168,6 +169,12 @@ def state(user: m.User = Depends(owner), session: Session = Depends(session_depe
     from ..providers import configured
 
     result["agent_runtime"] = snapshot(session, user.org_id)
+    from ..spending import status
+
+    result["runtime"]["inference_eligibility"] = [
+        status(session, session.get(m.Provider, model.provider_id), model)
+        for model in tenant_rows(session, m.ModelConfig, user, 300)
+    ]
 
     result["runtime"]["providers"] = [
         {

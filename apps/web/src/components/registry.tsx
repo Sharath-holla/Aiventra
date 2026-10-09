@@ -5,6 +5,7 @@ import { api, money } from "@/lib/api";
 import { Badge, Button, Empty, Panel, useApp } from "./common";
 import { ModelPolicyForm, ProviderControls } from "./provider-controls";
 import { NativeExecution } from "./native-execution";
+import { FreeModels } from "./free-models";
 export function Registry() {
   const { state, run, busy } = useApp();
   const [tab, setTab] = useState("models");
@@ -24,6 +25,7 @@ export function Registry() {
   const [sensitivity, setSensitivity] = useState("internal");
   return (
     <>
+      <FreeModels />
       <div className="tabs">
         <button
           className={tab === "models" ? "active" : ""}
@@ -122,8 +124,9 @@ export function Registry() {
             bounded to three distinct eligible models and never switches a live
             workflow to mock. Freshness expires after 30 days. Manual model
             assignment and scoped allowlists preserve every mandatory filter.
-            Task-specific owner evaluations and recorded latency inform routing;
-            automatic benchmarks remain planned.
+            Task-specific evaluations, recorded latency and versioned benchmarks
+            inform routing. Every inference must also pass ZERO_COST_ONLY;
+            missing free eligibility preserves the saved workflow.
           </p>
           {state.projects.map((project) => (
             <details key={project.id}>

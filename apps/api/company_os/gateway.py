@@ -5,6 +5,7 @@ from pydantic import BaseModel, ValidationError
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
+from . import spending
 from .agent_runtime import transition
 from .config import settings
 from .credentials import credential_revision
@@ -26,9 +27,9 @@ from .models import (
 )
 from .provider_state import probe_for
 from .providers import (
+    FreeProviderUnavailable,
     HTTPAdapter,
     ProviderError,
-    ProviderUnavailable,
     configured,
     fixture,
     model_identity,
@@ -113,6 +114,9 @@ def eligible_models(
     for model, provider in rows:
         if (provider.kind == "mock") != (mode == "mock"):
             continue
+        spending_decision = spending.assess(provider, model)
+        if not (spending_decision.allowed or spending_decision.local_candidate):
+            continue
         measured_quality = scores.get(model.id, profiles.get(model.id, {}).get("quality", model.quality))
         if (
             not capabilities.issubset(model.capabilities)
@@ -124,7 +128,9 @@ def eligible_models(
         reliability = min(model.reliability, profiles.get(model.id, {}).get("reliability", model.reliability))
         if SENSITIVITY[model.sensitivity] < SENSITIVITY[sensitivity] or reliability < 50:
             continue
-        if provider.kind != "mock" and (not model.price_source or now() - model.price_checked_at > 2592000):
+        if provider.kind not in {"mock", "ollama"} and (
+            not model.price_source or now() - model.price_checked_at > 2592000
+        ):
             continue
         candidates.append((model, provider))
 
@@ -250,21 +256,35 @@ async def execute[T: BaseModel](
         "task_class": task_class,
         "step_name": step,
     }
-    if workflow.mode == "live" and not candidates and not previous:
-        raise ProviderUnavailable(wait_context)
+    wait_context["spending_mode"] = settings().ai_spending_mode
+    wait_context["eligibility"] = [
+        spending.status(session, provider, model)
+        for model, provider in session.execute(
+            select(ModelConfig, Provider)
+            .join(Provider)
+            .where(
+                ModelConfig.org_id == workflow.org_id,
+                Provider.org_id == workflow.org_id,
+                Provider.kind != "mock",
+            )
+        ).all()
+    ][:100]
+    if workflow.mode == "live" and not candidates:
+        raise FreeProviderUnavailable(wait_context)
     tried = {run.model_id for run in previous}
     candidates = [(model, provider) for model, provider in candidates if model.id not in tried]
     max_attempts = min(agent.max_iterations, 3)
     deadline = time.monotonic() + agent.max_runtime_seconds
     error = "No eligible configured model. Check quality, context, sensitivity, pricing freshness and credentials."
     budget_error = None
-    for model, provider in candidates:
+    blocked_decisions = []
+    for model, provider in candidates[:max_attempts]:
         if len(previous) >= max_attempts:
             break
         remaining = min(deadline - time.monotonic(), workflow.deadline_at - now())
         if remaining <= 0:
             raise TimeoutError("Agent or workflow runtime limit reached")
-        # Recheck permissions immediately before each paid operation.
+        # Recheck authority and zero-cost eligibility before any reservation or inference.
         if workflow.lease_token:
             won = session.execute(
                 update(Workflow)
@@ -283,6 +303,13 @@ async def execute[T: BaseModel](
         session.refresh(provider)
         if not model.enabled or not provider.enabled:
             continue
+        try:
+            decision = await spending.authorize(provider, model)
+        except spending.InferenceBlocked as exc:
+            blocked_decisions.append({"model_id": model.id, **exc.decision.public()})
+            continue  # An unavailable local daemon must not suppress another safe local candidate.
+        if provider.kind == "ollama":
+            spending.record_local(session, provider, model, decision)
         if project:
             session.refresh(project)
         check_agent(session, agent, "read_context", project)
@@ -365,6 +392,7 @@ async def execute[T: BaseModel](
 
         benchmark = current_profile(session, model, provider)
         run.routing_reason += f"; current_prices={model.input_price_micro_per_million}/{model.output_price_micro_per_million}; benchmark={benchmark.metrics if benchmark else 'none (registry/human evidence)'}"
+        run.routing_reason += f"; spending_mode=ZERO_COST_ONLY; eligibility={decision.state}; local_evidence={decision.evidence_digest}"
         session.add(run)
         session.flush()
         credential_before = credential_revision(provider, session)
@@ -446,7 +474,16 @@ async def execute[T: BaseModel](
             )
             run.input_tokens, run.output_tokens = response.input_tokens, response.output_tokens
             actual = token_cost(model, response.input_tokens, response.output_tokens)
-            settle(session, run, actual, "mock_no_charge" if provider.kind == "mock" else "computed_estimate")
+            settle(
+                session,
+                run,
+                actual,
+                "mock_no_charge"
+                if provider.kind == "mock"
+                else "local_no_provider_charge"
+                if provider.kind == "ollama"
+                else "computed_estimate",
+            )
             run.response = clean(response.data)
             result = schema.model_validate(run.response)
             run.status = "succeeded"
@@ -471,6 +508,13 @@ async def execute[T: BaseModel](
                 session.refresh(project)
             check_agent(session, agent, "read_context", project)
             return result
+        except spending.InferenceBlocked as exc:
+            settle(session, run, 0, "zero_cost_policy_blocked_before_inference")
+            run.status, run.error = "failed", exc.decision.reason
+            transition(session, workflow, agent, "FAILED", step, run.id)
+            session.commit()
+            wait_context["eligibility"] = [{"model_id": model.id, **exc.decision.public()}]
+            raise FreeProviderUnavailable(wait_context) from None
         except (ProviderError, TimeoutError) as exc:
             if isinstance(exc, TimeoutError):
                 exc = ProviderError(
@@ -504,4 +548,7 @@ async def execute[T: BaseModel](
         previous.append(run)
     if budget_error and not previous:
         raise budget_error
+    if blocked_decisions:
+        wait_context["eligibility"] = blocked_decisions
+        raise FreeProviderUnavailable(wait_context)
     raise ProviderError(error)

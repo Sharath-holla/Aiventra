@@ -185,7 +185,7 @@ async def test_missing_provider_waits_without_reservations(http, company, requir
     plan = approve(http, plan)
     await tick(company["factory"])
     current = http.get(f"/projects/{plan['project_id']}/staffing").json()
-    assert any(row["status"] == "waiting_for_provider" for row in current["tasks"])
+    assert any(row["status"] == "waiting_for_free_provider" for row in current["tasks"])
     assert current["budget"]["spent_micro"] == current["budget"]["reserved_micro"] == 0
 
 

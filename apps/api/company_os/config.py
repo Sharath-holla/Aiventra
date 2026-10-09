@@ -1,5 +1,6 @@
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal
 
 from dotenv import load_dotenv
 from pydantic import Field
@@ -11,6 +12,7 @@ load_dotenv(override=False)
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
     app_env: str = "development"
+    ai_spending_mode: Literal["ZERO_COST_ONLY"] = "ZERO_COST_ONLY"
     database_url: str = "sqlite:///./data/company.db"
     jwt_secret: str = ""
     owner_email: str = "owner@local.test"

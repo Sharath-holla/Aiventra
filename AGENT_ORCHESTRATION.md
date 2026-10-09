@@ -1,5 +1,10 @@
 # Agent orchestration
 
+## Current orchestration status
+
+Persistent scoped messages/meetings, agent delegation, workforce scheduling, leases/checkpoints, bounded tools and pause/recovery are implemented and regression-tested. The current milestone adds WAITING_FOR_FREE_PROVIDER with saved employee/context/revision, notification/audit and explicit guarded owner resume. No simulated response is presented as live inference. Source and evidence are in ARCHITECTURE.md, WORKFORCE_PLANNING.md, ZERO_COST_AI_POLICY.md and TEST_REPORT.md; older missing-feature descriptions below are historical.
+
+
 Current scope: Milestone A of [Phases 2–5](docs/PHASES_2_5_SPEC.md). Registered roles execute through one on-demand durable worker, not 136 permanent model processes.
 
 `workflows` retain claims, deadlines, attempt bounds and checkpoint results. `agent_work` binds an owner-idempotent request to a probe, message or meeting and a shared budget. `agent_executions` records each workflow/employee invocation; `agent_state_events` records validated transitions with unique per-execution sequence numbers. A completed invocation is not proof that a project is complete or its output is semantically correct.
