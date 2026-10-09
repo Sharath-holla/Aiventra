@@ -2,13 +2,13 @@
 
 ## Current verified milestone order
 
-Phase 3 memory, staffing and persistent orchestration are complete. Published source 8bce537 has all five CI jobs green, including actual PostgreSQL/pgvector recovery and dedicated Docker runner isolation/build/test/cancellation/restart evidence. Provider credentials remain deferred. Older "not implemented" entries below are historical, not the current source audit.
+Phase 3 memory, staffing and persistent orchestration are complete. Published source c6dd90e has all five CI jobs green, including actual PostgreSQL/pgvector recovery and dedicated Docker runner isolation/build/test/cancellation/restart evidence. Provider credentials remain deferred. Older "not implemented" entries below are historical, not the current source audit.
 
 ## Current owner order — complete Phase 3, continue Phase 4
 
-The provider-free Phase 3 specification is complete. Continue with the current Phase 4 working-tree increment and publish it only after its final tests pass.
+The provider-free Phase 3 specification and the current runner recovery/repair increment are complete and published. Continue with scoped GitHub PR publication and provider-backed coding only after the owner connects credentials.
 
-1. Finish and publish the runner recovery/repair/PR-draft increment: run full backend tests and static checks, push without force, and observe CI for the exact resulting commit. Preserve the backend's owner reconciliation and exact approval fencing.
+1. The runner recovery/repair/PR-draft increment is published and passed local tests plus all five CI jobs. Preserve the backend's owner reconciliation and exact approval fencing as follow-on work proceeds.
 2. Add bounded authenticated GitHub PR publication for persisted, reviewed drafts, with owner approval and idempotent retry. Do not enable automatic merge or expose a GitHub token to model input or the generated-code container.
 3. Exercise a real provider-backed patch and independent review only after the owner connects credentials; keep no-provider operation explicit and do not represent deterministic adapters as live AI.
 4. Continue Phase 5 client delivery from verified coding results: final QA/PM/security approval, delivery bundle and scoped client acceptance. Preserve Phase 1–3 regression requirements.
