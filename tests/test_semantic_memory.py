@@ -282,14 +282,14 @@ def test_concurrent_memory_revisions_preserve_history(company):
 
 
 def test_recovery_digest_accepts_pgvector_list_and_array():
-    import numpy as np
+    from array import array
 
     from scripts.verify_semantic_memory import row_payload
 
     vector = [1.0] + [0.0] * 383
     row = m.MemoryChunk(embedding=vector)
     expected = row_payload(row)
-    row.embedding = np.array(vector, dtype=np.float32)
+    row.embedding = array("f", vector)
     assert row_payload(row) == expected
     assert expected["embedding"] == vector
 
