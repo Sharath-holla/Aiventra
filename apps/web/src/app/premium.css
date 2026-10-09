@@ -1419,3 +1419,47 @@ summary {
   max-height: 24rem;
   overflow-y: auto;
 }
+.allocation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+.summary-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin: 12px 0;
+}
+.allocation-role {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  min-width: 0;
+}
+.allocation-role small {
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+.allocation-task {
+  border-bottom: 1px solid var(--border);
+  padding: 16px 0;
+  min-width: 0;
+}
+.allocation-task summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  padding-bottom: 12px;
+  overflow-wrap: anywhere;
+}
+.allocation-task .form-grid {
+  margin-top: 16px;
+}
+.allocation-task p {
+  overflow-wrap: anywhere;
+}

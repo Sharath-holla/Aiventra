@@ -24,8 +24,11 @@ async def approved_project(http, company):
         },
     )
     assert response.status_code == 201
-    for _ in range(7):
+    for _ in range(32):
         await tick(company["factory"])
+        with company["factory"]() as session:
+            if session.scalar(select(m.Proposal).where(m.Proposal.requirement_id == response.json()["id"])):
+                break
     proposal = next(
         p for p in http.get("/state").json()["proposals"] if p["requirement_id"] == response.json()["id"]
     )

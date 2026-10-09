@@ -93,6 +93,7 @@ export interface Project extends Entity {
   budget_micro: number;
 }
 export interface Task extends Entity {
+  version: number;
   project_id: string;
   assigned_agent_id: string;
   objective: string;

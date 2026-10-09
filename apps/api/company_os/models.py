@@ -213,6 +213,7 @@ class Workflow(Tenant, Base):
     lease_token: Mapped[str] = mapped_column(default="")
     last_error: Mapped[str] = mapped_column(Text, default="")
     wait_context: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    capacity_agents: Mapped[list[str]] = mapped_column(JSON, default=list, server_default="[]")
     __table_args__ = (
         Index("uq_workflows_conversation_turn", "conversation_turn_id", unique=True),
         Index("uq_workflows_task", "task_id", unique=True),
@@ -573,3 +574,31 @@ class MemoryCursor(Tenant, Base):
     source: Mapped[str] = mapped_column(String(100))
     last_id: Mapped[str] = mapped_column(default="")
     __table_args__ = (UniqueConstraint("org_id", "source"),)
+
+
+class StaffingPlan(Tenant, Base):
+    __tablename__ = "staffing_plans"
+    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id"), unique=True)
+    version: Mapped[int] = mapped_column(default=1)
+    status: Mapped[str] = mapped_column(default="draft")
+    content: Mapped[dict[str, Any]] = mapped_column(JSON)
+    content_hash: Mapped[str] = mapped_column(String(64))
+    runtime: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+
+
+class StaffingRevision(Tenant, Base):
+    __tablename__ = "staffing_revisions"
+    plan_id: Mapped[str] = mapped_column(ForeignKey("staffing_plans.id"))
+    version: Mapped[int] = mapped_column()
+    content: Mapped[dict[str, Any]] = mapped_column(JSON)
+    content_hash: Mapped[str] = mapped_column(String(64))
+    __table_args__ = (UniqueConstraint("plan_id", "version"),)
+
+
+class TaskAssignment(Tenant, Base):
+    __tablename__ = "task_assignments"
+    task_id: Mapped[str] = mapped_column(ForeignKey("tasks.id"), index=True)
+    previous_agent_id: Mapped[str] = mapped_column(ForeignKey("agents.id"))
+    agent_id: Mapped[str] = mapped_column(ForeignKey("agents.id"))
+    owner_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    reason: Mapped[str] = mapped_column(Text)

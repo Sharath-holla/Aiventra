@@ -39,6 +39,7 @@ import { Governance } from "@/components/governance";
 import { Registry } from "@/components/registry";
 import { Business } from "@/components/business";
 import { MemoryBrowser } from "@/components/memory-browser";
+import { Staffing } from "@/components/staffing";
 import { Communications } from "@/components/communications";
 import { CEOChat, ConversationHistory } from "@/components/conversations";
 
@@ -58,6 +59,7 @@ const groups = [
     label: "YOUR AI COMPANY",
     items: [
       ["workforce", "AI workforce", Users],
+      ["allocation", "Workforce allocation", Network],
       ["organization", "Organization", Network],
       ["meetings", "Meetings & messages", MessageSquare],
       ["activity", "Live activity", Activity],
@@ -79,6 +81,10 @@ const groups = [
   },
 ] as const;
 const titles: Record<string, [string, string]> = {
+  allocation: [
+    "Workforce allocation",
+    "Shape the team. Approve the work. Follow the evidence.",
+  ],
   memory: [
     "Company memory",
     "Retrieve the evidence behind your company's decisions.",
@@ -700,6 +706,7 @@ export default function Home() {
             {view === "models" && <Registry />}
             {["crm", "knowledge"].includes(view) && <Business view={view} />}
             {view === "memory" && <MemoryBrowser />}
+            {view === "allocation" && <Staffing />}
             {["commands", "meetings"].includes(view) && (
               <Communications chat={view === "commands"} />
             )}

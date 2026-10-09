@@ -1,5 +1,9 @@
 # Next steps
 
+## Current verified milestone order
+
+Memory source 4e57760 has all four CI jobs green, with actual PostgreSQL vectors/versions retained across service restarts. Workforce planning and orchestration now have implementation and connected UI; finish their regression/restart/publication checks, then immediately implement the dedicated Docker broker, real sample-repository isolation/build/test evidence, bounded repairs and PR preparation. Provider credentials remain deferred. Older "not implemented" entries below are historical, not the current source audit.
+
 ## Current owner order — Phase 3, then Phase 4
 
 Follow [PHASE3_MEMORY_WORKFORCE_SPEC.md](docs/PHASE3_MEMORY_WORKFORCE_SPEC.md). Provider keys are deferred; do not request them as a prerequisite.

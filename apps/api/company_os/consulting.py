@@ -181,6 +181,9 @@ def approve_proposal(session: Session, proposal: Proposal, request: Approve, use
             )
         )
     proposal.status, requirement.status = "approved", "approved"
+    from .staffing import suggest
+
+    suggest(session, project)
     audit(
         session,
         user.org_id,

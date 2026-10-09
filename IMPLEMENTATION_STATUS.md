@@ -1,5 +1,15 @@
 # Implementation status
 
+## Phase 3 — workforce and orchestration increment, October 9, 2026
+
+Semantic memory source **4e57760** passed [all four CI jobs](https://github.com/Sharath-holla/Aiventra/actions/runs/37948166635), including actual Compose/PostgreSQL/pgvector, real local embeddings and byte-identical vector/version restart snapshots. No AI API keys were needed.
+
+Implemented requirements-based policy staffing proposals, persisted revisions/exact approval, editable logical slots/skills/agents/DAG/task caps/concurrency, current registry cost/availability evidence, shared staffing budgets, actual task creation and assignment messages, organization-serialized distributed claims, per-plan/agent/global limits, bounded worker pool and lease renewal. Existing foundation tasks are reused; document context is bounded to preserve their completion. Added persistent pause/resume/checkpoint fencing and restricted unexecuted reassignment/history. Coding allocations wait for repository scope and separate owner approval. The dark allocation UI connects all these actions to the backend. See WORKFORCE_PLANNING.md.
+
+Local and remote verification for this increment is recorded in TEST_REPORT.md. Restricted Docker execution, bounded repair and PR preparation are the next Phase 4 increment; live inference is deferred, not simulated. Historical status sections below describe earlier source states.
+
+Final local checks: 145 backend tests and 12 actual-service browser checks passed; schema/type/format/build checks and a byte-identical managed-service staffing restart passed. Source publication/remote CI is recorded separately from local evidence.
+
 ## Phase 3 — semantic-memory increment, October 9, 2026
 
 Latest instructions: [PHASE3_MEMORY_WORKFORCE_SPEC.md](docs/PHASE3_MEMORY_WORKFORCE_SPEC.md). Actual starting HEAD was clean local master 1670e83; all 129 existing backend tests were rerun successfully in 72.05 seconds. Provider credentials are deferred by the owner; they do not block this work.

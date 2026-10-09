@@ -58,6 +58,7 @@ jobs:
         run: |
           docker compose exec -T api python - < scripts/verify_conversation_recovery.py > /tmp/conversations-before.json
           docker compose exec -T api python - < scripts/verify_semantic_memory.py > /tmp/memory-before.json
+          docker compose exec -T api python - < scripts/verify_staffing_recovery.py > /tmp/staffing-before.json
           docker compose restart api worker web
           docker compose up -d --wait --wait-timeout 90
           curl --fail http://localhost:8000/health/ready
@@ -67,5 +68,8 @@ jobs:
           docker compose exec -T api python - < scripts/verify_semantic_memory.py > /tmp/memory-after.json
           cmp /tmp/memory-before.json /tmp/memory-after.json
           cat /tmp/memory-after.json
+          docker compose exec -T api python - < scripts/verify_staffing_recovery.py > /tmp/staffing-after.json
+          cmp /tmp/staffing-before.json /tmp/staffing-after.json
+          cat /tmp/staffing-after.json
       - run: docker compose logs && docker compose down
         if: always()

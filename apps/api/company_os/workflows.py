@@ -1,7 +1,7 @@
 import asyncio
 import logging
 
-from sqlalchemy import select, update
+from sqlalchemy import case, select, update
 from sqlalchemy.orm import Session
 
 from .artifacts import save_artifact
@@ -51,10 +51,16 @@ def claim(session: Session) -> Workflow | None:
             Workflow.status.in_(["queued", "running"]),
             Workflow.lease_until < now(),
         )
-        .order_by(Workflow.created_at)
-        .limit(10)
+        .order_by(case((Workflow.status == "running", 0), else_=1), Workflow.created_at, Workflow.id)
+        .limit(100)
     ).all()
     for workflow in candidates:
+        from .staffing import admit
+
+        agents = admit(session, workflow)
+        if agents is None:
+            session.rollback()
+            continue
         token = uid()
         result = session.execute(
             update(Workflow)
@@ -63,7 +69,7 @@ def claim(session: Session) -> Workflow | None:
                 Workflow.lease_until < now(),
                 Workflow.status.in_(["queued", "running"]),
             )
-            .values(status="running", lease_until=now() + 180, lease_token=token)
+            .values(status="running", lease_until=now() + 180, lease_token=token, capacity_agents=agents)
         )
         session.commit()
         if result.rowcount:
@@ -250,7 +256,10 @@ async def document_step(session: Session, workflow: Workflow, token: str) -> Non
             "objective": task.objective,
             "acceptance": task.acceptance,
             "project": proposal.content,
-            "project_memory": retrieve(session, project.org_id, project.id),
+            "project_memory": [
+                {**row, "excerpt": str(row.get("excerpt", ""))[:1000]}
+                for row in retrieve(session, project.org_id, project.id)[:2]
+            ],
         },
         project=project,
     )
@@ -302,6 +311,10 @@ def schedule(session: Session) -> None:
         )
     ).all()
     for task in tasks:
+        from .staffing import task_ready
+
+        if not task_ready(session, task):
+            continue
         dependencies = session.scalars(
             select(Task)
             .join(TaskDependency, Task.id == TaskDependency.depends_on)
@@ -401,6 +414,23 @@ async def tick(factory=SessionLocal) -> bool:
         if not workflow:
             return False
         token = workflow.lease_token
+
+        async def renew_lease():
+            while True:
+                await asyncio.sleep(20)
+                with factory() as lease_session:
+                    lease_session.execute(
+                        update(Workflow)
+                        .where(
+                            Workflow.id == workflow.id,
+                            Workflow.status == "running",
+                            Workflow.lease_token == token,
+                        )
+                        .values(lease_until=now() + 180)
+                    )
+                    lease_session.commit()
+
+        renewal = asyncio.create_task(renew_lease())
         from .observability import correlation_id
 
         marker = correlation_id.set(workflow.id)
@@ -508,6 +538,8 @@ async def tick(factory=SessionLocal) -> bool:
                 "workflow.failure", extra={"workflow_id": workflow.id, "error_type": type(exc).__name__}
             )
         finally:
+            renewal.cancel()
+            await asyncio.gather(renewal, return_exceptions=True)
             correlation_id.reset(marker)
         return True
 
@@ -526,6 +558,15 @@ async def run() -> None:
             await asyncio.sleep(5)
 
     pulse_task = asyncio.create_task(pulse())
+
+    async def work_loop():
+        while True:
+            active = await tick()
+            await asyncio.sleep(0.2 if active else 1)
+
+    from .config import settings
+
+    work_tasks = [asyncio.create_task(work_loop()) for _ in range(settings().scheduler_concurrency)]
     last_inspection = 0
     try:
         while True:
@@ -546,11 +587,12 @@ async def run() -> None:
 
                 await asyncio.to_thread(index_memory)
                 last_inspection = now()
-            active = await tick()
-            await asyncio.sleep(0.2 if active else 1)
+            await asyncio.sleep(1)
     finally:
         pulse_task.cancel()
-        await asyncio.gather(pulse_task, return_exceptions=True)
+        for work_task in work_tasks:
+            work_task.cancel()
+        await asyncio.gather(pulse_task, *work_tasks, return_exceptions=True)
         with SessionLocal() as session:
             heartbeat(session, worker_id, "stopped")
 

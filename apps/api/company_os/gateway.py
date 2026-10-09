@@ -314,6 +314,12 @@ async def execute[T: BaseModel](
             task = session.get(Task, workflow.task_id)
             if task.payload.get("job_id"):
                 scopes.append(f"job:{task.payload['job_id']}")
+            if task.payload.get("staffing_plan_id"):
+                from .staffing import task_ready
+
+                if not task_ready(session, task):
+                    raise PermissionError("Staffing approval, dependencies or plan state changed")
+                scopes.append(f"staffing:{task.payload['staffing_plan_id']}")
         work = session.scalar(select(AgentWork).where(AgentWork.workflow_id == workflow.id))
         if work:
             scopes.append(f"job:{work.id}")

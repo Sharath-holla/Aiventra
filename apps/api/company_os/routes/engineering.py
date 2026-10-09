@@ -159,6 +159,7 @@ def coding_task(
             "mode": data.mode,
             "review_policy": data.review_policy,
             "review_count": data.review_count,
+            "repair_limit": data.repair_limit,
         },
         budget_micro=data.budget_micro,
     )
@@ -173,6 +174,63 @@ class HashApproval(Strict):
     content_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
 
 
+class CodingScope(Strict):
+    repository_id: str
+    test_suite: str = Field(pattern="^(python-unittest|node-test)$")
+    review_policy: str = Field(
+        pattern="^(prefer_provider|require_provider|require_model)$", default="prefer_provider"
+    )
+    review_count: int = Field(ge=1, le=2, default=1)
+    repair_limit: int = Field(ge=0, le=2, default=1)
+
+
+@router.get("/tasks/{record_id}/coding-scope")
+def coding_scope(
+    record_id: str, user: m.User = Depends(owner), session: Session = Depends(session_dependency)
+):
+    task = scoped(session, m.Task, record_id, user)
+    if task.kind != "coding":
+        raise HTTPException(422, "Coding task required")
+    return {**serialize(task), "approval_hash": digest(task.payload)}
+
+
+@router.post("/tasks/{record_id}/coding-scope")
+def bind_coding_scope(
+    record_id: str,
+    data: CodingScope,
+    user: m.User = Depends(owner),
+    session: Session = Depends(session_dependency),
+):
+    from ..staffing import lock_org, task_plan
+
+    lock_org(session, user.org_id)
+    task = scoped(session, m.Task, record_id, user)
+    plan = task_plan(session, task)
+    if task.kind != "coding" or task.status != "awaiting_repository" or not plan or plan.status != "active":
+        raise HTTPException(409, "Active allocated coding task awaiting repository required")
+    repository = scoped(session, m.Repository, data.repository_id, user)
+    if repository.project_id != task.project_id:
+        raise HTTPException(422, "Repository belongs to another project")
+    task.payload = {
+        **task.payload,
+        **data.model_dump(),
+        "baseline_commit": repository.baseline_commit,
+        "objective": task.objective,
+    }
+    task.status, task.version = "awaiting_approval", task.version + 1
+    audit(
+        session,
+        user.org_id,
+        user.id,
+        "coding.scope_bound",
+        task.id,
+        project_id=task.project_id,
+        task_id=task.id,
+    )
+    session.commit()
+    return {**serialize(task), "approval_hash": digest(task.payload)}
+
+
 @router.post("/tasks/{record_id}/approve")
 def approve_coding(
     record_id: str,
@@ -180,7 +238,13 @@ def approve_coding(
     user: m.User = Depends(owner),
     session: Session = Depends(session_dependency),
 ):
+    from ..staffing import lock_org, task_plan
+
+    lock_org(session, user.org_id)
     task = scoped(session, m.Task, record_id, user)
+    plan = task_plan(session, task)
+    if plan and plan.status != "active":
+        raise HTTPException(409, "Staffing plan must be active")
     if (
         task.kind != "coding"
         or task.status != "awaiting_approval"

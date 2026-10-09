@@ -163,6 +163,7 @@ class CodingTaskInput(Strict):
     budget_micro: int = Field(ge=0, le=10**10, default=5000000)
     review_policy: Literal["prefer_provider", "require_provider", "require_model"] = "prefer_provider"
     review_count: int = Field(ge=1, le=2, default=1)
+    repair_limit: int = Field(ge=0, le=2, default=1)
 
 
 class ReviewResult(Strict):

@@ -1,5 +1,15 @@
 # Aiventra verification report
 
+## Workforce verification in progress — October 9, 2026
+
+Final local staffing verification: **145 backend tests passed**, zero failed, one existing dependency warning, 132.52 seconds; **12 real-service browser checks passed**, zero failed, 3.0 minutes. Ruff lint/format (86 files), Prettier, strict TypeScript and optimized production build passed. The actual managed API/worker/web processes were stopped and restarted; the byte-identical paused-workforce digest and readiness passed. Remote Compose/PostgreSQL restart checks are included in CI and remain to be observed for this source increment.
+
+Memory source **4e57760**: [all four remote jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/37948166635). Actual PostgreSQL pgvector/HNSW and local 384-dimensional paraphrase retrieval passed. The restart snapshots matched for two entries, three versions and three vectors, in addition to prior conversation recovery. The intermediate 8863d36 integration run also passed, with 11 browser checks in 51.4 seconds; its lean backend dependency regression was corrected in 4e57760.
+
+Workforce additions include eight backend scenarios for exact/idempotent approval and saved artifacts, requirement-specific roles, cycles/caps/foreign scope/stale edits, pause/resume/uncertain usage, concurrent SQL claims/lease recovery, no-provider/no-charge waits, approved department reassignment/history and changed-approval fencing. The new actual-service browser flow passed in 26.7 seconds: saved v2, exact staffing approval, stored task artifacts, pause/reload/resume and mobile width. Full combined results and actual restart evidence will be recorded after completion.
+
+Repaired during verification: populated SQLite rejected a new non-null capacity column without a default; a private backup was restored before the corrected additive upgrade, which passes Alembic check. Disabled-agent capacity lookup now leaves failure reporting to the existing worker handler. Admission prioritizes expired running leases. A memory test's seven-global-tick assumption was replaced with a bounded wait for its own proposal because multiple projects can now interleave; its original scope/ACL assertions remain intact. No live AI or local Docker execution is claimed.
+
 ## Phase 3 semantic memory — October 9, 2026
 
 Starting source was clean 1670e83, preserving CI-tested 8263fbd. Re-ran all 129 original backend tests: passed in 72.05 seconds. Docker/Ollama remain absent locally. Installed locked pgvector and optional CPU-local embedding dependencies; explicitly downloaded BAAI/bge-small-en-v1.5 weights and observed real 384-dimensional inference without paid credentials. Baseline features were retained.
