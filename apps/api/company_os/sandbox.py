@@ -51,6 +51,16 @@ async def stored_result(job_id: str) -> dict:
         return response.json()
 
 
+async def cancel_job(job_id: str) -> None:
+    url, headers = connection()
+    async with httpx.AsyncClient(
+        base_url=url, headers=headers, timeout=15, trust_env=False, follow_redirects=False
+    ) as client:
+        response = await client.post(f"/jobs/{job_id}/cancel")
+        if response.status_code not in {200, 404, 409}:
+            response.raise_for_status()
+
+
 async def run_tests(workspace: Path, suite: str, timeout=120, job_id: str | None = None) -> dict:
     if not settings().execution_enabled:
         raise PermissionError("Dedicated Docker execution is disabled")

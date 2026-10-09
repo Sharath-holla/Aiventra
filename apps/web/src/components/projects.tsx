@@ -458,6 +458,20 @@ export function Projects({
                     {e.environment} · Commit {e.commit_hash} ·{" "}
                     {date(e.started_at)}
                   </p>
+                  {e.status === "running" && (
+                    <Button
+                      secondary
+                      disabled={busy}
+                      onClick={() =>
+                        run(
+                          () => api(`/executions/${e.id}/reconcile`, {}),
+                          "Saved runner result reconciled.",
+                        )
+                      }
+                    >
+                      Reconcile saved runner result
+                    </Button>
+                  )}
                   <Pretty value={e.logs} />
                 </details>
               ))

@@ -1,6 +1,8 @@
+import subprocess
+
 import pytest
 from company_os.config import settings
-from company_os.repositories import apply_files, discover, safe_repository
+from company_os.repositories import apply_files, discover, git, safe_repository
 
 
 def test_i_import_is_read_only_and_excludes_secrets(company):
@@ -38,3 +40,40 @@ def test_patch_batch_is_validated_before_any_write(tmp_path):
 def test_valid_patch_creates_verifiable_source(tmp_path):
     apply_files(tmp_path, [{"path": "src/feature.py", "content": "def add(a,b):\n    return a+b\n"}])
     assert (tmp_path / "src/feature.py").read_text() == "def add(a,b):\n    return a+b\n"
+
+
+@pytest.mark.parametrize("preference", ["global", "system"])
+def test_git_sanitization_preserves_only_safe_global_line_ending_preference(
+    tmp_path, monkeypatch, preference
+):
+    root = tmp_path / "line-endings"
+    root.mkdir()
+    for args in (
+        ["init"],
+        ["config", "user.email", "test@local.invalid"],
+        ["config", "user.name", "Test Fixture"],
+    ):
+        subprocess.run(["git", "-C", str(root), *args], capture_output=True, check=True, timeout=20)
+    source = root / "README.md"
+    source.write_bytes(b"portable\r\n")
+    subprocess.run(
+        ["git", "-c", "core.autocrlf=true", "-C", str(root), "add", "README.md"],
+        capture_output=True,
+        check=True,
+        timeout=20,
+    )
+    subprocess.run(
+        ["git", "-c", "core.autocrlf=true", "-C", str(root), "commit", "-m", "baseline"],
+        capture_output=True,
+        check=True,
+        timeout=20,
+    )
+    monkeypatch.setattr(
+        "company_os.repositories._global_autocrlf", lambda: "true" if preference == "global" else None
+    )
+    monkeypatch.setattr(
+        "company_os.repositories._system_autocrlf", lambda: "true" if preference == "system" else None
+    )
+    assert git(root, "status", "--porcelain") == ""
+    source.write_bytes(b"changed\r\n")
+    assert git(root, "status", "--porcelain") == "M README.md"

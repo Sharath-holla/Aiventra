@@ -1,8 +1,16 @@
 # Aiventra verification report
 
-## Phase 4 runner broker — verification in progress
+## Current Phase 4 verification — published runner plus local workflow hardening
 
-Added a dedicated authenticated broker/DinD execution stack and closed snapshot protocol; no local Docker or host execution fallback. **28 affected local checks passed** in 20.34 seconds, covering protocol paths/limits/commands, disabled execution, secret/binary snapshots and existing repository/coding behavior. Ruff passed. An actual Docker isolation/build/test/cancellation/restart CI job is added and its results must be observed before claiming container verification. Bounded repair/PR preparation follow this broker increment.
+Published source **8bce5379f9bbb3746d229df69e9d90bb143c2dff** passed [all five CI jobs](https://github.com/Sharath-holla/Aiventra/actions/runs/37952887172). The actual PostgreSQL/pgvector integration verified vector retrieval and persistent memory/workforce state through restart. The dedicated runner job used Docker-in-Docker to execute nonempty Python and Node test/build commands against harmless repositories, and verified restricted UID, no network, read-only root, dropped capabilities, resource limits, no secrets, traversal/unsafe-command rejection, timeout/output bounds, cancellation, duplicate cleanup, and durable results after broker restart. Six runner result records produced restart snapshot `b1a449463f667c0f93d394b4750e5ead34c7ee62b38f92912f0208324ceea532`. No live AI inference was involved.
+
+The current source increment hardens workflow cancellation/recovery, adds build-aware QA and bounded repair with fresh reviews, connects owner reconciliation to the project execution panel, and persists a real Git commit plus an **unpublished** pull-request draft/diff. It also fixes Windows isolated-Git status checks while keeping hooks, filters, system/global config and credential helpers suppressed.
+
+- Full backend suite: **162 passed**, zero failed, one existing Starlette/httpx deprecation warning, 223.81 seconds. Focused draft preparation and build-result regressions are included.
+- Browser: **12 passed**, zero failed, 6.1 minutes against the actual configured app/backend, including project approval, provider controls, mobile views, conversations, memory, no-provider states and workforce pause/recovery.
+- Python: Ruff lint and format passed; `git diff --check` passed.
+- Web: strict TypeScript passed after the production build generated Next.js route types; Prettier check passed; optimized production build passed. The first concurrent typecheck raced with `next build` deleting `.next/types`, then the serial typecheck passed. No source failure remained.
+- Local Docker is unavailable. Actual dedicated Docker isolation was verified by CI only for published source 8bce537. CI for the current increment remains pending until publication; no current-source remote pass is claimed.
 
 ## Workforce verification in progress — October 9, 2026
 

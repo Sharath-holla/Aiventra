@@ -1,4 +1,6 @@
+import asyncio
 import re
+from pathlib import Path
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -25,7 +27,7 @@ from .models import (
 from .organization import agent_for
 from .providers import model_identity, provider_identity
 from .repositories import apply_files, git, source_context, worktree
-from .sandbox import run_tests
+from .sandbox import cancel_job, run_tests
 from .schemas import PatchResult, ReviewResult
 from .security import audit, check_agent, digest
 from .workflows import checkpoint, project_authority
@@ -34,7 +36,141 @@ from .workflows import checkpoint, project_authority
 def passed_tests(result: dict, suite: str) -> bool:
     pattern = r"^Ran (\d+) tests?\b" if suite == "python-unittest" else r"^# tests (\d+)\b"
     counts = re.findall(pattern, result["logs"], re.MULTILINE)
-    return result["exit_code"] == 0 and bool(counts) and int(counts[-1]) > 0
+    return (
+        result["exit_code"] == 0
+        and result.get("build", {}).get("exit_code", 0) == 0
+        and bool(counts)
+        and int(counts[-1]) > 0
+    )
+
+
+def round_name(name: str, repair_round: int) -> str:
+    return name + (f"_r{repair_round}" if repair_round else "")
+
+
+def candidate_tree(workspace: Path) -> str:
+    git(workspace, "add", "-A")
+    return git(workspace, "write-tree")
+
+
+async def qa_execution(
+    session: Session, workflow: Workflow, task: Task, qa: Agent, workspace: Path, token: str
+) -> tuple[Execution, dict]:
+    if session.scalar(
+        select(Execution.id).where(
+            Execution.task_id == task.id, Execution.status.in_(["running", "interrupted"])
+        )
+    ):
+        raise PermissionError("Interrupted test execution requires owner reconciliation")
+    execution = Execution(
+        id=uid(),
+        org_id=workflow.org_id,
+        task_id=task.id,
+        agent_id=qa.id,
+        workspace=str(workspace),
+        command=[task.payload["test_suite"]],
+        environment="dedicated Docker broker",
+        commit_hash=task.evidence["baseline_commit"],
+    )
+    session.add(execution)
+    session.commit()
+    call = asyncio.create_task(run_tests(workspace, task.payload["test_suite"], job_id=execution.id))
+    try:
+        while not call.done():
+            await asyncio.wait({call}, timeout=1)
+            with Session(session.get_bind()) as control_session:
+                current = control_session.execute(
+                    select(Workflow.status, Workflow.lease_token).where(Workflow.id == workflow.id)
+                ).one()
+            if current.status != "running" or current.lease_token != token:
+                await cancel_job(execution.id)
+                break
+        result = await call
+    except asyncio.CancelledError:
+        call.cancel()
+        await asyncio.gather(call, return_exceptions=True)
+        await cancel_job(execution.id)
+        raise
+    execution.status = "interrupted" if result.get("status") == "interrupted" else "completed"
+    execution.exit_code, execution.ended_at = result["exit_code"], now()
+    execution.logs = (
+        "Build exit "
+        + str(result.get("build", {}).get("exit_code", "contract adapter"))
+        + "\n"
+        + str(result.get("build", {}).get("logs", ""))
+        + "\n"
+        + result["logs"]
+    )[:500100]
+    execution.command, execution.environment = result["command"], result["environment"]
+    # Known runner evidence survives a revoked workflow lease; publication still requires checkpoint authority.
+    session.commit()
+    if result["exit_code"] == 125:
+        raise PermissionError("Runner interrupted; owner must inspect execution before retry")
+    return execution, result
+
+
+def prepare_pull_request(
+    session: Session, task: Task, project: Project, agent: Agent, workspace: Path, tree: str
+):
+    if candidate_tree(workspace) != tree:
+        raise PermissionError("Candidate changed after independent review and QA")
+    baseline = task.evidence["baseline_commit"]
+    head = git(workspace, "rev-parse", "HEAD")
+    if head == baseline:
+        git(
+            workspace,
+            "-c",
+            "user.name=Aiventra approved task",
+            "-c",
+            "user.email=aiventra@local.invalid",
+            "commit",
+            "-m",
+            "Aiventra approved task " + task.id,
+        )
+        head = git(workspace, "rev-parse", "HEAD")
+    elif git(workspace, "rev-parse", "HEAD^{tree}") != tree:
+        raise PermissionError("Unexpected worktree commit; owner review required")
+    diff = git(workspace, "diff", "--no-ext-diff", "--no-textconv", baseline, head)
+    mode = task.payload.get("mode", "live")
+    body = (
+        f"Approved task: {task.id}\n\n{task.objective}\n\nValidation: independent review records and execution {task.evidence['execution_id']}.\nAdapter: {mode}"
+        + (" — deterministic test adapter; no live AI certification." if mode == "mock" else ".")
+    )
+    content = {
+        "title": task.objective[:120],
+        "body": body,
+        "branch": git(workspace, "branch", "--show-current"),
+        "base_commit": baseline,
+        "head_commit": head,
+        "publication": "prepared_not_published",
+        "review_run_ids": [row["review_run_id"] for row in task.evidence["reviews"]],
+        "execution_id": task.evidence["execution_id"],
+        "mode": mode,
+    }
+    artifact = save_artifact(
+        session,
+        task.org_id,
+        "Prepared pull request and verified diff",
+        body + "\n\n```diff\n" + diff + "\n```",
+        kind="pull_request_draft",
+        project_id=project.id,
+        task_id=task.id,
+        agent_id=agent.id,
+    )
+    session.add(
+        BusinessRecord(
+            org_id=task.org_id,
+            project_id=project.id,
+            kind="pull_request_draft",
+            title=content["title"],
+            data={**content, "artifact_id": artifact.id},
+        )
+    )
+    task.evidence = {
+        **task.evidence,
+        "pull_request": {**content, "artifact_id": artifact.id},
+        "candidate_tree": tree,
+    }
 
 
 async def coding_step(session: Session, workflow: Workflow, token: str) -> None:
@@ -53,41 +189,20 @@ async def coding_step(session: Session, workflow: Workflow, token: str) -> None:
     repository = session.get(Repository, task.payload["repository_id"])
     agent = session.get(Agent, task.assigned_agent_id)
     workspace = settings().repository_root.resolve() / ".worktrees" / project.id / task.id
-    context = source_context(__import__("pathlib").Path(repository.path), task.objective)
+    context = source_context(workspace if workspace.exists() else Path(repository.path), task.objective)
     context["acceptance"] = task.acceptance
+    repair_round = task.evidence.get("repair_round", 0)
+    patch_name = round_name("patch", repair_round)
+    review_names = [round_name(name, repair_round) for name in ("review", "review_2")]
+    if repair_round:
+        context["repair_evidence"] = task.evidence.get("repair_feedback", {})
     if workflow.step == 0:
         check_agent(session, agent, "propose_patch", project)
-        from pathlib import Path
-
-        baseline = worktree(Path(repository.path), workspace, task.id)
+        baseline = worktree(Path(repository.path), workspace, task.id, task.payload.get("baseline_commit"))
         task.evidence = {"baseline_commit": baseline, "workspace": str(workspace)}
         qa = agent_for(session, workflow.org_id, "QA Director")
         check_agent(session, qa, "run_tests", project)
-        existing = session.scalar(
-            select(Execution).where(Execution.task_id == task.id, Execution.status == "running")
-        )
-        if existing:
-            raise PermissionError("Interrupted test execution requires owner reconciliation")
-        execution = Execution(
-            id=uid(),
-            org_id=workflow.org_id,
-            task_id=task.id,
-            agent_id=qa.id,
-            workspace=str(workspace),
-            command=[task.payload["test_suite"]],
-            environment="restricted Docker",
-            commit_hash=baseline,
-        )
-        session.add(execution)
-        session.commit()
-        result = await run_tests(workspace, task.payload["test_suite"])
-        execution.status, execution.exit_code, execution.ended_at, execution.logs = (
-            "completed",
-            result["exit_code"],
-            now(),
-            result["logs"],
-        )
-        execution.command, execution.environment = result["command"], result["environment"]
+        execution, result = await qa_execution(session, workflow, task, qa, workspace, token)
         passed = passed_tests(result, task.payload["test_suite"])
         checkpoint(
             session,
@@ -130,7 +245,7 @@ async def coding_step(session: Session, workflow: Workflow, token: str) -> None:
             session,
             workflow,
             agent,
-            "patch",
+            patch_name,
             PatchResult,
             context,
             quality=85,
@@ -142,13 +257,15 @@ async def coding_step(session: Session, workflow: Workflow, token: str) -> None:
         if result.tests != task.payload["test_suite"]:
             raise PermissionError("Model cannot change approved test command")
         apply_files(workspace, [file.model_dump() for file in result.files])
-        diff = git(workspace, "diff", "--no-ext-diff", "--no-textconv")
-        untracked = git(workspace, "ls-files", "--others", "--exclude-standard")
+        tree = candidate_tree(workspace)
+        diff = git(workspace, "diff", "--cached", "--no-ext-diff", "--no-textconv")
+        if not diff:
+            raise PermissionError("Patch made no repository changes")
         artifact = save_artifact(
             session,
             workflow.org_id,
             "Proposed code changes",
-            diff + "\nNew files:\n" + untracked,
+            diff,
             kind="code_diff",
             project_id=project.id,
             task_id=task.id,
@@ -158,24 +275,32 @@ async def coding_step(session: Session, workflow: Workflow, token: str) -> None:
             session,
             workflow,
             token,
-            "patch",
-            {"files": [file.model_dump() for file in result.files], "artifact_id": artifact.id},
+            patch_name,
+            {
+                "files": [file.model_dump() for file in result.files],
+                "artifact_id": artifact.id,
+                "candidate_tree": tree,
+            },
         )
         task.status = "review"
     elif workflow.step < 2 + task.payload.get("review_count", 1):
         patch = session.scalar(
-            select(WorkflowStep).where(WorkflowStep.workflow_id == workflow.id, WorkflowStep.name == "patch")
+            select(WorkflowStep).where(
+                WorkflowStep.workflow_id == workflow.id, WorkflowStep.name == patch_name
+            )
         )
         reviewer = agent_for(session, workflow.org_id, "Code Reviewer")
         if reviewer.id == agent.id:
             raise PermissionError("Code author cannot review own change")
         check_agent(session, reviewer, "review_diff", project)
         context["proposed_files"] = patch.result["files"]
-        context["actual_diff"] = git(workspace, "diff", "--no-ext-diff", "--no-textconv")
+        if candidate_tree(workspace) != patch.result["candidate_tree"]:
+            raise PermissionError("Candidate changed before independent review")
+        context["actual_diff"] = git(workspace, "diff", "--cached", "--no-ext-diff", "--no-textconv")[:8000]
         authored = session.scalar(
             select(ModelRun).where(
                 ModelRun.workflow_id == workflow.id,
-                ModelRun.step_name == "patch",
+                ModelRun.step_name == patch_name,
                 ModelRun.status == "succeeded",
             )
         )
@@ -185,12 +310,12 @@ async def coding_step(session: Session, workflow: Workflow, token: str) -> None:
             session.scalars(
                 select(ModelRun).where(
                     ModelRun.workflow_id == workflow.id,
-                    ModelRun.step_name.in_(["review", "review_2"]),
+                    ModelRun.step_name.in_(review_names),
                     ModelRun.status == "succeeded",
                 )
             )
         )
-        review_name = "review" if workflow.step == 2 else "review_2"
+        review_name = review_names[0] if workflow.step == 2 else review_names[1]
         # Initial reviewers receive the same diff/criteria; other verdicts are never supplied.
         result = await execute(
             session,
@@ -243,34 +368,18 @@ async def coding_step(session: Session, workflow: Workflow, token: str) -> None:
         if qa.id == agent.id:
             raise PermissionError("Code author cannot independently verify own change")
         check_agent(session, qa, "run_tests", project)
-        if session.scalar(
-            select(Execution).where(Execution.task_id == task.id, Execution.status == "running")
-        ):
-            raise PermissionError("Interrupted test execution requires owner reconciliation")
-        execution = Execution(
-            id=uid(),
-            org_id=workflow.org_id,
-            task_id=task.id,
-            agent_id=qa.id,
-            workspace=str(workspace),
-            command=[task.payload["test_suite"]],
-            environment="restricted Docker",
-            commit_hash=task.evidence["baseline_commit"],
+        patch = session.scalar(
+            select(WorkflowStep).where(
+                WorkflowStep.workflow_id == workflow.id, WorkflowStep.name == patch_name
+            )
         )
-        session.add(execution)
-        session.commit()
-        result = await run_tests(workspace, task.payload["test_suite"])
-        execution.status, execution.exit_code, execution.ended_at, execution.logs = (
-            "completed",
-            result["exit_code"],
-            now(),
-            result["logs"],
-        )
-        execution.command, execution.environment = result["command"], result["environment"]
+        if candidate_tree(workspace) != patch.result["candidate_tree"]:
+            raise PermissionError("Candidate changed before independent QA")
+        execution, result = await qa_execution(session, workflow, task, qa, workspace, token)
         reviews = list(
             session.scalars(
                 select(WorkflowStep).where(
-                    WorkflowStep.workflow_id == workflow.id, WorkflowStep.name.in_(["review", "review_2"])
+                    WorkflowStep.workflow_id == workflow.id, WorkflowStep.name.in_(review_names)
                 )
             )
         )
@@ -289,12 +398,46 @@ async def coding_step(session: Session, workflow: Workflow, token: str) -> None:
             "patch_sha256": digest(
                 session.scalar(
                     select(WorkflowStep).where(
-                        WorkflowStep.workflow_id == workflow.id, WorkflowStep.name == "patch"
+                        WorkflowStep.workflow_id == workflow.id, WorkflowStep.name == patch_name
                     )
                 ).result
             ),
         }
-        if not approved:
+        task.evidence = {
+            **task.evidence,
+            "build_exit_code": result.get("build", {}).get("exit_code"),
+            "runner_job_id": result.get("job_id"),
+            "repair_round": repair_round,
+        }
+        repair = not passed_tests(result, task.payload["test_suite"]) and repair_round < task.payload.get(
+            "repair_limit", 0
+        )
+        if approved:
+            # Checkpoint verifies the current lease before any prepared result is published.
+            checkpoint(session, workflow, token, round_name("qa", repair_round), task.evidence, complete=True)
+            project_authority(session, project)
+            prepare_pull_request(session, task, project, agent, workspace, patch.result["candidate_tree"])
+        elif repair:
+            checkpoint(session, workflow, token, round_name("qa", repair_round), task.evidence)
+            failed_round = {
+                "round": repair_round,
+                "execution_id": execution.id,
+                "reviews": task.evidence.get("reviews", []),
+                "patch_step": patch_name,
+            }
+            task.evidence = {
+                **task.evidence,
+                "repair_round": repair_round + 1,
+                "repairs": [*task.evidence.get("repairs", []), failed_round],
+                "reviews": [],
+                "repair_feedback": {
+                    "exit_code": result["exit_code"],
+                    "test_logs": result["logs"][-2500:],
+                    "build_logs": str(result.get("build", {}).get("logs", ""))[-1500:],
+                },
+            }
+            task.status, workflow.step = "in_progress", 1
+        else:
             session.add(
                 BusinessRecord(
                     org_id=workflow.org_id,
@@ -304,7 +447,7 @@ async def coding_step(session: Session, workflow: Workflow, token: str) -> None:
                     data=task.evidence,
                 )
             )
-        checkpoint(session, workflow, token, "qa", task.evidence, complete=True)
+            checkpoint(session, workflow, token, round_name("qa", repair_round), task.evidence, complete=True)
     audit(
         session,
         workflow.org_id,

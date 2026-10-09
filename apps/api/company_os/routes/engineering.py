@@ -24,6 +24,40 @@ from ..security import (
 router = APIRouter()
 
 
+@router.post("/executions/{record_id}/reconcile")
+async def reconcile_execution(
+    record_id: str, user: m.User = Depends(owner), session: Session = Depends(session_dependency)
+):
+    from ..sandbox import stored_result
+
+    execution = scoped(session, m.Execution, record_id, user)
+    if execution.status != "running":
+        raise HTTPException(409, "Execution is already recorded")
+    try:
+        result = await stored_result(execution.id)
+    except Exception:
+        raise HTTPException(
+            409, "Runner result unavailable; retain interrupted execution for investigation"
+        ) from None
+    if result.get("status") not in {"completed", "interrupted"}:
+        raise HTTPException(409, "Runner job is still active")
+    execution.status = "interrupted" if result["status"] == "interrupted" else "completed"
+    execution.exit_code, execution.ended_at = result["exit_code"], now()
+    execution.command, execution.environment = result["command"], result["environment"]
+    execution.logs = clean(str(result.get("build", {}).get("logs", "")) + "\n" + str(result["logs"]))[:500100]
+    audit(
+        session,
+        user.org_id,
+        user.id,
+        "runner.execution_reconciled",
+        execution.id,
+        {"exit_code": execution.exit_code},
+        task_id=execution.task_id,
+    )
+    session.commit()
+    return serialize(execution)
+
+
 class SpecialistTaskInput(Strict):
     agent_id: str
     objective: str = Field(min_length=10, max_length=10000)

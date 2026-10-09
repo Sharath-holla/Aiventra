@@ -39,13 +39,62 @@ def tracked_files(root: Path, maximum=3000) -> list[Path]:
     return result
 
 
-def git(root: Path, *args: str) -> str:
+def _safe_autocrlf(value: str) -> str | None:
+    value = value.strip().lower()
+    return value if value in {"true", "false", "input"} else None
+
+
+def _configured_autocrlf(scope: str) -> str | None:
+    environment = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
     result = subprocess.run(
-        ["git", "-c", f"core.hooksPath={os.devnull}", "-c", "core.fsmonitor=false", "-C", str(root), *args],
+        ["git", "config", scope, "--get", "core.autocrlf"],
+        capture_output=True,
+        text=True,
+        timeout=5,
+        check=False,
+        env=environment,
+    )
+    return _safe_autocrlf(result.stdout) if result.returncode == 0 else None
+
+
+def _global_autocrlf() -> str | None:
+    return _configured_autocrlf("--global")
+
+
+def _system_autocrlf() -> str | None:
+    return _configured_autocrlf("--system")
+
+
+def _repository_autocrlf(root: Path, environment: dict[str, str]) -> str | None:
+    result = subprocess.run(
+        ["git", "-C", str(root), "config", "--local", "--get", "core.autocrlf"],
+        capture_output=True,
+        text=True,
+        timeout=5,
+        check=False,
+        env=environment,
+    )
+    if result.returncode == 0 and (value := _safe_autocrlf(result.stdout)):
+        return value
+    return _global_autocrlf() or _system_autocrlf()
+
+
+def git(root: Path, *args: str) -> str:
+    environment = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+    environment.update(
+        {"GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull, "GIT_TERMINAL_PROMPT": "0"}
+    )
+    autocrlf = _repository_autocrlf(root, environment)
+    options = ["-c", f"core.hooksPath={os.devnull}", "-c", "core.fsmonitor=false"]
+    if autocrlf:
+        options.extend(["-c", f"core.autocrlf={autocrlf}"])
+    result = subprocess.run(
+        ["git", *options, "-C", str(root), *args],
         capture_output=True,
         text=True,
         timeout=30,
         check=False,
+        env=environment,
     )
     if result.returncode:
         raise ValueError("Git operation failed: " + redact(result.stderr[:500]))
@@ -173,7 +222,7 @@ def source_context(root: Path, objective: str) -> dict:
         if path.stat().st_size > 30000 or path.suffix not in {".py", ".ts", ".js", ".json", ".md", ".toml"}:
             continue
         text = redact(path.read_text(encoding="utf-8", errors="replace"))
-        if size + len(text) > 30000:
+        if size + len(text) > 16000:
             break
         content[str(path.relative_to(root)).replace("\\", "/")] = text
         size += len(text)

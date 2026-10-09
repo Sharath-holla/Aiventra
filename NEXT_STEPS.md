@@ -2,16 +2,16 @@
 
 ## Current verified milestone order
 
-Memory source 4e57760 has all four CI jobs green, with actual PostgreSQL vectors/versions retained across service restarts. Workforce planning and orchestration now have implementation and connected UI; finish their regression/restart/publication checks, then immediately implement the dedicated Docker broker, real sample-repository isolation/build/test evidence, bounded repairs and PR preparation. Provider credentials remain deferred. Older "not implemented" entries below are historical, not the current source audit.
+Phase 3 memory, staffing and persistent orchestration are complete. Published source 8bce537 has all five CI jobs green, including actual PostgreSQL/pgvector recovery and dedicated Docker runner isolation/build/test/cancellation/restart evidence. Provider credentials remain deferred. Older "not implemented" entries below are historical, not the current source audit.
 
-## Current owner order — Phase 3, then Phase 4
+## Current owner order — complete Phase 3, continue Phase 4
 
-Follow [PHASE3_MEMORY_WORKFORCE_SPEC.md](docs/PHASE3_MEMORY_WORKFORCE_SPEC.md). Provider keys are deferred; do not request them as a prerequisite.
+The provider-free Phase 3 specification is complete. Continue with the current Phase 4 working-tree increment and publish it only after its final tests pass.
 
-1. Finish and publish the semantic-memory vertical increment after actual PostgreSQL/pgvector/local-model and restart CI evidence. Preserve bounded source/version/ACL behavior, local cached embeddings and honest keyword fallback.
-2. Implement requirements-based workforce plans, editable exact approval, logical worker capacity, model/skill/cost evidence, dependency scheduling, pause/resume/reassignment/utilization and connected monitoring. Preserve existing approved document tasks and avoid duplicate work or uncontrolled model concurrency.
-3. Complete actual dedicated runner isolation checks using a harmless sample, then bounded repair/build/test/diff/independent-review and PR preparation. Do not execute generated code on API/worker hosts or pass host secrets/Docker control into generated-code containers.
-4. Continue client delivery and operational certification only from verified execution evidence. Existing Phase 1–2 features and tests remain regression requirements.
+1. Finish and publish the runner recovery/repair/PR-draft increment: run full backend tests and static checks, push without force, and observe CI for the exact resulting commit. Preserve the backend's owner reconciliation and exact approval fencing.
+2. Add bounded authenticated GitHub PR publication for persisted, reviewed drafts, with owner approval and idempotent retry. Do not enable automatic merge or expose a GitHub token to model input or the generated-code container.
+3. Exercise a real provider-backed patch and independent review only after the owner connects credentials; keep no-provider operation explicit and do not represent deterministic adapters as live AI.
+4. Continue Phase 5 client delivery from verified coding results: final QA/PM/security approval, delivery bundle and scoped client acceptance. Preserve Phase 1–3 regression requirements.
 
 The prior provider-first roadmap below is historical; it does not override the owner's explicit provider-free development order.
 
