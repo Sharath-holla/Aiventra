@@ -99,7 +99,7 @@ def discover(root: Path) -> dict:
     }
 
 
-def worktree(root: Path, destination: Path, task_id: str) -> str:
+def worktree(root: Path, destination: Path, task_id: str, approved_commit: str | None = None) -> str:
     # Git configurations can execute programs during checkout; reject configured filters.
     config = git(root, "config", "--local", "--list")
     if any(
@@ -122,9 +122,11 @@ def worktree(root: Path, destination: Path, task_id: str) -> str:
                 "Tracked secret file cannot enter an execution sandbox; sanitize a separate repository copy"
             )
     commit = git(root, "rev-parse", "HEAD")
+    if approved_commit and approved_commit != commit:
+        raise PermissionError("Repository HEAD changed after approval; request a new exact scope")
     destination.parent.mkdir(parents=True, exist_ok=True)
     if not destination.exists():
-        git(root, "worktree", "add", "--detach", str(destination), commit)
+        git(root, "worktree", "add", "-b", "aiventra/" + task_id, str(destination), commit)
     if git(destination, "rev-parse", "HEAD") != commit:
         raise PermissionError("Source baseline changed; request a new task approval")
     return commit

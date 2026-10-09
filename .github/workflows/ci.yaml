@@ -2,6 +2,27 @@ name: verify
 on: [push, pull_request]
 permissions: {contents: read}
 jobs:
+  runner:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: python scripts/configure.py
+      - run: docker compose -f compose.yaml -f compose.runner.yaml up --build -d --wait --wait-timeout 240 runner
+      - name: Verify actual dedicated Docker isolation
+        run: docker compose -f compose.yaml -f compose.runner.yaml exec -T runner python - < scripts/verify_runner_isolation.py
+      - name: Preserve runner results across broker restart
+        run: |
+          docker compose -f compose.yaml -f compose.runner.yaml exec -T runner python - --snapshot < scripts/verify_runner_isolation.py > /tmp/runner-before.json
+          docker compose -f compose.yaml -f compose.runner.yaml restart runner
+          docker compose -f compose.yaml -f compose.runner.yaml up -d --wait --wait-timeout 120 runner
+          docker compose -f compose.yaml -f compose.runner.yaml exec -T runner python - --snapshot < scripts/verify_runner_isolation.py > /tmp/runner-after.json
+          cmp /tmp/runner-before.json /tmp/runner-after.json
+          cat /tmp/runner-after.json
+      - run: docker compose -f compose.yaml -f compose.runner.yaml logs && docker compose -f compose.yaml -f compose.runner.yaml down -v
+        if: always()
   secrets:
     runs-on: ubuntu-latest
     steps:

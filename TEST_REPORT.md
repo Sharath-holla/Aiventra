@@ -1,5 +1,9 @@
 # Aiventra verification report
 
+## Phase 4 runner broker — verification in progress
+
+Added a dedicated authenticated broker/DinD execution stack and closed snapshot protocol; no local Docker or host execution fallback. **28 affected local checks passed** in 20.34 seconds, covering protocol paths/limits/commands, disabled execution, secret/binary snapshots and existing repository/coding behavior. Ruff passed. An actual Docker isolation/build/test/cancellation/restart CI job is added and its results must be observed before claiming container verification. Bounded repair/PR preparation follow this broker increment.
+
 ## Workforce verification in progress — October 9, 2026
 
 First staffing remote run 37951263042 passed backend/frontend/secrets and 11 browser checks. Its new twelfth login hit the real persistent 10-per-minute account throttle in fast CI. The browser check now waits within the existing throttle window and accepts only 200/429 while waiting; production limits and authorization assertions are unchanged. The complete remote restart comparison will be rerun.

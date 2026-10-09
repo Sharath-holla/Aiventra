@@ -18,6 +18,8 @@ class Settings(BaseSettings):
     web_origin: str = "http://localhost:3000"
     mock_enabled: bool = True
     execution_enabled: bool = False
+    runner_url: str = "http://127.0.0.1:8090"
+    runner_token: str = ""
     artifact_root: Path = Path("artifacts")
     repository_root: Path = Path("data/repositories")
     provider_allowed_hosts: str = (
