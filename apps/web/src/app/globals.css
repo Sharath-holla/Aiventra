@@ -2427,3 +2427,30 @@ details p {
     font-size: 16px;
   }
 }
+
+.delivery-package {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  min-width: 0;
+}
+.delivery-hash {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+.delivery-document {
+  margin: 16px 0;
+  min-width: 0;
+}
+.delivery-document .check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.delivery-document input[type="checkbox"] {
+  width: auto;
+}
+.delivery-package .code {
+  max-width: 100%;
+}

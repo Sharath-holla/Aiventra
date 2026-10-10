@@ -1,5 +1,9 @@
 # Implementation ledger
 
+## Phase 5 increment A — immutable packages
+
+Started from clean e86da82, reran 257 backend/18 browser baseline. Extended existing review/artifact/workflow/approval boundaries with additive frozen delivery versions, content-addressed files, saved validation/freeze checkpoints, exact provenance/source checks, idempotency/concurrency/cancellation/reopen tests and connected owner UI/downloads. Backed up active SQLite before migration; 52 prior table digests/26,355 rows unchanged. Required documents block incomplete packages; fixtures remain nonreleasable. TEST_REPORT.md distinguishes isolated, actual-service and pushed-source CI evidence. Owner release/client grants/acceptance/closure remain next.
+
 ## Phase 5 final-review foundation
 
 Published source **f601d3352c24e9ad654428f634181754228d7229**, ordinary push, [all five CI jobs green](https://github.com/Sharath-holla/Aiventra/actions/runs/38050159682). CI: 257 backend checks, 18 actual Compose browser journeys, five saved review checkpoints/artifacts/runs and four handoffs preserved through restart, all 52 table digests identical through PostgreSQL restart/separate restore and real restricted Docker runner isolation/recovery. Local: 257 backend, final 13-test security/recovery follow-up, 18 browser and final 390px readiness check passed. This documentation-only follow-up records observed evidence and does not change tested application source. No live AI, generated PR, model installation/download or client release occurred.

@@ -1,5 +1,9 @@
 # Next steps
 
+## Active Phase 5 completion order
+
+docs/PHASE5_COMPLETION_SPEC.md is the latest continuation. Increment A implements frozen delivery packages and connected owner preparation/downloads; TEST_REPORT.md records its exact verification. Finish separate exact owner release approval next, then invitation/project grants and released-file access, immutable client responses/change/defect/support workflows, validated closure and actual preparation restart verification. Preserve all existing regression assertions and fixture/nonproduction separation. Do not install models, invoke paid inference, publish generated PRs, deploy, switch databases or release real client packages without the required authorization/evidence.
+
 ## Next Phase 5 increment
 
 Connector source `3db8617` passed [all five CI jobs](https://github.com/Sharath-holla/Aiventra/actions/runs/38047943880). Preserve exact approval, Git-object verification, reconciliation and separate repair scopes. Do not publish a generated remote PR without exact owner approval.

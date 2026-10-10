@@ -12,6 +12,7 @@ import type { Task } from "@/lib/types";
 import { Badge, Button, Empty, Panel, Pretty, useApp } from "./common";
 import { PublicationControls } from "./publication-controls";
 import { DeliveryControls } from "./delivery-controls";
+import { PackageControls } from "./package-controls";
 
 export function Projects({
   engineering,
@@ -178,7 +179,13 @@ export function Projects({
         ))}
       </div>
       {tab === "delivery" && (
-        <DeliveryControls key={project.id} projectId={project.id} />
+        <>
+          <DeliveryControls key={project.id} projectId={project.id} />
+          <PackageControls
+            key={`packages:${project.id}`}
+            projectId={project.id}
+          />
+        </>
       )}
       {tab === "board" && (
         <div className="kanban">

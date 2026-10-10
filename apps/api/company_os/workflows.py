@@ -457,6 +457,10 @@ async def tick(factory=SessionLocal) -> bool:
                 from .agent_work import work_step
 
                 await work_step(session, workflow, token)
+            elif workflow.kind == "delivery_package":
+                from .packages import package_step
+
+                await package_step(session, workflow, token)
             else:
                 raise ValueError("Unknown workflow kind")
             session.commit()

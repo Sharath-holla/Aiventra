@@ -64,6 +64,23 @@ async function proxy(
         },
       });
     }
+    if (
+      request.method === "GET" &&
+      path[0] === "delivery-packages" &&
+      path[2] === "files" &&
+      response.ok
+    ) {
+      return new Response(response.body, {
+        headers: {
+          ...responseHeaders,
+          "Content-Type": "text/plain; charset=utf-8",
+          "Content-Disposition":
+            response.headers.get("content-disposition") || "attachment",
+          "Cache-Control": "no-store",
+          "X-Content-Type-Options": "nosniff",
+        },
+      });
+    }
     const body = await response.json();
     if (
       endpoint === "auth/logout" &&

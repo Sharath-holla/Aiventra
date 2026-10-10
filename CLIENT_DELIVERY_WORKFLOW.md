@@ -1,5 +1,9 @@
 # Client-to-delivery workflow
 
+## Increment A — frozen packages
+
+Completed final review → owner selects exact reviewed source/documents → durable artifact-validation checkpoint → freeze checkpoint → package_ready or package_blocked. Each version has canonical manifest/file hashes, actual provenance, bounded private immutable files and a supersedes reference. Missing required documents persist as blockers. Fixture packages retain fixture_nonproduction and cannot certify client release. The owner Delivery workspace and authenticated downloads consume real saved state. Separate release approval/client access/acceptance/closure are the next increments; historical unimplemented statements below refer to earlier source.
+
 ## Current implemented transitions
 
 Approved requirement/proposal → active project/foundation tasks → exact owner workforce approval → dependency-based execution → validated evidence → owner-requested final review. CTO → QA Director → Security Architect → Project Manager → CFO each save a checkpoint/artifact/model-run reference; four hash-bound inter-agent handoffs are acknowledged. Existing scoped memory, budgets, leases, agent authorization and ZERO_COST_ONLY remain authoritative.

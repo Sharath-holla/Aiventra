@@ -612,3 +612,29 @@ class TaskAssignment(Tenant, Base):
     agent_id: Mapped[str] = mapped_column(ForeignKey("agents.id"))
     owner_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
     reason: Mapped[str] = mapped_column(Text)
+
+
+class DeliveryPackage(Tenant, Base):
+    """One frozen version. Release state changes never rewrite the manifest."""
+
+    __tablename__ = "delivery_packages"
+    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id"), index=True)
+    client_id: Mapped[str] = mapped_column(ForeignKey("clients.id"), index=True)
+    review_id: Mapped[str] = mapped_column(ForeignKey("business_records.id"))
+    workflow_id: Mapped[str] = mapped_column(ForeignKey("workflows.id"), unique=True)
+    owner_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    version: Mapped[int] = mapped_column()
+    request_id: Mapped[str] = mapped_column(String(36))
+    request_hash: Mapped[str] = mapped_column(String(64))
+    source_hash: Mapped[str] = mapped_column(String(64))
+    classification: Mapped[str] = mapped_column(String(40))
+    status: Mapped[str] = mapped_column(String(40), default="preparing")
+    input: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    manifest: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    manifest_hash: Mapped[str] = mapped_column(String(64), default="")
+    finalized_at: Mapped[int | None] = mapped_column()
+    supersedes_id: Mapped[str | None] = mapped_column(ForeignKey("delivery_packages.id"))
+    __table_args__ = (
+        UniqueConstraint("org_id", "project_id", "version"),
+        UniqueConstraint("org_id", "request_id"),
+    )

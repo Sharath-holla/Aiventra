@@ -15,6 +15,7 @@ from .routes import (
     engineering,
     identity,
     memory_operations,
+    package_operations,
     provider_operations,
     publication_operations,
     spending_operations,
@@ -53,5 +54,6 @@ for router in (
     spending_operations.router,
     publication_operations.router,
     delivery_operations.router,
+    package_operations.router,
 ):
     app.include_router(router)

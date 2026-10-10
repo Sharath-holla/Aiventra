@@ -1,5 +1,19 @@
 # Aiventra verification report
 
+## Phase 5 increment A — package preparation verification
+
+Starting source e86da82, clean master. Before application changes: **257 passed, one existing Starlette/httpx warning, 427.77s**; all **18 actual-service browser journeys passed in 4.6m**; frontend formatting/strict TypeScript passed. No frontend route mock was used.
+
+New package/integrity/concurrency/cancellation/recovery plus migration/transfer tests: first **23 passed/one failed** (the new test created a session before flushing its new client identity); corrected and expanded **25 passed in 52.96s**. The first UI typecheck found an undeclared organization version field; the backend field is now typed. Ruff, Prettier, strict TypeScript and optimized Next.js production build passed. A new migrated-database test checks retained records, finalized manifest/input/hash identity guards and retained versions. No assertion was removed.
+
+Actual development schema update retained a private SQLite backup and proved **52 previous table digests / 26,355 rows unchanged**, aggregate SHA-256 `a48f7785c607d13ef3be75485eb171a77721530b2bd9dc93a79913ac6e14dd0e`. Integrity ok, zero foreign-key violations, new revision c72e51d9af04, Alembic reports no drift. No PostgreSQL cutover occurred. Full post-change suites and exact pushed-source CI are recorded after observation; prior CI results do not certify this new source.
+
+Post-change full backend: **268 passed in 463.19s**, one existing warning. Final expanded package follow-up: **12 passed in 41.14s**, including controlled source-patch/build-receipt/PR-reference serialization (not actual GitHub/Docker/AI evidence). All **19 actual-service browser journeys passed in 5.0m**, including actual worker preparation, ten hashed files, authenticated downloads, reload and 390px layout. Production dependency audits reported zero known vulnerabilities; the unpublished local package cannot be checked on PyPI. Full Ruff/format, strict TypeScript and optimized production build passed.
+
+Actual API/worker/web restart retained identical package/workflow/two-checkpoint/ten-file evidence; SHA-256 `1d8fea6e083efe1faaec309d4c4a0b8933e0cd262c75b2cbae3b01ad8be8b73f` matched. A subsequent repeated browser check exposed a test race against the previous ready version; the test now waits for the POST response and polls that exact package ID. The corrected follow-up result is recorded after observation. No real release or client acceptance occurred; partial-preparation process-restart verification remains a later Phase 5 check.
+
+Corrected exact-package mobile/reload/download browser follow-up: **one passed in 14.8s**. Final frontend format/type checks passed; the resulting dark 390px package workspace was visually inspected. No API assertion or production gate was weakened.
+
 ## Phase 5 final-review continuation — October 10, 2026
 
 Published application source **f601d3352c24e9ad654428f634181754228d7229** passed [all five Actions jobs](https://github.com/Sharath-holla/Aiventra/actions/runs/38050159682): backend **257 passed in 115.18s**, one existing warning; actual Compose browser **18 passed in 1.6m**; frontend format/typecheck/optimized build/dependency audit; full-history secret scan; actual dedicated Docker isolation/build/nonempty tests/cancellation/result recovery. The new final-review snapshot preserved one job/workflow/review record, five artifacts/runs/checkpoints and four acknowledged messages through real Compose restarts, digest `19ef0ad05546907d7149d06f35caf25391e5cfb27a3715e7ac103d083098ac3e`. All 52 table digests matched after actual PostgreSQL restart and separate pg_dump/restore. Alembic reported no drift; backend dependency audit found no known vulnerabilities. Normal CI explicitly **skipped** embedding-weight download/model verification. No live AI, generated PR or released client delivery was claimed.

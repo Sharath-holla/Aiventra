@@ -98,6 +98,7 @@ jobs:
           docker compose exec -T api python - < scripts/verify_zero_cost_recovery.py > /tmp/zero-cost-before.json
           docker compose exec -T api python - < scripts/verify_planning_recovery.py > /tmp/planning-before.json
           docker compose exec -T api python - < scripts/verify_delivery_recovery.py > /tmp/delivery-before.json
+          docker compose exec -T api python - < scripts/verify_package_recovery.py > /tmp/packages-before.json
           docker compose restart api worker web
           docker compose up -d --wait --wait-timeout 90
           curl --fail http://localhost:8000/health/ready
@@ -107,6 +108,9 @@ jobs:
           docker compose exec -T api python - < scripts/verify_delivery_recovery.py > /tmp/delivery-after.json
           cmp /tmp/delivery-before.json /tmp/delivery-after.json
           cat /tmp/delivery-after.json
+          docker compose exec -T api python - < scripts/verify_package_recovery.py > /tmp/packages-after.json
+          cmp /tmp/packages-before.json /tmp/packages-after.json
+          cat /tmp/packages-after.json
           docker compose exec -T api python - < scripts/verify_conversation_recovery.py > /tmp/conversations-after.json
           cmp /tmp/conversations-before.json /tmp/conversations-after.json
           cat /tmp/conversations-after.json
@@ -137,6 +141,6 @@ jobs:
           docker compose exec -T database dropdb -U company recovery_fixture
           docker compose up -d --wait --wait-timeout 120
           curl --fail http://localhost:8000/health/ready
-          echo 'All 52 table digests matched after PostgreSQL restart and separate database restore.'
+          echo 'All application table digests matched after PostgreSQL restart and separate database restore.'
       - run: docker compose logs && docker compose down
         if: always()

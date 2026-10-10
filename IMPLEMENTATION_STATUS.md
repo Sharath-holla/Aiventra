@@ -1,5 +1,15 @@
 # Implementation status
 
+## Phase 5 increment A — immutable package preparation
+
+Continued from clean e86da82 after rerunning the unchanged baseline: 257 backend tests and 18 actual-service browser journeys passed. New delivery_packages stores unique tenant/project versions, exact source/review/request hashes, frozen manifests and supersedes references. Existing durable workers save validation/freeze checkpoints with pause/resume/cancellation and organization-serialized duplicate prevention. SQLite/PostgreSQL database guards retain versions and reject finalized content edits.
+
+Owner Delivery now maps reviewed documents, queues real preparation, shows saved blockers/checkpoints/file integrity and downloads authenticated frozen files. SHA-256 content-addressed private storage uses atomic no-replace publication and bounded UTF-8 content. Missing documents remain explicit blockers; fixture_nonproduction remains nonreleasable. Source patches/compilation-test receipts are distinguished from deployable binaries/staging. This is increment A, not Phase 5 completion; separate owner release, invitation grants, acceptance/cases and closure follow.
+
+Isolated package/migration/security/recovery checks: 25 passed. Development SQLite was backed up before the additive migration; all 52 previous tables/26,355 rows retained identical digests, integrity ok/zero FK violations. Production frontend build, strict types and formatting passed. Full regression/browser/publication evidence is recorded in TEST_REPORT.md as executed. No model download, paid inference, generated PR or real client release occurred.
+
+Observed post-change verification: full 268 backend tests, final 12 package checks, all 19 browser journeys, dependency audits/lint/typecheck/build and actual frozen-package service restart digest passed. The final test-only exact-version race correction and pushed-source CI are tracked in TEST_REPORT.md. Live coding/PR receipt handling is contract-tested only; no live AI or client release is claimed.
+
 ## Latest increment — Phase 5 persisted final-review foundation
 
 Published application source **f601d3352c24e9ad654428f634181754228d7229**, normal origin/master push, [all five CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38050159682): 257 backend tests, 18 actual Compose browser journeys, real final-review service recovery, all-table PostgreSQL restart/restore equality and actual restricted Docker runner checks. Model-weight download/verification stayed intentionally skipped. This completes the final-review **engineering increment** with explicit fixture evidence, not live AI or client delivery.

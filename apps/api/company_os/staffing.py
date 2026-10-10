@@ -313,6 +313,8 @@ def task_ready(session: Session, task: m.Task) -> bool:
 
 
 def participants(session: Session, workflow: m.Workflow) -> list[str]:
+    if workflow.kind == "delivery_package":
+        return []  # Deterministic artifact bookkeeping does not occupy an AI employee.
     if workflow.task_id:
         task = session.get(m.Task, workflow.task_id)
         ids = [task.assigned_agent_id]

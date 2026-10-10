@@ -307,6 +307,7 @@ export interface State {
   conversations: Conversation[];
   organization: {
     id: string;
+    version: number;
     name: string;
     paused: boolean;
     deployments_paused: boolean;

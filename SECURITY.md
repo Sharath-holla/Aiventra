@@ -1,5 +1,9 @@
 # Security
 
+## Frozen delivery evidence
+
+Owner/tenant-only package routes recheck exact review/source provenance before preparation. The existing organization lock serializes versions and duplicate requests; worker checkpoints retain lease/cancellation fences. SQLite/PostgreSQL migration guards reject finalized manifest/input/identity edits and package deletion. Private hash-derived file paths reject traversal/linked directories; reads verify byte length and SHA-256 and downloads use no-store/nosniff attachments. No private file path or arbitrary binary enters a client response. Fixture classification cannot grant release authority. Release/client grants and tightening historical client artifact/memory access are the following increments, not completed controls in this source.
+
 ## Mandatory zero-cost inference boundary
 
 ZERO_COST_AI_POLICY.md is authoritative for current inference eligibility. The sole accepted mode is ZERO_COST_ONLY. Neither credentials, owner model preferences, CEO instructions, claimed zero rates nor budget approval can authorize remote paid/unknown-cost inference. Raw structured/native transports also enforce the guard, and local embeddings reject cloud aliases. Catalog operations are distinct from inference and never prove zero billing.

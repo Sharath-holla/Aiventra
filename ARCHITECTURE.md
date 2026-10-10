@@ -1,5 +1,11 @@
 # Aiventra OS architecture
 
+## Phase 5 immutable package preparation
+
+packages.py extends the saved five-role review with run/artifact/checkpoint provenance validation, current-source fences, bounded content-addressed files and canonical manifest hashing. Separate routes/package_operations.py owns owner/tenant HTTP controls. Additive delivery_packages stores versions/idempotency and reuses Workflow/WorkflowStep for validation/freeze/recovery. SQLite and PostgreSQL triggers retain package versions and prevent changing finalized content while allowing separately gated lifecycle status updates. No new orchestration framework or inference adapter is introduced.
+
+The existing private artifact root holds SHA-256 UTF-8 files; atomic no-replace hard-link publication and hash/length verification protect frozen copies. Release readiness is distinct from fixture classification. Required document mappings, original review references, approved requirements/proposal/workforce/task/finance evidence and actual source/QA references are frozen. Compilation/test receipts are not deployable binaries. Owner Package controls/downloads are connected; separate release/client access/acceptance remain the next increment. See DELIVERY_PACKAGE_SPEC.md.
+
 ## Phase 5 final-review foundation
 
 `delivery.py` validates source evidence and implements bounded five-role final review; `routes/delivery_operations.py` owns tenant/owner HTTP boundaries. Existing BusinessRecord, AgentWork, Workflow/WorkflowStep, ModelRun, Message, Artifact and AuditEvent tables persist the chain without a schema/backend migration. The source manifest binds project/proposal/workforce versions, task scopes/objectives/acceptance/evidence/runs, complete documents, live engineering diff/QA/review evidence and project budget. Exact approval and author artifact/checkpoint integrity are rechecked before each role and after inference. Document paragraphs are deduplicated by hash without losing text; oversized context blocks review.
