@@ -1,6 +1,12 @@
 # Aiventra verification report
 
-## Task-specific allocation and read-only imports — October 10, 2026
+## Task-specific allocation and read-only imports — October 10–11, 2026
+
+Published application source **0b3df922064b7ad183c3aca3ec8f80130a39caca** passed [all six GitHub Actions jobs](https://github.com/Sharath-holla/Aiventra/actions/runs/38076888005): backend **343 passed in 241.48s**, one existing warning; actual Compose browser **25 passed in 2.3m**; isolated delivery **four passed in 42.3s**; frontend build/types/format/audit and full-history secret scanning. No final CI or local regression failures remain. The documentation-only evidence follow-up changes no tested application/test/infrastructure source.
+
+CI actually executed dedicated Docker isolation/build/nonempty-test/recovery checks and matched **six saved runner results** after broker restart, digest `ec3825457c722b255c2365da0ebc06e28bc7bdec849ddcb0aed42d817715e91c`. PostgreSQL/pgvector transfer verified **56 tables**, dry-run/failure rollback, occupied-target refusal, vault/audit/vector preservation and source retention. Alembic detected no drift. All application-table digests matched after actual PostgreSQL restart and separate pg_dump/restore. These are CI infrastructure checks; the workstation remains on SQLite.
+
+CI service restart retained **five wizard drafts / two attachments**, draft digest `e93549efc68b49fa9e2978ea736c1be739065384593547387326d11320be13a7`, attachment digest `573c257c6cfb75065c3e00c914ea88681029b81252786f2dcaf3e697b84bd9fc`. Workforce snapshot retained **one plan / three revisions / 11 tasks / eight workflows / eight model runs**, digest `e8db4d8573f9e9adf82e8b18a206a9d2edb57820c6c027c4ccb806b6baa96596`; both compared exactly before/after restart. Partial package preparation also survived actual API/worker restart and resumed to two checkpoints, manifest `d5364a29f9853478b5bf2cb58429df503e2a7b54922e85e5e589139a06756bfc`, released false. Weight-download/live-embedding verification stayed intentionally skipped. No live AI, generated PR, client release or deployment was verified.
 
 Starting actual HEAD 93a8111/master, clean checkout. Unchanged ordinary browser baseline: **23 passed in 6.8m**. Initial backend run under an excessively long temporary directory had **295 passed, six failed, 15 setup errors in 478.68s**: Windows Git worktree paths exceeded limits (`$GIT_DIR too big`), with retry branch conflicts afterward. A short-path coding/publication/project/routing rerun passed **52 in 255.18s**. Sandbox-only browser launch lacked the installed Chromium profile; the authorized installed-profile rerun passed. No app gate or existing assertion was weakened.
 
@@ -19,6 +25,8 @@ Normal push and exact-source CI are recorded below only after execution. Live lo
 Final complete backend/security/integration suite: **343 passed in 571.07s**, one existing Starlette/httpx deprecation warning. Ruff check/format passed across all **145** application/test/script/migration files; strict TypeScript and Prettier passed. Staged source plus publishable-history secret scan checked **1,022 blobs with zero findings**. No existing assertion was removed.
 
 Expanded ordinary browser run with overlapping backend work: **24 passed / one timed out in 7.8m**. The unchanged native-execution journey exceeded its 90-second total deadline while loading/cancelling work; recorded state responses succeeded but reached 7.25 seconds under load. Read-only profiling of accumulated company history measured 2.334 seconds, mostly serialization/redaction. All observed logins succeeded. The unchanged focused journey passed **one in 28.1s** with backend tests idle; no timeout, production throttle or security assertion was relaxed. A sequential complete browser rerun and exact pushed-source CI are tracked after observation; the timeout is not silently discarded.
+
+Sequential final ordinary browser regression: **all 25 passed in 5.9m**, including native execution, DOCX lifecycle, concurrent upload editing, exact task-model assignment, approvals, persistent memory, project/delivery and authentication/CSRF. No browser test or application source changed to obtain this result. Source **0b3df922064b7ad183c3aca3ec8f80130a39caca** was pushed normally to origin/master and exact remote SHA equality verified. CI backend passed **343 in 241.48s**, one existing warning; CI isolated delivery passed **four in 42.3s**. Remaining exact-source integration evidence follows after its completion.
 
 ## Simple UI + Lead AI increment — October 10, 2026
 

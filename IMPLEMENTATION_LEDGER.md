@@ -1,6 +1,8 @@
 # Implementation ledger
 
-## Task allocation/import increment — October 10, 2026
+## Task allocation/import increment — October 10–11, 2026
+
+Published application source **0b3df922064b7ad183c3aca3ec8f80130a39caca**, ordinary origin/master push and exact SHA equality. [All six Actions jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38076888005): 343 backend / 29 total browser checks, frontend/security audits, actual Docker runner result recovery, 56-table PostgreSQL transfer/restart/separate restore, and exact task-profile/wizard service recovery. Final local 343 backend / 29 browser checks and SQLite restart digests passed. One overlapping-load native browser timeout passed unchanged individually and in the full sequential rerun; no production gate/assertion/timeout was weakened. TEST_REPORT.md preserves the original failure and final evidence. This documentation-only follow-up changes no tested application/test/infrastructure source.
 
 Starting HEAD 93a8111/master; preserved docs/TASK_ALLOCATION_IMPORT_SPEC.md. Added task_routing.py for strict task requirements, scoped/zero-cost model choices, current task-case benchmark filtering and server explanations. Existing StaffingRevision/Task JSON stores approved assignments without DDL. Gateway and resume-free recheck task constraints; author overrides do not pin independent reviewers. Planner validates before completing its final checkpoint. Frontend shows actual choices and fences edits against newer saved revisions.
 

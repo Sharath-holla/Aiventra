@@ -1,6 +1,8 @@
 # Implementation status
 
-## Task-specific workforce and read-only imports — October 10, 2026
+## Task-specific workforce and read-only imports — October 10–11, 2026
+
+Source **0b3df92** is pushed normally to origin/master with exact remote SHA equality. [All six CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38076888005): 343 backend / 25 ordinary browser / four isolated delivery checks, frontend/security checks, actual restricted Docker isolation/recovery and PostgreSQL transfer/restart/separate restore. Local final regression passed 343 backend / 25 ordinary / four isolated delivery checks; saved SQLite draft/workforce hashes matched across actual service restart. TEST_REPORT.md records exact timings, digests and the unchanged successful reruns after one load-related browser timeout. This completes the task-routing/DOCX/read-only-import increment, not full engineering readiness or live AI delivery. The evidence-only follow-up changes no tested application source.
 
 Continued from actual clean HEAD 93a8111/master. Latest brief is docs/TASK_ALLOCATION_IMPORT_SPEC.md. This increment extends the existing wizard, BA/CTO/PM planner, staffing revisions, worker, model gateway and memory rather than adding a second orchestration system.
 

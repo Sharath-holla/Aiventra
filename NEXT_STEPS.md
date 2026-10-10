@@ -4,12 +4,15 @@
 
 Preserve the implemented task-routing, DOCX lifecycle and read-only GitHub increment described in IMPLEMENTATION_STATUS.md and docs/TASK_ALLOCATION_IMPORT_SPEC.md. Do not rebuild the wizard or existing approval/runner/delivery engines.
 
+Source **0b3df92** is published and [all six CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38076888005), including 343 backend / 29 browser checks, actual Docker and PostgreSQL recovery and wizard/workforce persistence. Local final 343 backend / 29 browser checks passed; active SQLite remains preserved. Continue with the separate remaining scope below.
+
 1. Add an isolated, owner-authorized remote checkout/materialization path for metadata-only GitHub repositories. Preserve exact branch/commit, secret/filter/submodule/link refusal and dedicated runner limits; never clone/run client code in the API/worker host. Current coding correctly refuses metadata-only entries.
 2. Add secure PDF extraction with an explicitly bounded parser and fixture corpus; expand DOCX fidelity only with matching resource/isolation evidence. Source binaries, OCR, images and embedded objects are not currently retained/extracted.
 3. Expose project data-sensitivity/provider approval settings directly in the simplified wizard. Current gateway enforces the approved Requirement sensitivity and ZERO_COST_ONLY blocks unverifiable remote inference. Task resource figures are context allowances, not measured RAM/token forecasts.
 4. After explicit installation/download authorization, verify and benchmark a real local model; then test genuine Lead → BA/CTO/PM plans, assigned task execution, independent review/QA and restricted engineering. Preserve the unavailable GPT-6.1 Sol preference until an alternate is explicitly selected.
 5. Verify separately owner-approved generated PR publication and genuine client release/acceptance/closure. Manual model changes after execution require new approved follow-up scope; automatic task fallback is bounded to existing eligible attempts. No live delivery is established by fixtures.
 6. Continue authorized staging/binary export and operational identity/backups/load checks. SQLite remains authoritative; PostgreSQL cutover is deferred.
+7. Paginate growing company history and profile state serialization/redaction without weakening tenant scope or secret filtering. Current accumulated development history measured 2.334 seconds per profiled snapshot and slower responses during overlapping test load; the sequential full browser suite passed unchanged.
 
 ## Current Simple UI + Lead AI continuation
 
