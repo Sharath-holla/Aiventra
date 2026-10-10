@@ -12,6 +12,8 @@ New actual PostgreSQL CI checks are committed for source verification: isolated 
 
 Failures repaired during local verification: the first migration fixture duplicated an automatically created memory chunk; it now updates its own existing fixture chunk. The first owner-access test assumed seed created a client login; it now creates its own scoped client. Final full backend/browser runs passed. A first Prettier pass required a second formatting pass on the new browser file; the final format check passes. No production permissions or tests were disabled.
 
+The first source CI run (`a1f4367`, run 38017653513) passed backend/frontend/secrets/runner but failed the new PostgreSQL verification **after** transfer and full-table equality passed. Its vector-distance query selected an unindexed automatically captured chunk and compared SQL NULL to a number. The query now explicitly selects a non-null vector; the local source-fixture test verifies indexed and unindexed chunks coexist. This was a verification query defect; the transfer comparison was retained. The corrected source must pass the complete integration before restart/restore success is recorded.
+
 Current phase: milestone 2 database transition foundation. Remaining live work: authorized local PostgreSQL cutover/restart, Ollama installation/model approval and quality benchmarks, real BA → CTO → PM execution, exact-approved generated PR publication, autonomous coding quality and client delivery. CI recovery is not production/offsite/PITR/crash-kill certification.
 
 ## Enterprise zero-cost milestone — October 10, 2026

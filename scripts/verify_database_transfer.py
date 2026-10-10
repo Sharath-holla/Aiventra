@@ -121,7 +121,12 @@ def main():
         assert transfer.verify_candidate(Path(report["backup"]), target)["verified"]
         with target.connect() as connection:
             assert (
-                connection.scalar(text("SELECT embedding <=> embedding FROM memory_chunks LIMIT 1")) < 0.00001
+                connection.scalar(
+                    text(
+                        "SELECT embedding <=> embedding FROM memory_chunks WHERE embedding IS NOT NULL LIMIT 1"
+                    )
+                )
+                < 0.00001
             )
         try:
             transfer.transfer(source, target, root / "backups", apply=True, offline_confirmed=True)

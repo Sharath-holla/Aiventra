@@ -109,6 +109,8 @@ def test_migration_fixture_validates_vault_audit_and_all_tables(tmp_path, monkey
     import os
 
     from company_os.config import settings
+    from company_os.models import MemoryChunk
+    from sqlalchemy import select
 
     from scripts.verify_database_transfer import fixture
 
@@ -124,6 +126,9 @@ def test_migration_fixture_validates_vault_audit_and_all_tables(tmp_path, monkey
         assert rows["conversation_turns"]["rows"] == 1
         assert rows["workflows"]["rows"] == 1
         assert rows["provider_credentials"]["rows"] == 1
+        vectors = connection.scalars(select(MemoryChunk.embedding)).all()
+        assert sum(vector is not None for vector in vectors) == 1
+        assert any(vector is None for vector in vectors)  # Unindexed automatic captures coexist.
         settings().provider_secret_key = base64.urlsafe_b64encode(os.urandom(32)).decode()
         with pytest.raises(TransferRejected, match="Vault key"):
             validate_records(connection)
