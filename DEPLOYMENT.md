@@ -1,5 +1,11 @@
 # Deployment
 
+## Milestone 2 database transition
+
+Use DATABASE_MIGRATION.md for backed-up offline SQLite → PostgreSQL transfer; deployment must explicitly configure API and worker against the verified destination. Set `REQUIRED_DATABASE_BACKEND=postgresql` after cutover so a stale SQLite setting refuses startup. Compose pins the fence in migration/API/worker. Never use the seeded Compose database as an import destination: the transfer refuses existing records; provision an empty database/schema instead.
+
+Settings → Check database reads actual schema/pgvector/HNSW state. It does not grant migration permission or prove recovery. CI adds isolated transfer/failure rollback, a real database-container restart and a separate pg_dump restore comparison; source-specific results belong in TEST_REPORT.md. Local PostgreSQL authentication, Docker/Ollama installation, cloud deployment and production cluster verification remain unavailable/unperformed. There are no Kubernetes manifests in the inspected infrastructure tree to validate; none were removed. Historical generic provider setup notes below are subordinate to ZERO_COST_ONLY: no remote inference probe is authorized without verified provider-enforced no-billing evidence.
+
 ## Current enterprise deployment restrictions
 
 Compose migration/API/worker pin AI_SPENDING_MODE=ZERO_COST_ONLY. Apply additive migrations before starting the updated API. No remote inference is enabled by credentials alone. Host-loopback local inference does not make an Ollama service available inside Docker; an approved local inference service design is still needed. Existing Compose/runner CI checks remain required, including the new saved zero-cost restart snapshot. No local Docker execution, cloud rollout or production certification is claimed. BACKUP_RESTORE.md records current data preservation and remaining restore-drill work.

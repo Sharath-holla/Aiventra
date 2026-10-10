@@ -1,5 +1,7 @@
 # Zero-cost AI policy
 
+Milestone 2 database transfer and storage inspection do not invoke AI or modify provider eligibility. Remote generation remains blocked; local Ollama is still absent and no model was downloaded or invoked. All inference/embedding guard and waiting-state tests remain part of the regression suite. MODEL_CONFIGURATION.md's local candidates require explicit installation and real measurement before role assignment. Existing vault ciphertext is transferred unchanged and decrypted only for integrity verification with the private key; keys never enter reports or Git.
+
 Enterprise milestone 1, October 10, 2026. `AI_SPENDING_MODE=ZERO_COST_ONLY` is the only accepted setting. There is no owner, CEO, API, budget or routing override to enable paid inference.
 
 `company_os.spending` applies before candidate selection, before financial reservation, and inside both structured and native inference transports. This covers chat, agent messages, meetings, tools, benchmarks, coding, review and repair because they use the same gateway. Ollama embeddings also verify local metadata. Fastembed reads cached CPU-local models; application startup does not download them. Deterministic fixtures are labeled and never represent live AI.

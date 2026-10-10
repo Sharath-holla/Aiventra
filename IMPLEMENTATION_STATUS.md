@@ -1,5 +1,13 @@
 # Implementation status
 
+## Current enterprise milestone 2 — PostgreSQL transfer and recovery
+
+Continuation began from clean master `9826b0e`. The new request is preserved in docs/ENTERPRISE_MILESTONE_2_SPEC.md. Implemented a real offline SQLite → PostgreSQL transfer domain/CLI, retained integrity-checked backups, schema/key/version validation, dependency-safe row copying, all-table hashes/counts, float32 vector equality, audit/vault validation, occupied-destination refusal and transactional DDL/data rollback. Explicit configuration remains the only cutover; a required-backend startup fence protects API/worker against accidental SQLite fallback. The connected Settings inspector reports actual schema/pgvector/HNSW facts through owner authorization. Existing Phase 1–3, runner, data and strict zero-cost controls are preserved.
+
+Local: the actual database snapshot preserved 52 tables/14,257 rows at capture and passed integrity/FK/schema/audit checks. PostgreSQL 18 is reachable but rejects inspection without an authorized password reference (`fe_sendauth: no password supplied`); no local migration/cutover or pgvector success is claimed. Docker/Ollama are absent. Hardware/model installation guidance is in MODEL_CONFIGURATION.md; no model or paid inference was requested/downloaded/executed. PostgreSQL transfer/recovery CI evidence will be recorded in TEST_REPORT.md after this source is published.
+
+Current phase: milestone 2 database transition foundation; milestone 2 as a whole is incomplete. Remaining: authorized local PostgreSQL cutover, installed-model benchmarks and real saved BA/CTO/PM execution, exact-approved authenticated generated PR publication, coding-agent live quality and Phase 5 delivery. No production readiness or live-model success is claimed.
+
 ## Current enterprise milestone — strict ZERO_COST_ONLY
 
 Published application source: **0e8797d1e255af68bb80d9db868eb818151c7719**. [All five GitHub Actions jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/37983863735): backend, frontend, secrets, PostgreSQL/pgvector integration and dedicated restricted Docker runner. CI reran 197 Linux backend checks and 13 actual Compose browser journeys. The integration restart comparison preserved one saved zero-cost workflow, plus existing memory/conversation/staffing digests; local service restart comparison preserved five saved workflows. No live LLM or remote-free entitlement is claimed.

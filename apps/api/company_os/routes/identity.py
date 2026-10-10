@@ -12,7 +12,7 @@ from ..api_common import serialize, tenant_rows
 from ..authentication import count_attempt
 from ..config import settings
 from ..db import SessionLocal, now, session_dependency
-from ..health import workers
+from ..health import database_state, workers
 from ..schemas import (
     Login,
 )
@@ -40,6 +40,14 @@ def health(session: Session = Depends(session_dependency)):
 @router.get("/health/live")
 def liveness():
     return {"status": "alive"}
+
+
+@router.get("/operations/database")
+def database_operations(user: m.User = Depends(owner), session: Session = Depends(session_dependency)):
+    try:
+        return database_state(session)
+    except SQLAlchemyError:
+        raise HTTPException(503, "Database inspection unavailable; check server connectivity") from None
 
 
 @router.get("/health/ready")
@@ -161,7 +169,7 @@ def state(user: m.User = Depends(owner), session: Session = Depends(session_depe
         "mock_enabled": settings().mock_enabled,
         "execution_enabled": settings().execution_enabled,
         "live_credentials_required": True,
-        "database": "sqlite" if settings().database_url.startswith("sqlite") else "postgresql",
+        "database": session.get_bind().dialect.name,
         "worker": workers(session),
     }
     from ..agent_runtime import snapshot

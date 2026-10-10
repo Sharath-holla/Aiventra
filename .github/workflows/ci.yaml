@@ -69,6 +69,8 @@ jobs:
       - run: curl --fail http://localhost:8000/health/ready
       - run: docker compose exec -T api python -m alembic check
       - run: docker compose exec -T api python - --allow-test-records < scripts/verify_postgres.py
+      - name: Verify SQLite transfer, safe refusal and transactional rollback on real PostgreSQL
+        run: docker compose exec -T -e CI=true api python - < scripts/verify_database_transfer.py
       - name: Verify actual local embeddings and PostgreSQL vector retrieval
         run: |
           docker compose exec -T api python -m company_os.embeddings --download
@@ -96,5 +98,22 @@ jobs:
           docker compose exec -T api python - < scripts/verify_zero_cost_recovery.py > /tmp/zero-cost-after.json
           cmp /tmp/zero-cost-before.json /tmp/zero-cost-after.json
           cat /tmp/zero-cost-after.json
+      - name: Verify actual database restart and pg_dump restoration without replacing active data
+        run: |
+          docker compose stop api worker web
+          docker compose run --rm -T --no-deps api python - < scripts/verify_database_snapshot.py > /tmp/database-before.json
+          docker compose restart database
+          docker compose up -d --wait --wait-timeout 90 database
+          docker compose run --rm -T --no-deps api python - < scripts/verify_database_snapshot.py > /tmp/database-after.json
+          cmp /tmp/database-before.json /tmp/database-after.json
+          docker compose exec -T database pg_dump -U company -d company --format=custom --file=/tmp/recovery.dump
+          docker compose exec -T database createdb -U company recovery_fixture
+          docker compose exec -T database pg_restore -U company -d recovery_fixture --exit-on-error /tmp/recovery.dump
+          docker compose run --rm -T --no-deps -e CI=true api python - --restored-database recovery_fixture < scripts/verify_database_snapshot.py > /tmp/database-restored.json
+          cmp /tmp/database-before.json /tmp/database-restored.json
+          docker compose exec -T database dropdb -U company recovery_fixture
+          docker compose up -d --wait --wait-timeout 120
+          curl --fail http://localhost:8000/health/ready
+          echo 'All 52 table digests matched after PostgreSQL restart and separate database restore.'
       - run: docker compose logs && docker compose down
         if: always()

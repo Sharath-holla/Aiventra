@@ -16,6 +16,7 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg://company:${DB_PASSWORD}@database/company
       AI_SPENDING_MODE: ZERO_COST_ONLY
+      REQUIRED_DATABASE_BACKEND: postgresql
     command: ["python", "-m", "company_os.cli", "init"]
     depends_on: {database: {condition: service_healthy}}
   api:
@@ -24,6 +25,7 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg://company:${DB_PASSWORD}@database/company
       AI_SPENDING_MODE: ZERO_COST_ONLY
+      REQUIRED_DATABASE_BACKEND: postgresql
     ports: ["127.0.0.1:8000:8000"]
     volumes: ["artifacts:/app/artifacts", "repositories:/app/data/repositories", "embeddings:/app/data/embeddings"]
     depends_on: {migrate: {condition: service_completed_successfully}}
@@ -37,6 +39,7 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg://company:${DB_PASSWORD}@database/company
       AI_SPENDING_MODE: ZERO_COST_ONLY
+      REQUIRED_DATABASE_BACKEND: postgresql
       EXECUTION_ENABLED: "false"
     command: ["python", "-m", "company_os.workflows"]
     volumes: ["artifacts:/app/artifacts", "repositories:/app/data/repositories", "embeddings:/app/data/embeddings"]

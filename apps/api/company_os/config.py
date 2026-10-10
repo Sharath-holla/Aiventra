@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     app_env: str = "development"
     ai_spending_mode: Literal["ZERO_COST_ONLY"] = "ZERO_COST_ONLY"
     database_url: str = "sqlite:///./data/company.db"
+    required_database_backend: Literal["sqlite", "postgresql"] | None = None
     jwt_secret: str = ""
     owner_email: str = "owner@local.test"
     owner_password: str = ""

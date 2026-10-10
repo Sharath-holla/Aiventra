@@ -4,6 +4,7 @@ import { Activity, Pause, Play, ShieldCheck, Wallet } from "lucide-react";
 import { api, date, money } from "@/lib/api";
 import { Badge, Button, Empty, Panel, Pretty, useApp } from "./common";
 import { ModelEvaluation } from "./model-evaluation";
+import { DatabaseStatus } from "./database-status";
 export function Governance({ view }: { view: string }) {
   const { state, run, busy } = useApp();
   const [integrity, setIntegrity] = useState<unknown>(null);
@@ -254,19 +255,18 @@ export function Governance({ view }: { view: string }) {
         >
           <Pretty value={state.runtime} />
           <div className="alert warning">
-            This installation is a tested local foundation. Live APIs require
-            server-side credentials and configured models. Docker execution,
-            PostgreSQL, cloud deployment and OAuth mail/calendar require
-            separate verification.
+            ZERO_COST_ONLY blocks paid cloud inference. Local generation
+            requires an installed, verified model. Infrastructure checks and
+            model quality are verified separately.
           </div>
           <h3>Remaining platform work</h3>
           <p>
-            Temporal orchestration, pgvector retrieval, OAuth mail/calendar,
-            GitHub PRs, production runner hardening, verified staging
-            deployment/rollback and full-scale concurrency tests are tracked in
-            the repository’s implementation status.
+            GitHub publication approval, client delivery, OAuth mail/calendar,
+            verified staging deployment/rollback and full-scale concurrency
+            tests are tracked in the repository’s implementation status.
           </p>
         </Panel>
+        <DatabaseStatus />
       </>
     );
   return (

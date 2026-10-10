@@ -1,5 +1,15 @@
 # Next steps
 
+## Milestone 2 continuation
+
+1. Preserve this transfer/recovery increment and its exact source CI evidence in TEST_REPORT.md. Read docs/ENTERPRISE_MILESTONE_2_SPEC.md and DATABASE_MIGRATION.md. Keep ZERO_COST_ONLY and all existing tenant/approval/audit/runner boundaries.
+2. Configure an authorized private `MIGRATION_DATABASE_URL` for a **new empty** local PostgreSQL database; verify pgvector availability/permissions. No password reset or credential guessing is authorized. Dry-run the transfer, stop every writer, apply and compare the retained snapshot, explicitly select PostgreSQL for API/worker with `REQUIRED_DATABASE_BACKEND=postgresql`, then test actual login/scoped workflows/memory/restart before admitting writes. SQLite remains active until that succeeds.
+3. Install Ollama and an explicitly approved small local model only after sufficient memory is available. MODEL_CONFIGURATION.md records measured hardware, official installation/download commands and remaining quality tests. Disable cloud features, verify local metadata and measure real conversation/extraction/planning/coding/repair/tools/structured output. Exercise saved BA → CTO → PM handoffs and restart persistence. Failed/unsupported tasks remain waiting; fixtures never count as live results.
+4. Implement PR_PUBLICATION_WORKFLOW.md's missing least-privilege GitHub connector with exact commit/diff/target preview, versioned owner approval, non-force push, draft PR idempotency, persisted URL, CI/review retrieval and repair updates. Verify only against an explicitly authorized disposable repository; no generated PR has been published.
+5. Connect verified engineering/QA/final review to delivery artifacts/client acceptance. Finish encrypted offsite backups/PITR, runtime-role least privilege, production identity/monitoring, cluster/staging/rollback and load verification separately. Current CI restore is a disposable database drill, not production disaster recovery.
+
+External needs: authorized local PostgreSQL access/pgvector and local Ollama installation/model approval; a scoped publication connector/repository authorization for generated PRs. No paid AI API key is required or requested.
+
 ## Current enterprise continuation — after zero-cost milestone
 
 Enterprise milestone 1 is published as **0e8797d1e255af68bb80d9db868eb818151c7719** with [all five CI jobs passing](https://github.com/Sharath-holla/Aiventra/actions/runs/37983863735). Continue milestone 2; do not rebuild the preserved foundations or relax ZERO_COST_ONLY.

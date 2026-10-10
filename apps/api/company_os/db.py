@@ -3,6 +3,7 @@ import uuid
 from collections.abc import Generator
 
 from sqlalchemy import create_engine, event
+from sqlalchemy.engine import make_url
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from .config import settings
@@ -35,9 +36,20 @@ def make_engine(url: str):
     return result
 
 
+def make_application_engine(config):
+    if (
+        config.required_database_backend
+        and make_url(config.database_url).get_backend_name() != config.required_database_backend
+    ):
+        raise ValueError(
+            "Configured database backend does not match REQUIRED_DATABASE_BACKEND; startup refused"
+        )
+    return make_engine(config.database_url)
+
+
 settings().artifact_root.mkdir(parents=True, exist_ok=True)
 settings().repository_root.mkdir(parents=True, exist_ok=True)
-engine = make_engine(settings().database_url)
+engine = make_application_engine(settings())
 SessionLocal = sessionmaker(engine, expire_on_commit=False)
 
 

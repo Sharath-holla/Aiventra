@@ -15,6 +15,12 @@ def offline():
 
 
 def online():
+    supplied = config.attributes.get("connection")
+    if supplied is not None:
+        context.configure(connection=supplied, target_metadata=Base.metadata, compare_type=True)
+        with context.begin_transaction():
+            context.run_migrations()
+        return
     engine = engine_from_config(
         config.get_section(config.config_ini_section), prefix="sqlalchemy.", poolclass=pool.NullPool
     )

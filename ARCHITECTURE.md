@@ -1,5 +1,11 @@
 # Aiventra OS architecture
 
+## Enterprise milestone 2 — database transition foundation
+
+`company_os.database_transfer` is a separate operator domain module, invoked by `scripts/migrate_sqlite_postgres.py`. It accepts an environment reference for a PostgreSQL destination, retains a consistent private SQLite snapshot, validates schema/PK/FK/audit/vault state, refuses occupied destinations, and executes dependency-ordered inserts plus Alembic DDL in one serializable transaction. Counts and canonical content digests for every application table must match before commit; vectors normalize to pgvector float32 precision. No constraints or audit guards are disabled. Supplied Alembic connections support transactional DDL without changing global database settings. DATABASE_MIGRATION.md defines offline operation, explicit cutover, file preservation, failure rollback and post-write recovery boundaries.
+
+`REQUIRED_DATABASE_BACKEND` fences API/worker startup against a backend mismatch; Compose pins PostgreSQL. The owner-only `/operations/database` reports the actual bound database, schema revision, pgvector extension and HNSW presence without URLs or secrets. Settings consumes these facts through a real Check database control. The workstation still uses SQLite because local PostgreSQL authorization is unavailable. CI adds real transfer/failure rollback plus actual database-container restart and separate pg_dump/restore comparisons; TEST_REPORT.md records results for the published source. Local Ollama remains unavailable and ZERO_COST_ONLY is unchanged. Earlier architecture sections retain source-specific historical descriptions.
+
 ## Current zero-cost authorization layer
 
 The modular FastAPI/Next.js architecture is retained. `company_os.spending` is a mandatory domain guard independent of preference/ranking and financial caps. The gateway filters forbidden models and verifies local installed-model metadata before reservation; structured/native transports verify again before inference. Ollama embeddings have the same local/cloud boundary; cached Fastembed remains CPU-local. No remote entitlement verifier is implemented, so remote inference fails closed.

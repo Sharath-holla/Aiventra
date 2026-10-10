@@ -1,5 +1,11 @@
 # Backup and recovery status
 
+## Milestone 2 transfer/recovery increment
+
+The new transfer tool retains private, consistent SQLite snapshots and validates integrity/FK/audit/schema plus encrypted vault decryptability when credentials exist. The current workstation snapshot preserved 52 tables and 14,257 rows at capture. Apply holds a source write lock and rolls back destination schema/data on failure. DATABASE_MIGRATION.md describes explicit cutover and why switching to stale SQLite after PostgreSQL writes is unsafe. File artifacts/repositories and the vault key require separate private preservation; the tool does not copy them.
+
+CI now includes an actual PostgreSQL-container restart with writers stopped, then a custom pg_dump restored into a **separate database** and all-table digest comparison before restarting services. See TEST_REPORT.md for the source/run result. Backups remain unencrypted/private and no offsite/PITR/crash-kill recovery is certified. Older sections below describe earlier evidence; their missing database-restart/restore drill has been addressed in CI only when the new source run passes.
+
 Before the local zero-cost migration, the managed services were stopped and Python sqlite3 online backup created a private snapshot under `data/backups/`. SQLite `quick_check` passed. All row counts across 51 preexisting tables matched after additive migration to `a31d07edc482`; no records were reset. Keep backups outside Git with restricted access. This snapshot is not encrypted and is not an offsite backup service.
 
 For restore, stop managed services, back up the current database first, restore to a separate candidate file, run integrity/migration checks and verify scoped business records before explicitly changing the configured path. Do not overwrite the active database during an unverified restore. Preserve the private vault key, artifacts and repository data in encrypted backups; never publish them.

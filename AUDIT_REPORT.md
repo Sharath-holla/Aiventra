@@ -1,5 +1,11 @@
 # Aiventra existing-project audit
 
+## Milestone 2 source audit
+
+Actual starting Git HEAD was clean `9826b0e`. Inspection confirmed 52 normalized tables, active SQLite at data/company.db, current Alembic `a31d07edc482`, real persistent memory/staffing/workflows and the preserved restricted runner/zero-cost guard. There was no safe cross-database transfer tool, actual database-container restart drill or pg_dump restoration comparison. This increment adds those mechanisms and an owner-visible live storage inspector. It does not replace existing modules.
+
+Local PostgreSQL 18 accepts TCP connections but the configured environment contains no authorized PostgreSQL reference/pgpass; inspection fails with password required. Docker/Ollama remain unavailable. Snapshot checks passed for all 52 tables/14,257 rows at capture. No local PostgreSQL data was overwritten, no database cutover occurred and no live LLM/paid inference was executed. DATABASE_MIGRATION.md and TEST_REPORT.md distinguish local, deterministic and actual CI infrastructure evidence. PR publication, live-model quality, client delivery and production operations remain incomplete.
+
 ## Current enterprise audit — October 10, 2026
 
 Published source **0e8797d1e255af68bb80d9db868eb818151c7719** passed [all five CI jobs](https://github.com/Sharath-holla/Aiventra/actions/runs/37983863735), including 197 Linux backend tests, 13 real Compose browser journeys, PostgreSQL/pgvector/local embedding checks, saved workflow restart digests and actual dedicated runner isolation/recovery. These are CI-host infrastructure results, not local Docker/PostgreSQL authorization or live LLM success.

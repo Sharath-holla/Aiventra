@@ -1,5 +1,11 @@
 # Implementation ledger
 
+## Enterprise milestone 2 — safe PostgreSQL transition increment
+
+Starting HEAD `9826b0e`, clean master. Preserved the new master in docs/ENTERPRISE_MILESTONE_2_SPEC.md. Delivered transaction-aware Alembic connections; retained read-only SQLite snapshots and write exclusion during apply; head/schema/PK/FK/integrity/audit/vault validation; empty-target-only PostgreSQL migration; dependency-safe records and full-table digest equality; dry-run and failure rollback; explicit backend cutover fence; real owner storage inspection and connected responsive Settings UI. No active database switch or local provider installation was performed.
+
+Verification and publication are recorded in TEST_REPORT.md. The actual local snapshot contained 52 tables/14,257 rows and passed validation. New PostgreSQL CI checks exercise isolated real transfers, interruption rollback, occupied-target/key refusal, pgvector preservation, database restart and separate pg_dump/restore equality. Keep those results distinct from this workstation's unavailable PostgreSQL authentication and absent Docker/Ollama. Milestone 2 remains open for authorized cutover, measured local models and real workflows, then approved PR publication/Phase 5 delivery.
+
 ## Enterprise milestone 1 — strict zero-cost inference and durable free-provider waits
 
 Starting HEAD: `3a70a283ab0d3e8e3877aac1fe5094ffd64c91d3`, clean `master` tracking authorized `origin/master`. New master preserved as docs/ENTERPRISE_PRODUCTION_SPEC.md. [Source audit](docs/ENTERPRISE_AUDIT.md) separates verified foundations and remaining enterprise work.
