@@ -1,32 +1,12 @@
 import { test, expect } from "@playwright/test";
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
-
-const env = readFileSync(resolve(process.cwd(), "../../.env"), "utf8");
-const setting = (name: string) =>
-  process.env[name] ||
-  env
-    .split(/\r?\n/)
-    .find((l) => l.startsWith(name + "="))
-    ?.slice(name.length + 1) ||
-  "";
+import { loginOwner } from "./support/login";
 const headers = { Origin: "http://localhost:3000" };
 
 test("memory UI saves real versions, searches stored evidence, reloads and purges its own fixture", async ({
   page,
 }) => {
-  test.setTimeout(90000);
-  expect(
-    (
-      await page.context().request.post("/api/auth/login", {
-        headers,
-        data: {
-          email: setting("OWNER_EMAIL"),
-          password: setting("OWNER_PASSWORD"),
-        },
-      })
-    ).status(),
-  ).toBe(200);
+  test.setTimeout(150000);
+  await loginOwner(page.context().request);
   const title = `Memory browser fixture ${Date.now()}`;
   await page.goto("/?view=memory");
   await page.getByLabel("Memory title", { exact: true }).fill(title);

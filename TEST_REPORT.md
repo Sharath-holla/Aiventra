@@ -14,6 +14,8 @@ Failures repaired during local verification: the first migration fixture duplica
 
 The first source CI run (`a1f4367`, run 38017653513) passed backend/frontend/secrets/runner but failed the new PostgreSQL verification **after** transfer and full-table equality passed. Its vector-distance query selected an unindexed automatically captured chunk and compared SQL NULL to a number. The query now explicitly selects a non-null vector; the local source-fixture test verifies indexed and unindexed chunks coexist. This was a verification query defect; the transfer comparison was retained. The corrected source must pass the complete integration before restart/restore success is recorded.
 
+The second run (`d5e4b05`, run 38017918644) passed actual PostgreSQL transfer/rollback and four jobs, then 13/14 browser journeys: the added login made the legacy memory test hit the real persistent 10-per-minute throttle (HTTP 429). Its login now waits within the existing window, accepts only 200/429 while waiting and still requires 200; memory assertions and production limits are unchanged. The test timeout includes that bounded authentication wait. A complete rerun is required before recovery/restore success is claimed.
+
 Current phase: milestone 2 database transition foundation. Remaining live work: authorized local PostgreSQL cutover/restart, Ollama installation/model approval and quality benchmarks, real BA → CTO → PM execution, exact-approved generated PR publication, autonomous coding quality and client delivery. CI recovery is not production/offsite/PITR/crash-kill certification.
 
 ## Enterprise zero-cost milestone — October 10, 2026
