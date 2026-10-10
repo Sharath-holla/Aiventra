@@ -13,9 +13,10 @@ from .gateway import execute
 from .organization import agent_for
 from .schemas import DocumentResult, Strict
 from .security import audit, check_agent, digest
+from .task_routing import TaskRequirements, prepare
 
 
-class PlannedTask(Strict):
+class PlannedTask(TaskRequirements):
     key: str = Field(pattern=r"^[a-z][a-z0-9_]{0,39}$")
     role: str = Field(min_length=1, max_length=100)
     kind: Literal["document", "coding"]
@@ -96,11 +97,33 @@ async def planning_step(session, workflow, token, work, project):
                                 "QA Director",
                                 "Security Architect",
                                 "Project Manager",
+                                "Software Architect",
+                                "Database Engineer",
+                                "Integration Engineer",
+                                "UI Designer",
+                                "DevOps Engineer",
+                                "FinOps Engineer",
+                                "Unit Test Engineer",
+                                "Integration Test Engineer",
                             ]
                         ),
                     )
                 )
             )
+        )
+        from .task_routing import choices
+
+        context["task_model_options"] = {
+            row["key"]: [
+                {"id": model.id, "identifier": model.identifier, "capabilities": model.capabilities}
+                for model, _ in choices(session, project, plan.content, row, preferences=False)[0][:8]
+            ]
+            for row in plan.content["tasks"]
+        }
+        context["instruction"] += (
+            " Include bounded workstreams, skills, difficulty, risk, tools, context allowance and QA criteria. "
+            "Recommend only supplied registered model IDs, or null when no eligible free model exists. "
+            "Do not set owner model_override or claim measured resource usage."
         )
     result = await execute(
         session,
@@ -122,6 +145,42 @@ async def planning_step(session, workflow, token, work, project):
         or plan.content_hash != work.input["plan_hash"]
     ):
         raise PermissionError("Workforce draft changed while an agent was running")
+    if index == 2:
+        tasks, allocated = [], set()
+        for task in result.tasks:
+            if task.role not in context["available_roles"] or task.model_override:
+                raise PermissionError("Planner proposed an unauthorized role or owner model override")
+            worker = agent_for(session, work.org_id, task.role)
+            allocated.add(worker.id)
+            tasks.append(
+                {
+                    "key": task.key,
+                    "agent_id": worker.id,
+                    "kind": task.kind,
+                    "objective": task.objective,
+                    "acceptance": task.acceptance,
+                    "depends_on": task.depends_on,
+                    "foundation_ids": list(plan.content["foundation_task_ids"]),
+                    "budget_micro": min(100000, project.budget_micro // len(result.tasks)),
+                    **TaskRequirements.model_validate(
+                        {key: getattr(task, key) for key in TaskRequirements.model_fields}
+                    ).model_dump(),
+                }
+            )
+        if any(task.kind == "coding" for task in result.tasks):
+            allocated.update(
+                agent_for(session, work.org_id, role).id for role in ("Code Reviewer", "QA Director")
+            )
+        proposed = {
+            **plan.content,
+            "planner": f"agent-chain:{work.id}",
+            "mode": workflow.mode,
+            "concurrency": 1,
+            "tasks": tasks,
+            "allocations": [{"agent_id": agent_id, "slots": 1} for agent_id in sorted(allocated)],
+        }
+        validate(session, plan, proposed)
+        prepare(session, plan, proposed)
     # Fence saved state before committing handoffs or changing the staffing draft.
     checkpoint(session, workflow, token, f"planning_{index}", {}, complete=index == 2)
     content = json.dumps(result.model_dump(), ensure_ascii=False, indent=2) if index == 2 else result.content
@@ -160,35 +219,6 @@ async def planning_step(session, workflow, token, work, project):
             )
         )
     else:
-        tasks, allocated = [], set()
-        for task in result.tasks:
-            worker = agent_for(session, work.org_id, task.role)
-            allocated.add(worker.id)
-            tasks.append(
-                {
-                    "key": task.key,
-                    "agent_id": worker.id,
-                    "kind": task.kind,
-                    "objective": task.objective,
-                    "acceptance": task.acceptance,
-                    "depends_on": task.depends_on,
-                    "foundation_ids": list(plan.content["foundation_task_ids"]),
-                    "budget_micro": min(100000, project.budget_micro // len(result.tasks)),
-                }
-            )
-        if any(task.kind == "coding" for task in result.tasks):
-            allocated.update(
-                agent_for(session, work.org_id, role).id for role in ("Code Reviewer", "QA Director")
-            )
-        proposed = {
-            **plan.content,
-            "planner": f"agent-chain:{work.id}",
-            "mode": workflow.mode,
-            "concurrency": 1,
-            "tasks": tasks,
-            "allocations": [{"agent_id": agent_id, "slots": 1} for agent_id in sorted(allocated)],
-        }
-        validate(session, plan, proposed)
         plan.version += 1
         plan.content, plan.content_hash = proposed, digest(proposed)
         session.add(

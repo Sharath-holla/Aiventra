@@ -18,8 +18,16 @@ def parse_text(name, raw, limit=16384, strict_json=False):
     try:
         content = raw.decode("utf-8")
         if strict_json and name.lower().endswith(".json"):
-            json.loads(content)
-    except (UnicodeDecodeError, ValueError):
+            pending = [(json.loads(content), 0)]
+            while pending:
+                value, depth = pending.pop()
+                if depth > 64:
+                    raise ValueError("JSON nesting exceeds limits")
+                if isinstance(value, (dict, list)):
+                    pending.extend(
+                        (child, depth + 1) for child in (value.values() if isinstance(value, dict) else value)
+                    )
+    except (UnicodeDecodeError, ValueError, RecursionError):
         raise HTTPException(
             422, "Document must contain valid UTF-8 text (and valid JSON for .json)"
         ) from None

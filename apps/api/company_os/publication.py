@@ -43,7 +43,7 @@ class GitHub:
         try:
             async with client.stream(
                 method,
-                f"https://api.github.com/repos/{self.repository}/{path}",
+                f"https://api.github.com/repos/{self.repository}" + ("/" + path if path else ""),
                 headers={
                     "Authorization": f"Bearer {self.token}",
                     "Accept": "application/vnd.github+json",

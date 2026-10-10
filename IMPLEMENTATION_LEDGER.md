@@ -1,5 +1,13 @@
 # Implementation ledger
 
+## Task allocation/import increment — October 10, 2026
+
+Starting HEAD 93a8111/master; preserved docs/TASK_ALLOCATION_IMPORT_SPEC.md. Added task_routing.py for strict task requirements, scoped/zero-cost model choices, current task-case benchmark filtering and server explanations. Existing StaffingRevision/Task JSON stores approved assignments without DDL. Gateway and resume-free recheck task constraints; author overrides do not pin independent reviewers. Planner validates before completing its final checkpoint. Frontend shows actual choices and fences edits against newer saved revisions.
+
+Added document_imports.py with bounded DOCX extraction, source provenance, attachment replacement/removal and exact-approved project knowledge association. Added repository_imports.py and owner/project HTTP/UI controls for bounded read-only GitHub discovery; no host checkout or execution is introduced. Live read-only metadata probe found and repaired the shared connector's root-URL trailing slash. Existing publication authorization still requires its independent owner approval.
+
+ZERO_COST_ONLY, active SQLite, existing data, PostgreSQL-compatible models/migrations/CI, worker memory, restricted runner and Phase 4/5 gates are retained. TEST_REPORT.md distinguishes actual service/storage/GitHub read evidence from deterministic inference/publication contracts. Remote checkout, secure PDF ingestion and live AI/engineering/client release remain separate unfinished work.
+
 ## Simple UI + Lead AI increment
 
 Published source **eeb0e6d7976dd508c349372aea39a336aee5fe74**, normal origin/master push and exact SHA equality. [All six CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38068123116): 316 backend / 27 total browser checks, final build/audits/history secret scan, actual restricted runner execution/result recovery, PostgreSQL transfer/restart/separate restore and actual wizard service restart (three drafts / one attachment). TEST_REPORT.md records timings/digests and repaired initial findings. This evidence-only follow-up changes no tested application source; SQLite remains active and live AI/client delivery remains unverified.

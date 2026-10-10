@@ -1464,3 +1464,6 @@ summary {
 .allocation-task p {
   overflow-wrap: anywhere;
 }
+.project-wizard .mono {
+  overflow-wrap: anywhere;
+}

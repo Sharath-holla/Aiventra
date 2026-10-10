@@ -53,6 +53,8 @@ type Draft = {
       parsed: boolean;
       redacted: boolean;
       bytes: number;
+      source_sha256?: string;
+      warnings?: string[];
     }[];
     requirement_id?: string;
     manual_proposal_id?: string;
@@ -78,6 +80,7 @@ export function ProjectWizard({ initialId = "" }: { initialId?: string }) {
   const [error, setError] = useState("");
   const [dirty, setDirty] = useState(false);
   const [editingModels, setEditingModels] = useState(false);
+  const [replaceAttachment, setReplaceAttachment] = useState("");
   const [architecture, setArchitecture] = useState("");
   const [milestones, setMilestones] = useState("");
   const [criteria, setCriteria] = useState("");
@@ -85,6 +88,22 @@ export function ProjectWizard({ initialId = "" }: { initialId?: string }) {
     saved.current = result;
     setRow(result);
   }, []);
+  const acceptAttachment = (result: Draft, base: Draft) => {
+    accept(result);
+    if (current.current) {
+      // Preserve edits made while the bounded upload/removal request was in flight.
+      const next = {
+        ...current.current,
+        text:
+          current.current.text === base.data.form.text
+            ? result.data.form.text
+            : current.current.text,
+      };
+      current.current = next;
+      setForm(next);
+      setDirty(JSON.stringify(next) !== JSON.stringify(result.data.form));
+    }
+  };
   useEffect(() => {
     let disposed = false;
     Promise.all([
@@ -513,7 +532,7 @@ export function ProjectWizard({ initialId = "" }: { initialId?: string }) {
                 <input
                   aria-label="Upload project requirements"
                   type="file"
-                  accept=".txt,.md,.csv,.json"
+                  accept=".txt,.md,.csv,.json,.docx"
                   disabled={saving || !!error}
                   onChange={(event) => {
                     const file = event.target.files?.[0];
@@ -525,31 +544,84 @@ export function ProjectWizard({ initialId = "" }: { initialId?: string }) {
                       body.set("file", file);
                       body.set("version", String(draft.version));
                       body.set("request_id", crypto.randomUUID());
+                      if (replaceAttachment)
+                        body.set("replace_id", replaceAttachment);
                       const uploaded = await api<Draft>(
                         `/project-drafts/${draft.id}/attachments`,
                         body,
                       );
-                      accept(uploaded);
-                      if (current.current && !current.current.text.trim()) {
-                        current.current = {
-                          ...current.current,
-                          text: uploaded.data.form.text,
-                        };
-                        setForm(current.current);
-                      }
+                      acceptAttachment(uploaded, draft);
+                      setReplaceAttachment("");
                     });
                   }}
                 />
               </label>
               <p className="muted">
-                UTF-8 TXT, Markdown, CSV or valid JSON · 16 KB each · six files
-                / 64 KB total. PDF, DOCX and images are not supported.
+                UTF-8 TXT, Markdown, CSV or valid JSON · 16 KB each. DOCX · 1 MB
+                file / 64 KB extracted text. Six files / 2 MB total. PDF and
+                images require a secure parser and are unavailable.
               </p>
+              {!!row?.data.attachments.length && (
+                <label>
+                  Upload action
+                  <select
+                    aria-label="Replace requirement attachment"
+                    value={replaceAttachment}
+                    disabled={saving || !!error}
+                    onChange={(e) => setReplaceAttachment(e.target.value)}
+                  >
+                    <option value="">Add a new document</option>
+                    {row.data.attachments.map((file) => (
+                      <option key={file.id} value={file.id}>
+                        Replace {file.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
               {row?.data.attachments.map((file) => (
-                <p key={file.id}>
-                  {file.name} · parsed and saved · {file.bytes} bytes
-                  {file.redacted ? " · sensitive content redacted" : ""}
-                </p>
+                <div key={file.id}>
+                  <p>
+                    {file.name} · parsed and saved · {file.bytes} bytes
+                    {file.redacted ? " · sensitive content redacted" : ""}
+                  </p>
+                  {file.warnings?.map((warning) => (
+                    <p className="muted" key={warning}>
+                      {warning}
+                    </p>
+                  ))}
+                  <details>
+                    <summary>Document provenance</summary>
+                    <p className="mono">
+                      Source SHA-256:{" "}
+                      {file.source_sha256 || "Historical text attachment"}
+                    </p>
+                    <p>
+                      Private draft; supplied to assigned project agents after
+                      submission. Content is untrusted data.
+                    </p>
+                  </details>
+                  <Button
+                    secondary
+                    disabled={saving || !!error}
+                    onClick={() =>
+                      execute(async () => {
+                        const draft = await save();
+                        const result = await api<Draft>(
+                          `/project-drafts/${draft.id}/attachments/${file.id}/remove`,
+                          {
+                            version: draft.version,
+                            request_id: crypto.randomUUID(),
+                          },
+                        );
+                        acceptAttachment(result, draft);
+                        setReplaceAttachment("");
+                      })
+                    }
+                  >
+                    Remove {file.name}
+                  </Button>
+                </div>
               ))}
               <details>
                 <summary>Reference project, repository and constraints</summary>

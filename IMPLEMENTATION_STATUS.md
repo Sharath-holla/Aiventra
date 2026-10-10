@@ -1,5 +1,17 @@
 # Implementation status
 
+## Task-specific workforce and read-only imports — October 10, 2026
+
+Continued from actual clean HEAD 93a8111/master. Latest brief is docs/TASK_ALLOCATION_IMPORT_SPEC.md. This increment extends the existing wizard, BA/CTO/PM planner, staffing revisions, worker, model gateway and memory rather than adding a second orchestration system.
+
+Implemented: bounded task workstreams/skills/difficulty/risk/tool/context/QA metadata; server-validated model recommendations; automatic/manual/hybrid per-task choices and saved eligibility explanations; task-class benchmark filtering; exact approved payload binding and bounded automatic fallback; separate reviewer routing; project sensitivity enforcement; Planning controls and stale-revision protection. Tasks, assignments, dependency scheduling and coding approvals reuse existing services. Invalid generated plans are refused before the final planning checkpoint.
+
+Documents now include bounded main-text DOCX extraction, raw-source and extracted-content hashes, warnings, versioned removal/replacement, private extracted-text retention and project-memory grants after exact proposal approval. Original binary uploads are not retained. TXT/MD/CSV/JSON remain supported. PDF is unavailable because a secure PDF parser is not installed. No macro, embedded object, external link or document code is executed.
+
+Read-only GitHub import reuses the allowlisted authenticated connector, discovers default/selected branches, commit/tree/blob identities, stack/dependency/README/test findings, and saves project-scoped repository/artifact provenance with idempotent request handling. A genuine authenticated metadata-only probe of Sharath-holla/Aiventra succeeded. API persistence/security contracts use explicit fixtures. Remote metadata entries cannot authorize coding: a separate managed checkout is still required. No generated PR, live AI, client delivery or deployment is claimed.
+
+SQLite remains active at d45f80a6ce12, with WAL/busy_timeout 30000 and serialized writes. No schema migration, database reset, installation/download or paid invocation occurs. Final regression, restart and exact-source CI evidence is recorded in TEST_REPORT.md after execution. Remaining work is listed in NEXT_STEPS.md.
+
 ## Simple UI + Lead AI continuation — October 10, 2026
 
 Application source **eeb0e6d7976dd508c349372aea39a336aee5fe74** is pushed normally to origin/master with exact remote SHA equality. [All six CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38068123116): 316 backend tests, 23 real Compose browser journeys, four isolated delivery contracts, frontend/security audits, actual restricted Docker isolation/recovery and PostgreSQL/pgvector compatibility/restart/separate restore. Three wizard drafts and one attachment retained matching hashes across actual CI service restart. This completes the simple project-creation and constrained Lead-routing increment, not full adaptive workstream allocation or live AI delivery. A documentation-only evidence follow-up changes no tested application source.

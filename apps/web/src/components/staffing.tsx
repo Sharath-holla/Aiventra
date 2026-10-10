@@ -13,12 +13,22 @@ type PlannedTask = {
   depends_on: string[];
   foundation_ids: string[];
   budget_micro: number;
+  workstream?: string;
+  skills?: string[];
+  difficulty?: "simple" | "standard" | "complex";
+  risk?: "low" | "medium" | "high";
+  context_tokens?: number;
+  required_tools?: string[];
+  qa_requirements?: string[];
+  model_override?: string | null;
+  model_rationale?: string;
 };
 type Content = {
   planner: string;
   requirement_version: number;
   proposal_hash: string;
   mode: string;
+  routing_mode?: "automatic" | "manual" | "hybrid";
   concurrency: number;
   allocations: { agent_id: string; slots: number }[];
   tasks: PlannedTask[];
@@ -43,6 +53,21 @@ type Plan = {
   quotes: {
     key: string;
     estimate_micro: number | null;
+    selection: {
+      state: string;
+      identifier: string | null;
+      reason: string;
+      minimum_context_tokens: number;
+      resource_basis: string;
+      independent_qa: boolean;
+      candidates: {
+        id: string;
+        identifier: string;
+        quality_basis: string;
+        benchmark: unknown;
+      }[];
+      model_options: { id: string; identifier: string; provider: string }[];
+    };
     models: {
       id: string;
       identifier: string;
@@ -59,6 +84,8 @@ export function Staffing({ initialId = "" }: { initialId?: string }) {
   const [projectId, setProjectId] = useState(initialId);
   const [plan, setPlan] = useState<Plan | null>(null);
   const [draft, setDraft] = useState<Content | null>(null);
+  const [draftVersion, setDraftVersion] = useState(0);
+  const [planningId, setPlanningId] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [reason, setReason] = useState("");
@@ -73,6 +100,7 @@ export function Staffing({ initialId = "" }: { initialId?: string }) {
     const value = await api<Plan | null>(`/projects/${selected}/staffing`);
     setPlan(value);
     setDraft(value?.content || null);
+    setDraftVersion(value?.version || 0);
   };
   useEffect(() => {
     let live = true;
@@ -88,6 +116,7 @@ export function Staffing({ initialId = "" }: { initialId?: string }) {
         if (live) {
           setPlan(value);
           setDraft(value?.content || null);
+          setDraftVersion(value?.version || 0);
           setError("");
         }
       })
@@ -125,6 +154,7 @@ export function Staffing({ initialId = "" }: { initialId?: string }) {
       const value = await api<Plan>(`/staffing/${plan.id}/control`, { action });
       setPlan(value);
       setDraft(value.content);
+      setDraftVersion(value.version);
     });
   return (
     <>
@@ -191,6 +221,7 @@ export function Staffing({ initialId = "" }: { initialId?: string }) {
                 );
                 setPlan(value);
                 setDraft(value.content);
+                setDraftVersion(value.version);
               })
             }
           >
@@ -215,6 +246,30 @@ export function Staffing({ initialId = "" }: { initialId?: string }) {
               <span>Spent: {money(plan.budget?.spent_micro || 0)}</span>
               <span>Reserved: {money(plan.budget?.reserved_micro || 0)}</span>
             </div>
+            <label>
+              Worker model selection
+              <select
+                aria-label="Task model selection mode"
+                value={draft.routing_mode || "automatic"}
+                disabled={plan.status !== "draft"}
+                onChange={(e) =>
+                  setDraft({
+                    ...draft,
+                    routing_mode: e.target.value as Content["routing_mode"],
+                  })
+                }
+              >
+                <option value="automatic">
+                  Automatic — choose eligible models for each task
+                </option>
+                <option value="hybrid">
+                  Hybrid — automatic with individual overrides
+                </option>
+                <option value="manual">
+                  Manual — assign each task explicitly
+                </option>
+              </select>
+            </label>
             <p className="muted">
               Logical slots are scheduling capacity. Models run on demand.
               Unconfigured providers wait without a paid call. Estimates use
@@ -299,23 +354,47 @@ export function Staffing({ initialId = "" }: { initialId?: string }) {
             {plan.status === "draft" && (
               <div className="actions">
                 <Button
-                  disabled={busy || !changed}
+                  secondary
+                  disabled={busy || changed || draftVersion !== plan.version}
+                  onClick={() =>
+                    run(async () => {
+                      const result = await api<{ workflow: Workflow }>(
+                        "/agent-planning",
+                        {
+                          request_id: crypto.randomUUID(),
+                          project_id: plan.project_id,
+                          plan_version: plan.version,
+                          plan_hash: plan.content_hash,
+                          objective:
+                            "Refine the approved project into a minimal team, task dependencies and eligible task-specific model recommendations",
+                          mode: plan.content.mode,
+                        },
+                      );
+                      setPlanningId(result.workflow.id);
+                    })
+                  }
+                >
+                  Ask Lead AI to refine plan
+                </Button>
+                <Button
+                  disabled={busy || !changed || draftVersion !== plan.version}
                   onClick={() =>
                     run(async () => {
                       const value = await api<Plan>(
                         `/staffing/${plan.id}`,
-                        { version: plan.version, content: draft },
+                        { version: draftVersion, content: draft },
                         "PATCH",
                       );
                       setPlan(value);
                       setDraft(value.content);
+                      setDraftVersion(value.version);
                     })
                   }
                 >
                   Save workforce changes
                 </Button>
                 <Button
-                  disabled={busy || changed}
+                  disabled={busy || changed || draftVersion !== plan.version}
                   onClick={() =>
                     run(async () => {
                       const value = await api<Plan>(
@@ -327,12 +406,30 @@ export function Staffing({ initialId = "" }: { initialId?: string }) {
                       );
                       setPlan(value);
                       setDraft(value.content);
+                      setDraftVersion(value.version);
                     })
                   }
                 >
                   Approve exact workforce
                 </Button>
               </div>
+            )}
+            {draftVersion !== plan.version && (
+              <p role="status">
+                A new plan revision was saved. Refresh allocation to load it
+                before editing or approving.
+              </p>
+            )}
+            {planningId && (
+              <p>
+                Planning workflow saved ·{" "}
+                {state.workflows.find((row) => row.id === planningId)?.status ||
+                  "Awaiting status refresh"}
+                . Saved documents and checkpoints are available in Activity.{" "}
+                <Button secondary onClick={() => navigate("activity")}>
+                  Open planning activity
+                </Button>
+              </p>
             )}
             {plan.status === "active" && (
               <Button
@@ -364,12 +461,53 @@ export function Staffing({ initialId = "" }: { initialId?: string }) {
                 <details className="allocation-task" key={item.key}>
                   <summary>
                     <span>
-                      <strong>{item.key}</strong> ·{" "}
+                      <strong>{item.objective}</strong> ·{" "}
                       {role(task?.assigned_agent_id || item.agent_id)}
+                      <small className="muted">
+                        {" "}
+                        ·{" "}
+                        {quote?.selection.identifier ||
+                          "Model awaiting availability"}
+                      </small>
                     </span>
                     <Badge>{task?.status || "proposed"}</Badge>
                   </summary>
                   <div className="form-grid">
+                    <label>
+                      Task model
+                      <select
+                        aria-label={`Model ${item.key}`}
+                        value={item.model_override || ""}
+                        disabled={
+                          plan.status !== "draft" ||
+                          (draft.routing_mode || "automatic") === "automatic"
+                        }
+                        onChange={(e) =>
+                          updateTask(item.key, {
+                            model_override: e.target.value || null,
+                          })
+                        }
+                      >
+                        <option value="">
+                          {draft.routing_mode === "manual"
+                            ? "Await exact assignment"
+                            : "Automatic eligible model"}
+                        </option>
+                        {item.model_override &&
+                          !quote?.selection.model_options.some(
+                            (m) => m.id === item.model_override,
+                          ) && (
+                            <option value={item.model_override}>
+                              Saved model currently unavailable
+                            </option>
+                          )}
+                        {quote?.selection.model_options.map((m) => (
+                          <option key={m.id} value={m.id}>
+                            {m.identifier} · {m.provider}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
                     <label>
                       Objective
                       <textarea
@@ -430,6 +568,36 @@ export function Staffing({ initialId = "" }: { initialId?: string }) {
                       />
                     </label>
                   </div>
+                  <p>{quote?.selection.reason}</p>
+                  <p className="muted">
+                    {item.workstream || "delivery"} ·{" "}
+                    {item.difficulty || "standard"} difficulty ·{" "}
+                    {item.risk || "medium"} risk · context allowance{" "}
+                    {quote?.selection.minimum_context_tokens ||
+                      item.context_tokens ||
+                      4096}{" "}
+                    tokens
+                  </p>
+                  <p className="muted">{quote?.selection.resource_basis}</p>
+                  {item.model_rationale && (
+                    <p>Lead recommendation: {item.model_rationale}</p>
+                  )}
+                  {!!item.skills?.length && (
+                    <p>Skills: {item.skills.join(", ")}</p>
+                  )}
+                  {!!item.qa_requirements?.length && (
+                    <p>QA: {item.qa_requirements.join("; ")}</p>
+                  )}
+                  {quote?.selection.independent_qa && (
+                    <p>
+                      Separate repository approval, independent review and
+                      restricted QA are required.
+                    </p>
+                  )}
+                  <details>
+                    <summary>Model routing evidence</summary>
+                    <Pretty value={quote?.selection} />
+                  </details>
                   <p className="muted">
                     {item.kind} · waits for:{" "}
                     {item.depends_on.join(", ") || "foundation only"} ·
@@ -603,7 +771,11 @@ export function Staffing({ initialId = "" }: { initialId?: string }) {
                   >
                     <option value="">Choose repository</option>
                     {state.repositories
-                      .filter((r) => r.project_id === selected)
+                      .filter(
+                        (r) =>
+                          r.project_id === selected &&
+                          !r.report.remote_metadata_only,
+                      )
                       .map((r) => (
                         <option key={r.id} value={r.id}>
                           {r.name}

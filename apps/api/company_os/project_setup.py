@@ -192,6 +192,14 @@ def view(session, row):
 
 def routing(session, workflow, agent, step, project, override):
     """Preferences constrain candidates, never confer spending/tool/approval authority."""
+    from .task_routing import runtime
+
+    binding = runtime(session, workflow, agent)
+    task_choice = binding[1].model_override if binding else None
+    task_mode = binding[0].payload["routing_mode"] if binding else None
+    if task_choice and override and task_choice != override:
+        raise PermissionError("Invocation override conflicts with the approved task model")
+    override = task_choice or override
     row = None
     if workflow.requirement_id:
         row = for_requirement(session, workflow.requirement_id, workflow.org_id)
@@ -199,6 +207,8 @@ def routing(session, workflow, agent, step, project, override):
         proposal = session.get(m.Proposal, project.proposal_id)
         row = for_requirement(session, proposal.requirement_id, workflow.org_id)
     if not row:
+        if task_mode == "manual" and not override:
+            return None, [], "Manual task selection has no exact model assignment"
         return override, None, None
     owner = session.get(m.User, row.data["owner_id"])
     requirement = session.get(m.Requirement, row.data["requirement_id"])
@@ -212,13 +222,14 @@ def routing(session, workflow, agent, step, project, override):
         form["lead_model_id"]
         if is_lead
         else (
-            form["overrides"].get("role:" + agent.role)
+            task_choice
+            or form["overrides"].get("role:" + agent.role)
             or form["overrides"].get("department:" + agent.department_id)
         )
     )
     if is_lead and not selected:
         return None, [], "Preferred Lead AI unavailable; explicitly select an eligible alternate"
-    if not is_lead and form["worker_mode"] == "manual" and not selected and not override:
+    if not is_lead and (task_mode or form["worker_mode"]) == "manual" and not selected and not override:
         return None, [], "Manual worker selection has no model assigned to this role or department"
     if selected and override and override != selected:
         raise PermissionError("Invocation override conflicts with the project's exact model selection")
@@ -280,6 +291,7 @@ def submit(session, row, user):
                     "artifact_id": artifact.id,
                     "excerpt": artifact.content,
                     "trust": "untrusted uploaded requirements",
+                    "provenance": attachment,
                 },
             )
         )
@@ -308,6 +320,39 @@ def consulting_steps(session, requirement):
     if len(roles) != len(set(roles)) or any(role not in SPECIALISTS for role in roles):
         raise PermissionError("Lead AI proposed an invalid specialist allocation")
     return ["lead_intake", "Business Analyst", "CTO", *roles, "Project Manager", "CFO", "proposal"]
+
+
+def attach_project_sources(session, project, requirement):
+    """Exact proposal approval grants the approved requirement's documents to its project."""
+    from .semantic_memory import sync_source
+
+    records = list(
+        session.scalars(
+            select(m.BusinessRecord).where(
+                m.BusinessRecord.org_id == project.org_id,
+                m.BusinessRecord.client_id == project.client_id,
+                m.BusinessRecord.kind == "knowledge",
+                m.BusinessRecord.data["requirement_id"].as_string() == requirement.id,
+            )
+        )
+    )
+    for record in records:
+        if record.project_id and record.project_id != project.id:
+            raise PermissionError("Requirement knowledge already belongs to another project")
+        record.project_id = project.id
+        sync_source(session, record)
+        artifact = (
+            session.get(m.Artifact, record.data.get("artifact_id"))
+            if record.data.get("artifact_id")
+            else None
+        )
+        if artifact:
+            if artifact.org_id != project.org_id or (
+                artifact.project_id and artifact.project_id != project.id
+            ):
+                raise PermissionError("Requirement artifact is outside the approved project")
+            artifact.project_id = project.id
+            sync_source(session, artifact)
 
 
 def manual_plan(session, row, user, architecture, milestones, criteria):

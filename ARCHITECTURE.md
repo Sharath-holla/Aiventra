@@ -1,5 +1,13 @@
 # Aiventra OS architecture
 
+## Task-specific routing and imported knowledge
+
+task_routing.py separates strict task requirements, scoped candidate selection and explanations from API routers. Profiles live in existing StaffingPlan/StaffingRevision JSON; exact approval copies them into Task.payload. task_ready verifies their approved binding and enabled approval owner; gateway/resume-free enforce actual capabilities, complexity/risk quality, minimum context, project sensitivity, policies, zero-cost and current task-case benchmark constraints. Automatic fallback stays within three eligible distinct attempts; exact manual choices cannot silently change. Reviewers use independent agent/model diversity checks. No extra model daemon is started for logical agents.
+
+document_imports.py extracts untrusted data with bounded source/expanded/text bytes and a two-second response timeout. DOCX main text uses ZIP/XML parsing with encrypted/embedded/macro/DTD/entity/compression safeguards; no extraction to executable files occurs. Artifact content remains private/authoritative in SQLite; source hashes, extraction warnings and replaced references persist. Exact proposal approval associates approved knowledge/artifacts with the project and existing permission-filtered memory.
+
+repository_imports.py uses the existing GitHub transport/allowlist/credential boundary for GET-only branch/commit/tree/blob discovery. It limits time/response/document/tree size, checks blob hashes and omits secret paths. Owner/project routes persist read-only Repository metadata, analysis Artifact and protected github_repository_import command receipt after a serialized authority recheck. No HTTP transaction holds a database write lock. Metadata-only repositories are refused by both coding-scope routes until a separately authorized managed checkout exists. No new schema, PostgreSQL cutover or inference entitlement is added.
+
 ## Simple UI and Lead integration
 
 project_setup.py owns draft validation, immutable intake, explicit model-selection authority, strict LeadAnalysis and owner-authored proposals. routes/project_setup_operations.py owns owner/scoped HTTP controls and serialized version/request transactions. Drafts reuse BusinessRecord JSON and private Artifact content; no schema/backend cutover occurs. SQLite stays active with PostgreSQL-compatible JSON queries/migrations/CI preserved.

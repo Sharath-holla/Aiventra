@@ -176,6 +176,112 @@ test("unavailable favorite submits a real waiting workflow without model calls",
   ).toBeVisible();
 });
 
+test("wizard replaces and removes saved documents with provenance after reload", async ({
+  page,
+}) => {
+  await login(page);
+  await describe(page, "document lifecycle");
+  await page.getByLabel("Project requirements", { exact: true }).fill("");
+  await expect(
+    page.getByRole("status").filter({ hasText: "Saved · version" }),
+  ).toBeVisible();
+  const uploader = page.getByLabel("Upload project requirements", {
+    exact: true,
+  });
+  await uploader.setInputFiles({
+    name: "original.md",
+    mimeType: "text/markdown",
+    buffer: Buffer.from(
+      "Original document requirements with persistent evidence.",
+    ),
+  });
+  await expect(
+    page.getByLabel("Project requirements", { exact: true }),
+  ).toHaveValue("Original document requirements with persistent evidence.");
+  const replacement = page.getByLabel("Replace requirement attachment", {
+    exact: true,
+  });
+  const attachmentId = await replacement
+    .locator("option")
+    .nth(1)
+    .getAttribute("value");
+  await replacement.selectOption(attachmentId!);
+  await uploader.setInputFiles({
+    name: "replacement.md",
+    mimeType: "text/markdown",
+    buffer: Buffer.from(
+      "Replacement document requirements with independent tests.",
+    ),
+  });
+  await expect(
+    page.getByLabel("Project requirements", { exact: true }),
+  ).toHaveValue("Replacement document requirements with independent tests.");
+  await expect(
+    page.getByText(/original.md · parsed and saved/),
+  ).not.toBeVisible();
+  await page.reload();
+  await expect(
+    page.getByText(/replacement.md · parsed and saved/),
+  ).toBeVisible();
+  await page.getByText("Document provenance", { exact: true }).click();
+  await expect(page.getByText(/Source SHA-256:/)).toBeVisible();
+  await page
+    .getByRole("button", { name: "Remove replacement.md", exact: true })
+    .click();
+  await expect(
+    page.getByLabel("Project requirements", { exact: true }),
+  ).toHaveValue("");
+  await expect(
+    page.getByText(/replacement.md · parsed and saved/),
+  ).not.toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth),
+  ).toBeLessThanOrEqual(391);
+});
+
+test("typing during a real attachment request preserves unsaved requirements", async ({
+  page,
+}) => {
+  await login(page);
+  await describe(page, "upload edit race");
+  let release: () => void = () => {};
+  const pending = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route("**/api/project-drafts/*/attachments", async (route) => {
+    await pending;
+    await route.continue();
+  });
+  await page
+    .getByLabel("Upload project requirements", { exact: true })
+    .setInputFiles({
+      name: "slow.md",
+      mimeType: "text/markdown",
+      buffer: Buffer.from(
+        "Additional versioned document evidence for the project.",
+      ),
+    });
+  await expect(
+    page.getByRole("status").filter({ hasText: "Saving…" }),
+  ).toBeVisible();
+  const edited =
+    "Owner edits made during upload must persist without being overwritten by the saved server form.";
+  await page.getByLabel("Project requirements", { exact: true }).fill(edited);
+  release();
+  await expect(page.getByText(/slow.md · parsed and saved/)).toBeVisible();
+  await expect(
+    page.getByRole("status").filter({ hasText: "Saved · version" }),
+  ).toBeVisible();
+  await expect(
+    page.getByLabel("Project requirements", { exact: true }),
+  ).toHaveValue(edited);
+  await page.reload();
+  await expect(
+    page.getByLabel("Project requirements", { exact: true }),
+  ).toHaveValue(edited);
+});
+
 test("mobile wizard validates uploads and saves a clearly owner-authored proposal", async ({
   page,
 }) => {

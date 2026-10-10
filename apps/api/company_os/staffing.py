@@ -1,6 +1,7 @@
 """Policy-based workforce planning. Plans are proposals, never fabricated AI output."""
 
 from collections import Counter
+from copy import deepcopy
 
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
@@ -141,6 +142,13 @@ def suggest(session: Session, project: m.Project) -> m.StaffingPlan:
     )
     session.add(plan)
     session.flush()
+    from .task_routing import prepare, setup_form
+
+    content = deepcopy(content)
+    form = setup_form(session, project)
+    content["routing_mode"] = form["worker_mode"] if form else "automatic"
+    prepare(session, plan, content)
+    plan.content, plan.content_hash = content, digest(content)
     session.add(
         m.StaffingRevision(
             org_id=plan.org_id, plan_id=plan.id, version=1, content=content, content_hash=plan.content_hash
@@ -217,6 +225,8 @@ def validate(session: Session, plan: m.StaffingPlan, content: dict) -> None:
 
 
 def approve(session: Session, plan: m.StaffingPlan, user: m.User) -> None:
+    from .task_routing import TaskRequirements
+
     validate(session, plan, plan.content)
     approval = m.Approval(
         id=uid(),
@@ -240,7 +250,15 @@ def approve(session: Session, plan: m.StaffingPlan, user: m.User) -> None:
             objective=row["objective"],
             acceptance=row["acceptance"],
             status="awaiting_repository" if row["kind"] == "coding" else "blocked",
-            payload={"mode": plan.content["mode"], "staffing_plan_id": plan.id, "plan_key": row["key"]},
+            payload={
+                "mode": plan.content["mode"],
+                "staffing_plan_id": plan.id,
+                "plan_key": row["key"],
+                "routing_mode": plan.content.get("routing_mode", "automatic"),
+                "task_requirements": {key: row[key] for key in TaskRequirements.model_fields if key in row},
+                "project_version": session.get(m.Project, plan.project_id).version,
+                "requirement_version": plan.content["requirement_version"],
+            },
             budget_micro=row["budget_micro"],
         )
         session.add(task)
@@ -303,8 +321,30 @@ def task_ready(session: Session, task: m.Task) -> bool:
                 m.Approval.version == plan.version,
             )
         )
-        if not approval or approval.expires_at <= now() or approval.subject_hash != digest(plan.content):
+        owner = session.get(m.User, approval.owner_id) if approval else None
+        if (
+            not approval
+            or approval.expires_at <= now()
+            or approval.subject_hash != digest(plan.content)
+            or plan.content_hash != approval.subject_hash
+            or not owner
+            or not owner.enabled
+            or owner.org_id != task.org_id
+            or owner.role != "owner"
+        ):
             return False
+        if "task_requirements" in task.payload:
+            from .task_routing import TaskRequirements
+
+            source = next(
+                (row for row in plan.content["tasks"] if row["key"] == task.payload["plan_key"]), None
+            )
+            if not source or task.payload["task_requirements"] != {
+                key: source[key] for key in TaskRequirements.model_fields if key in source
+            }:
+                return False
+            if task.payload["routing_mode"] != plan.content.get("routing_mode", "automatic"):
+                return False
     return not session.scalar(
         select(m.Task.id)
         .join(m.TaskDependency, m.TaskDependency.depends_on == m.Task.id)
@@ -445,9 +485,7 @@ def pause_workflow(session: Session, workflow: m.Workflow, resume: bool) -> None
 
 def evidence(session: Session, plan: m.StaffingPlan) -> dict:
     from .api_common import serialize
-    from .gateway import eligible_models
-    from .model_routing import apply_policies
-    from .providers import configured
+    from .task_routing import decision
 
     tasks = [
         task
@@ -461,39 +499,22 @@ def evidence(session: Session, plan: m.StaffingPlan) -> dict:
     )
     quotes = []
     for row in plan.content["tasks"]:
-        agent = session.get(m.Agent, row["agent_id"])
-        capabilities = {"structured", "coding"} if row["kind"] == "coding" else {"structured"}
-        candidates = eligible_models(
-            session,
-            plan.org_id,
-            plan.content["mode"],
-            capabilities,
-            85 if row["kind"] == "coding" else 70,
-            "internal",
-            32768,
-            agent.routing_policy,
-        )
-        candidates = apply_policies(session, agent, plan.project_id, candidates, None)
+        selection = decision(session, session.get(m.Project, plan.project_id), plan.content, row)
+        candidates = selection["candidates"]
         quotes.append(
             {
                 "key": row["key"],
-                "capabilities": sorted(capabilities),
-                "token_allowance": {"input": 32768, "output": 2048},
-                "estimate_micro": token_cost(candidates[0][0], 32768, 2048)
+                "selection": selection,
+                "capabilities": selection["capabilities"],
+                "token_allowance": {"input": selection["minimum_context_tokens"], "output": 2048},
+                "estimate_micro": token_cost(
+                    session.get(m.ModelConfig, candidates[0]["id"]), selection["minimum_context_tokens"], 2048
+                )
                 * (9 if row["kind"] == "coding" else 1)
                 if candidates
                 else None,
                 "basis": "upper token allowance; coding includes up to three author/review rounds; actual gateway selection rechecked",
-                "models": [
-                    {
-                        "id": model.id,
-                        "identifier": model.identifier,
-                        "provider": provider.name,
-                        "configured": configured(provider),
-                        "capabilities": model.capabilities,
-                    }
-                    for model, provider in candidates[:8]
-                ],
+                "models": candidates,
             }
         )
     budget = session.scalar(

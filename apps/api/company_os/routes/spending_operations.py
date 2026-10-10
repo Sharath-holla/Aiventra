@@ -78,6 +78,9 @@ async def resume_free(
     if pool is not None:
         candidates = [(model, provider) for model, provider in candidates if model.id in pool]
     candidates = apply_policies(session, agent, config.get("project_id"), candidates, override)
+    from ..task_routing import constrain
+
+    candidates = constrain(session, workflow, agent, candidates)
     candidates = review_candidates(
         session, candidates, config.get("review_against", []), config.get("review_policy", "prefer_provider")
     )

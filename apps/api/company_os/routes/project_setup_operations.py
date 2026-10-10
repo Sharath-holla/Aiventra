@@ -13,10 +13,10 @@ from .. import project_setup as setup
 from .. import spending
 from ..artifacts import save_artifact
 from ..db import session_dependency
+from ..document_imports import MAX_UPLOAD, parse_document
 from ..schemas import Strict
 from ..security import audit, clean, digest, owner
 from ..staffing import lock_org
-from ..uploads import parse_text
 
 router = APIRouter()
 
@@ -196,30 +196,41 @@ async def upload(
     file: UploadFile,
     version: Annotated[int, Form(ge=1)],
     request_id: Annotated[UUID, Form()],
+    replace_id: Annotated[str | None, Form()] = None,
     user: m.User = Depends(owner),
     session: Session = Depends(session_dependency),
 ):
-    raw = await file.read(16385)
+    raw = await file.read(MAX_UPLOAD + 1)
     name = file.filename or ""
-    content = parse_text(name, raw, strict_json=True)
+    content, metadata = await parse_document(name, raw)
     data = Command(version=version, request_id=request_id)
 
     # Bind upload retries to the actual document, not just its command envelope.
     class Upload(Command):
         document_hash: str
         name: str
+        replace_id: str | None
 
-    upload_data = Upload(**data.model_dump(), document_hash=digest(content), name=name)
+    upload_data = Upload(
+        **data.model_dump(), document_hash=metadata["source_sha256"], name=name, replace_id=replace_id
+    )
 
     def operation(row):
         if row.status != "draft":
             raise HTTPException(409, "Attachments cannot change after submission")
         attachments = row.data["attachments"]
-        if len(attachments) >= 6 or sum(item["bytes"] for item in attachments) + len(raw) > 65536:
-            raise HTTPException(413, "Draft supports six documents and 64 KB total")
+        previous = next((item for item in attachments if item["id"] == replace_id), None)
+        if replace_id and not previous:
+            raise HTTPException(404, "Attachment is outside this draft")
+        attachments = [item for item in attachments if item["id"] != replace_id]
+        if len(attachments) >= 6 or sum(item["bytes"] for item in attachments) + len(raw) > 2 * MAX_UPLOAD:
+            raise HTTPException(413, "Draft supports six documents and 2 MB total")
         artifact = save_artifact(session, user.org_id, name, content, kind="project_requirement_attachment")
         form = row.data["form"]
-        if not form["text"].strip():
+        previous_artifact = session.get(m.Artifact, previous["id"]) if previous else None
+        if not form["text"].strip() or (
+            previous_artifact and form["text"] == previous_artifact.content[:30000]
+        ):
             form = {**form, "text": artifact.content[:30000]}
         row.data = {
             **row.data,
@@ -233,12 +244,49 @@ async def upload(
                     "bytes": len(raw),
                     "redacted": content != artifact.content,
                     "parsed": True,
+                    **metadata,
+                    "replaces": replace_id,
                 },
             ],
         }
         row.version += 1
 
     return transaction(session, lambda: change(session, user, record_id, upload_data, "uploaded", operation))
+
+
+@router.post("/project-drafts/{record_id}/attachments/{attachment_id}/remove")
+def remove_attachment(
+    record_id: str,
+    attachment_id: str,
+    data: Command,
+    user: m.User = Depends(owner),
+    session: Session = Depends(session_dependency),
+):
+    class Removal(Command):
+        attachment_id: str
+
+    def operation(row):
+        if row.status != "draft":
+            raise HTTPException(409, "Attachments cannot change after submission")
+        items = row.data["attachments"]
+        if not any(item["id"] == attachment_id for item in items):
+            raise HTTPException(404, "Attachment is outside this draft")
+        previous = session.get(m.Artifact, attachment_id)
+        form = row.data["form"]
+        if previous and form["text"] == previous.content[:30000]:
+            form = {**form, "text": ""}
+        # Preserve private source artifacts and audit history; unlink only the active draft reference.
+        row.data = {
+            **row.data,
+            "form": form,
+            "attachments": [item for item in items if item["id"] != attachment_id],
+        }
+        row.version += 1
+
+    command = Removal(**data.model_dump(), attachment_id=attachment_id)
+    return transaction(
+        session, lambda: change(session, user, record_id, command, "attachment_removed", operation)
+    )
 
 
 @router.post("/project-drafts/{record_id}/submit")

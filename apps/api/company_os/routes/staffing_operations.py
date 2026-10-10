@@ -11,6 +11,7 @@ from ..api_common import serialize
 from ..db import now, session_dependency
 from ..schemas import Strict
 from ..security import audit, check_agent, clean, digest, owner, scoped
+from ..task_routing import TaskRequirements, prepare
 
 router = APIRouter()
 
@@ -20,7 +21,7 @@ class Allocation(Strict):
     slots: int = Field(ge=1, le=2)
 
 
-class PlannedTask(Strict):
+class PlannedTask(TaskRequirements):
     key: str = Field(pattern=r"^[a-z0-9_-]{1,40}$")
     agent_id: str
     kind: Literal["document", "coding"]
@@ -32,6 +33,7 @@ class PlannedTask(Strict):
 
 
 class PlanContent(Strict):
+    routing_mode: Literal["automatic", "manual", "hybrid"] = "automatic"
     planner: str = Field(
         pattern=r"^(policy-rules-v1 \(deterministic planning, no AI call\)|agent-chain:[a-f0-9-]{36})$"
     )
@@ -92,6 +94,7 @@ def revise(
         raise HTTPException(422, "Planner provenance cannot be changed by editing the draft")
     try:
         staffing.validate(session, plan, content)
+        prepare(session, plan, content)
     except (ValueError, PermissionError) as exc:
         raise HTTPException(422, str(exc)) from None
     plan.content, plan.content_hash, plan.version = content, digest(content), plan.version + 1

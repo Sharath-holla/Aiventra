@@ -87,10 +87,37 @@ test("workforce UI edits exact staffing, approves real tasks, pauses and recover
     .selectOption("mock");
   await page.getByLabel("Staffing concurrency", { exact: true }).fill("1");
   await page
+    .getByLabel("Task model selection mode", { exact: true })
+    .selectOption("hybrid");
+  await page
     .getByRole("button", { name: "Save workforce changes", exact: true })
     .click();
   await expect(
     page.getByRole("heading", { name: "Team proposal · v2", exact: true }),
+  ).toBeVisible();
+  const requirementCard = page.locator("details.allocation-task").filter({
+    has: page.getByLabel("Objective requirements", { exact: true }),
+  });
+  await requirementCard.locator(":scope > summary").click();
+  const taskModel = page.getByLabel("Model requirements", { exact: true });
+  await expect(taskModel.locator("option").nth(1)).toBeAttached();
+  const modelId = await taskModel
+    .locator("option")
+    .nth(1)
+    .getAttribute("value");
+  expect(modelId).toBeTruthy();
+  await taskModel.selectOption(modelId!);
+  await page
+    .getByRole("button", { name: "Save workforce changes", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Team proposal · v3", exact: true }),
+  ).toBeVisible();
+  await expect(
+    requirementCard.getByText(
+      "Exact owner model choice passed task and zero-cost filters",
+      { exact: true },
+    ),
   ).toBeVisible();
   await page
     .getByRole("button", { name: "Approve exact workforce", exact: true })
@@ -138,7 +165,7 @@ test("workforce UI edits exact staffing, approves real tasks, pauses and recover
     await page.evaluate(() => document.documentElement.scrollWidth),
   ).toBeLessThanOrEqual(391);
   await page
-    .getByRole("heading", { name: "Team proposal · v2", exact: true })
+    .getByRole("heading", { name: "Team proposal · v3", exact: true })
     .scrollIntoViewIfNeeded();
   await page.screenshot({
     path: "../../artifacts/staffing-mobile.png",

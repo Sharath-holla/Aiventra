@@ -8,6 +8,8 @@ from ..api_common import serialize
 from ..db import now, session_dependency, uid
 from ..organization import agent_for
 from ..repositories import discover, safe_repository
+from ..repository_imports import discover as discover_github
+from ..repository_imports import repository_name
 from ..schemas import (
     CodingTaskInput,
     Strict,
@@ -132,6 +134,106 @@ class RepositoryInput(Strict):
     relative_path: str = Field(min_length=1, max_length=500)
 
 
+class GitHubImport(Strict):
+    request_id: str = Field(pattern=r"^[a-f0-9-]{36}$")
+    repository: str = Field(min_length=3, max_length=240)
+    branch: str | None = Field(default=None, max_length=100)
+
+
+@router.post("/projects/{record_id}/github-import", status_code=201)
+async def import_github(
+    record_id: str,
+    data: GitHubImport,
+    user: m.User = Depends(owner),
+    session: Session = Depends(session_dependency),
+):
+    import json
+
+    from ..artifacts import save_artifact
+    from ..staffing import lock_org
+    from ..workflows import project_authority
+
+    project = scoped(session, m.Project, record_id, user)
+    try:
+        project_authority(session, project)
+        repository = repository_name(data.repository)
+        fingerprint = digest({"project_id": project.id, "repository": repository, "branch": data.branch})
+        existing = session.get(m.BusinessRecord, data.request_id)
+        if existing:
+            if existing.org_id != user.org_id or existing.kind != "github_repository_import":
+                raise HTTPException(404, "Import not found")
+            if existing.data["request_hash"] != fingerprint:
+                raise HTTPException(409, "Import request already used for different scope")
+            return serialize(session.get(m.Repository, existing.data["repository_id"]))
+        session.commit()  # No database write lock spans GitHub HTTP.
+        report = await discover_github(repository, data.branch)
+        lock_org(session, user.org_id)
+        session.expire_all()
+        project = scoped(session, m.Project, record_id, user)
+        project_authority(session, project)
+        session.refresh(user)
+        if not user.enabled or user.role != "owner":
+            raise PermissionError("Import owner authority revoked")
+        from ..publication import GitHub
+
+        GitHub(repository)  # Recheck connector allowlist/credential availability after HTTP.
+        # A concurrent retry may have committed while HTTP was in flight.
+        existing = session.get(m.BusinessRecord, data.request_id)
+        if existing:
+            if (
+                existing.org_id != user.org_id
+                or existing.kind != "github_repository_import"
+                or existing.data["request_hash"] != fingerprint
+            ):
+                raise HTTPException(409, "Concurrent import scope conflict")
+            return serialize(session.get(m.Repository, existing.data["repository_id"]))
+        artifact = save_artifact(
+            session,
+            user.org_id,
+            "GitHub read-only architecture findings",
+            json.dumps(clean(report), ensure_ascii=False),
+            "repository_analysis",
+            project_id=project.id,
+        )
+        row = m.Repository(
+            id=uid(),
+            org_id=user.org_id,
+            project_id=project.id,
+            name=repository + " · " + report["branch"],
+            path="github://" + repository,
+            baseline_commit=report["baseline_commit"],
+            report={**clean(report), "artifact_id": artifact.id},
+        )
+        session.add(row)
+        session.flush()
+        session.add(
+            m.BusinessRecord(
+                id=data.request_id,
+                org_id=user.org_id,
+                project_id=project.id,
+                client_id=project.client_id,
+                kind="github_repository_import",
+                title="Read-only GitHub import",
+                status="recorded",
+                data={"request_hash": fingerprint, "repository_id": row.id, "artifact_id": artifact.id},
+            )
+        )
+        audit(
+            session,
+            user.org_id,
+            user.id,
+            "repository.github_discovered",
+            row.id,
+            {"commit": row.baseline_commit, "read_only": True},
+            project_id=project.id,
+        )
+        session.commit()
+        return serialize(row)
+    except (ValueError, PermissionError) as exc:
+        session.rollback()
+        raise HTTPException(422, str(exc)) from None
+
+
 @router.post("/repositories", status_code=201)
 def import_repository(
     data: RepositoryInput, user: m.User = Depends(owner), session: Session = Depends(session_dependency)
@@ -176,6 +278,10 @@ def coding_task(
     repository = scoped(session, m.Repository, data.repository_id, user)
     if repository.project_id != project.id:
         raise HTTPException(422, "Repository belongs to a different project")
+    if repository.report.get("remote_metadata_only"):
+        raise HTTPException(
+            409, "Read-only GitHub analysis requires a separate managed checkout before coding"
+        )
     task = m.Task(
         id=uid(),
         org_id=user.org_id,
@@ -245,6 +351,10 @@ def bind_coding_scope(
     repository = scoped(session, m.Repository, data.repository_id, user)
     if repository.project_id != task.project_id:
         raise HTTPException(422, "Repository belongs to another project")
+    if repository.report.get("remote_metadata_only"):
+        raise HTTPException(
+            409, "Read-only GitHub analysis requires a separate managed checkout before coding"
+        )
     task.payload = {
         **task.payload,
         **data.model_dump(),

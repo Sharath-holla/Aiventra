@@ -15,6 +15,7 @@ import { DeliveryControls } from "./delivery-controls";
 import { PackageControls } from "./package-controls";
 import { DeliveryFollowups } from "./delivery-followups";
 import { Staffing } from "./staffing";
+import { RepositoryImport } from "./repository-import";
 
 export function Projects({
   engineering,
@@ -388,6 +389,7 @@ export function Projects({
       )}
       {tab === "engineering" && (
         <>
+          <RepositoryImport key={project.id} projectId={project.id} />
           <div className="two-columns">
             <Panel
               title="Register existing repository"
@@ -464,11 +466,13 @@ export function Projects({
                     required
                   >
                     <option value="">Choose repository</option>
-                    {repos.map((r) => (
-                      <option key={r.id} value={r.id}>
-                        {r.name}
-                      </option>
-                    ))}
+                    {repos
+                      .filter((r) => !r.report.remote_metadata_only)
+                      .map((r) => (
+                        <option key={r.id} value={r.id}>
+                          {r.name}
+                        </option>
+                      ))}
                   </select>
                 </label>
                 <label>

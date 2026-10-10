@@ -179,6 +179,21 @@ async def execute[T: BaseModel](
     if workflow.mode == "mock" and not settings().mock_enabled:
         raise PermissionError("Mock execution disabled")
     from .project_setup import routing
+    from .task_routing import constrain, requirements, runtime
+
+    binding = runtime(session, workflow, agent)
+    if binding:
+        _, required_capabilities, minimum_quality = requirements(
+            {"kind": binding[0].kind, **binding[1].model_dump()}
+        )
+        capabilities = set(capabilities or {"structured"}) | required_capabilities
+        quality = max(quality, minimum_quality)
+    if project:
+        from .models import Proposal, Requirement
+
+        proposal = session.get(Proposal, project.proposal_id)
+        requirement = session.get(Requirement, proposal.requirement_id)
+        sensitivity = max((sensitivity, requirement.sensitivity), key=lambda value: SENSITIVITY[value])
 
     override, pool, selection_reason = routing(
         session, workflow, agent, step, project, work_override(session, workflow)
@@ -222,6 +237,7 @@ async def execute[T: BaseModel](
     task_class = task_class_for(session, workflow)
     upper_input = len((system + prompt + canonical(schema_json)).encode("utf-8")) + 2048
     upper_input += len(canonical(native_tools or []).encode()) + len(canonical(native_history or []).encode())
+    required_context = max(upper_input + max_output, binding[1].context_tokens if binding else 0)
     candidates = eligible_models(
         session,
         workflow.org_id,
@@ -229,11 +245,11 @@ async def execute[T: BaseModel](
         capabilities or {"structured"},
         quality,
         sensitivity,
-        upper_input + max_output,
+        required_context,
         agent.routing_policy,
         task_class,
     )
-    if agent.routing_policy == "manual" and not override:
+    if agent.routing_policy == "manual" and not override and pool != []:
         from .models import ModelPolicy
 
         selection = session.scalar(
@@ -248,6 +264,7 @@ async def execute[T: BaseModel](
         candidates = [(model, provider) for model, provider in candidates if model.id in pool]
     candidates = apply_policies(session, agent, project.id if project else None, candidates, override)
     candidates = [(model, provider) for model, provider in candidates if configured(provider)]
+    candidates = constrain(session, workflow, agent, candidates)
     candidates = review_candidates(session, candidates, review_against or [], review_policy)
     against_models = set(review_against or [])
     against_providers = {
@@ -259,7 +276,7 @@ async def execute[T: BaseModel](
         "capabilities": sorted(capabilities or {"structured"}),
         "quality": quality,
         "sensitivity": sensitivity,
-        "context_tokens": upper_input + max_output,
+        "context_tokens": required_context,
         "policy": agent.routing_policy,
         "review_against": review_against or [],
         "review_policy": review_policy,
@@ -429,6 +446,8 @@ async def execute[T: BaseModel](
         benchmark = current_profile(session, model, provider)
         run.routing_reason += f"; current_prices={model.input_price_micro_per_million}/{model.output_price_micro_per_million}; benchmark={benchmark.metrics if benchmark else 'none (registry/human evidence)'}"
         run.routing_reason += f"; spending_mode=ZERO_COST_ONLY; eligibility={decision.state}; local_evidence={decision.evidence_digest}"
+        if binding:
+            run.routing_reason += f"; task_key={binding[0].payload['plan_key']}; task_routing={binding[0].payload['routing_mode']}; difficulty={binding[1].difficulty}; risk={binding[1].risk}; required_context={required_context}; fallback_attempt={attempt}"
         session.add(run)
         session.flush()
         credential_before = credential_revision(provider, session)

@@ -133,6 +133,9 @@ def approve_proposal(session: Session, proposal: Proposal, request: Approve, use
     )
     session.add(project)
     session.flush()
+    from .project_setup import attach_project_sources
+
+    attach_project_sources(session, project, requirement)
     session.add(Budget(org_id=user.org_id, scope=f"project:{project.id}", limit_micro=project.budget_micro))
     roles = ["CTO", "Backend Team Lead", "QA Director", "Release Manager"]
     objectives = [

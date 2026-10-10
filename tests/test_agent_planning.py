@@ -130,6 +130,45 @@ async def test_no_provider_waits_without_fake_documents_or_plan_revision(http, c
         assert session.get(m.StaffingPlan, plan["id"]).version == plan["version"]
 
 
+@pytest.mark.parametrize("invalid", ["cycle", "model", "role", "tools"])
+async def test_invalid_generated_plan_does_not_complete_checkpoint(
+    http, company, requirement, monkeypatch, invalid
+):
+    from company_os import gateway
+
+    project, plan = await draft_project(http, company, requirement)
+    response = start(http, project, plan)
+    workflow_id = response.json()["workflow"]["id"]
+    original = gateway.fixture
+
+    def invalid_plan(schema, context):
+        answer = original(schema, context)
+        if schema == "ProjectPlanResult":
+            task = answer.data["tasks"][0]
+            if invalid == "cycle":
+                task["depends_on"] = [task["key"]]
+            elif invalid == "model":
+                task["recommended_model_id"] = "unknown-model"
+            elif invalid == "role":
+                task["role"] = "CEO"
+            else:
+                task["required_tools"] = ["deploy"]
+        return answer
+
+    monkeypatch.setattr(gateway, "fixture", invalid_plan)
+    for _ in range(3):
+        assert await tick(company["factory"])
+    with company["factory"]() as session:
+        workflow = session.get(m.Workflow, workflow_id)
+        assert workflow.step == 2 and workflow.status != "completed"
+        assert not session.scalar(
+            select(m.WorkflowStep).where(
+                m.WorkflowStep.workflow_id == workflow_id, m.WorkflowStep.name == "planning_2"
+            )
+        )
+        assert session.get(m.StaffingPlan, plan["id"]).version == plan["version"]
+
+
 @pytest.mark.usefixtures("contract_inference")
 async def test_local_admission_busy_does_not_spend_or_consume_attempt(
     http, company, requirement, monkeypatch
