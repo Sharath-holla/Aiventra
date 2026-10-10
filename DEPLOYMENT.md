@@ -1,5 +1,9 @@
 # Deployment
 
+## Selected local runtime — SQLite
+
+The owner selected SQLite for the active application. Use the existing Windows startup scripts and data/company.db with `REQUIRED_DATABASE_BACKEND=sqlite`; preserve records and file roots. PostgreSQL Compose/migration/pgvector infrastructure remains available for optional compatibility verification and a future explicitly requested cutover. Do not start that alternative as a replacement for the selected local database or request PostgreSQL credentials to continue development.
+
 ## Milestone 2 database transition
 
 Use DATABASE_MIGRATION.md for backed-up offline SQLite → PostgreSQL transfer; deployment must explicitly configure API and worker against the verified destination. Set `REQUIRED_DATABASE_BACKEND=postgresql` after cutover so a stale SQLite setting refuses startup. Compose pins the fence in migration/API/worker. Never use the seeded Compose database as an import destination: the transfer refuses existing records; provision an empty database/schema instead.

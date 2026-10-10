@@ -1,14 +1,16 @@
 # Next steps
 
+Current owner decision: **use SQLite only for the active application; keep PostgreSQL compatibility for later**. Do not request PostgreSQL credentials or require a database cutover before continuing development. Preserve existing SQLite records and all PostgreSQL schema/migration/pgvector/transfer infrastructure.
+
 ## Milestone 2 continuation
 
 1. Preserve the verified `af5b85c` transfer/recovery increment: [all five source CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38018391046), including actual database restart/separate restore equality. Read docs/ENTERPRISE_MILESTONE_2_SPEC.md, DATABASE_MIGRATION.md and TEST_REPORT.md. Keep ZERO_COST_ONLY and all existing tenant/approval/audit/runner boundaries; do not rerun/rebuild completed modules without a relevant change.
-2. Configure an authorized private `MIGRATION_DATABASE_URL` for a **new empty** local PostgreSQL database; verify pgvector availability/permissions. No password reset or credential guessing is authorized. Dry-run the transfer, stop every writer, apply and compare the retained snapshot, explicitly select PostgreSQL for API/worker with `REQUIRED_DATABASE_BACKEND=postgresql`, then test actual login/scoped workflows/memory/restart before admitting writes. SQLite remains active until that succeeds.
+2. Keep data/company.db active with `REQUIRED_DATABASE_BACKEND=sqlite`. PostgreSQL migration is optional and deferred until explicitly requested. Preserve DATABASE_MIGRATION.md and the verified transfer/restore tools; no PostgreSQL setup is needed to proceed to the following work.
 3. Install Ollama and an explicitly approved small local model only after sufficient memory is available. MODEL_CONFIGURATION.md records measured hardware, official installation/download commands and remaining quality tests. Disable cloud features, verify local metadata and measure real conversation/extraction/planning/coding/repair/tools/structured output. Exercise saved BA → CTO → PM handoffs and restart persistence. Failed/unsupported tasks remain waiting; fixtures never count as live results.
 4. Implement PR_PUBLICATION_WORKFLOW.md's missing least-privilege GitHub connector with exact commit/diff/target preview, versioned owner approval, non-force push, draft PR idempotency, persisted URL, CI/review retrieval and repair updates. Verify only against an explicitly authorized disposable repository; no generated PR has been published.
 5. Connect verified engineering/QA/final review to delivery artifacts/client acceptance. Finish encrypted offsite backups/PITR, runtime-role least privilege, production identity/monitoring, cluster/staging/rollback and load verification separately. Current CI restore is a disposable database drill, not production disaster recovery.
 
-External needs: authorized local PostgreSQL access/pgvector and local Ollama installation/model approval; a scoped publication connector/repository authorization for generated PRs. No paid AI API key is required or requested.
+External needs for the next live milestones: local Ollama installation/model approval and a scoped publication connector/repository authorization for generated PRs. PostgreSQL credentials are not required for the selected SQLite runtime. No paid AI API key is required or requested.
 
 ## Current enterprise continuation — after zero-cost milestone
 

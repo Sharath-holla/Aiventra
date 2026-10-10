@@ -1,5 +1,9 @@
 # Aiventra OS architecture
 
+## Current storage decision
+
+The owner selected SQLite for active application storage after the Milestone 2 increment. Keep data/company.db authoritative, with REQUIRED_DATABASE_BACKEND=sqlite in local configuration. PostgreSQL-compatible models, migrations, pgvector types/index definitions, transfer tooling and compatibility CI remain preserved for an optional future migration. The PostgreSQL Compose configuration is an alternative compatibility environment, not the selected local runtime. No PostgreSQL login or cutover is required for continued development.
+
 ## Enterprise milestone 2 — database transition foundation
 
 Published application source `af5b85c` passed [all five Actions jobs](https://github.com/Sharath-holla/Aiventra/actions/runs/38018391046), including actual PostgreSQL transfer/rollback, all-table database restart/restore equality, semantic retrieval and dedicated runner isolation. Local source remains SQLite and no local LLM is installed; TEST_REPORT.md records the exact verification boundaries.

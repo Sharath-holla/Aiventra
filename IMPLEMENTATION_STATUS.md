@@ -1,5 +1,9 @@
 # Implementation status
 
+## Current owner decision — SQLite active, PostgreSQL compatibility retained
+
+Use the existing SQLite database for the running application. PostgreSQL cutover is deferred by owner choice, rather than a blocker awaiting credentials. The local backend fence and example configuration select SQLite; all normalized tables, PostgreSQL migrations/pgvector definitions, transfer/recovery tools and optional compatibility infrastructure are retained. Continue local-model, orchestration, approved PR publication and delivery work on SQLite. Historical PostgreSQL verification below remains valid CI evidence, not authorization to migrate the owner's records.
+
 ## Current enterprise milestone 2 — PostgreSQL transfer and recovery
 
 Published source **`af5b85c13cc05ceaa350318628236452b02ad860`** passed [all five CI jobs](https://github.com/Sharath-holla/Aiventra/actions/runs/38018391046). CI verified 208 backend checks, 14 Compose browser journeys, actual SQLite → pgvector PostgreSQL transfer and failure rollback, plus all 52 table digests through a real database restart and separate pg_dump restore. Semantic retrieval and restricted runner isolation/recovery passed. Local verification passed 208 backend/14 browser checks, format/type/build and source backup validation. This completes the database transition **engineering increment**, not the entire Milestone 2 roadmap or the workstation cutover.

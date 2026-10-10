@@ -1,5 +1,9 @@
 # Implementation ledger
 
+## Owner storage preference — SQLite runtime
+
+After the verified Milestone 2 foundation, the owner selected SQLite for active use while retaining PostgreSQL structure. Local/example configuration pins the existing SQLite backend, and continuation/deployment instructions defer PostgreSQL cutover. Existing PostgreSQL-compatible models, migrations, pgvector, transfer/recovery scripts, optional Compose setup and CI are preserved. No database records are migrated or reset by this configuration/documentation change.
+
 ## Enterprise milestone 2 — safe PostgreSQL transition increment
 
 Publication: commits `a1f4367` (implementation), `d5e4b05` (indexed-vector verification correction) and **`af5b85c`** (real authentication-throttle browser handling), ordinary origin/master pushes. [Final source CI run 38018391046](https://github.com/Sharath-holla/Aiventra/actions/runs/38018391046) passed all five jobs, 208 backend checks, 14 browser journeys, 52-table transfer/rollback, real PostgreSQL restart/separate restore equality, semantic retrieval and runner isolation/recovery. Earlier CI failures were repaired without relaxing production constraints; TEST_REPORT.md records them. The follow-up documentation commit records evidence without changing application source.

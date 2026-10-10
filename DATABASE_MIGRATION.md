@@ -1,5 +1,7 @@
 # SQLite to PostgreSQL transfer and explicit cutover
 
+**Deferred by owner choice:** the application will continue using SQLite. This guide, PostgreSQL schema/pgvector definitions and transfer tooling are retained for a future explicitly requested migration. Do not perform the cutover steps or request PostgreSQL credentials as part of normal continuation.
+
 Milestone 2 implements an offline transfer tool. The existing workstation still uses SQLite: PostgreSQL 18 accepts connections on 127.0.0.1:5432, but an authorized database login and local pgvector installation have not been verified. No PostgreSQL password was guessed, reset or disclosed. No destination database was overwritten. The tool does not change `.env` or select the application's active database.
 
 ## Transfer procedure

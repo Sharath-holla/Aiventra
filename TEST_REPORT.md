@@ -1,5 +1,9 @@
 # Aiventra verification report
 
+## Owner storage preference — SQLite runtime
+
+The owner selected SQLite for active use and retained PostgreSQL compatibility. The existing private DATABASE_URL was verified as SQLite and preserved; REQUIRED_DATABASE_BACKEND=sqlite was configured locally and in the example. Four targeted startup-fence/SQLite migration/readiness checks passed (one existing dependency warning). PostgreSQL schema/migration/pgvector/transfer/Compose/CI files were preserved. No database migration or record reset occurred. This configuration/documentation increment does not claim a new full-suite run; the previously verified source evidence remains below.
+
 ## Enterprise milestone 2 — PostgreSQL transition increment, October 10, 2026
 
 **Published verified application source: `af5b85c13cc05ceaa350318628236452b02ad860`. [GitHub Actions run 38018391046](https://github.com/Sharath-holla/Aiventra/actions/runs/38018391046): all five jobs passed** (backend, frontend, secrets, dedicated runner, integration). Linux: **208 tests passed in 75.80s**, one existing dependency warning, no known dependency vulnerabilities. Compose/PostgreSQL: **14 browser journeys passed in 1.2 minutes**, actual 52-table SQLite transfer, dry-run and injected post-copy rollback, occupied-destination refusal, vault/audit/vector preservation, real 384-dimensional local semantic retrieval, saved state after service restart, and **identical digests for all 52 application tables after database-container restart and pg_dump/restore into a separate database**. Restored services returned API/worker ready. Runner isolation/recovery passed. This is actual CI infrastructure execution; no local PostgreSQL cutover, live LLM, offsite/PITR/crash-kill recovery or production certification is claimed.
