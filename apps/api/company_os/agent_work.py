@@ -44,6 +44,10 @@ async def work_step(session: Session, workflow: m.Workflow, token: str):
         from .planning import planning_step
 
         await planning_step(session, workflow, token, work, project)
+    elif work.kind == "delivery":
+        from .delivery import review_step
+
+        await review_step(session, workflow, token, work, project)
     elif work.kind == "tools":
         from .tools import tool_step
 

@@ -1,5 +1,11 @@
 # Aiventra OS architecture
 
+## Phase 5 final-review foundation
+
+`delivery.py` validates source evidence and implements bounded five-role final review; `routes/delivery_operations.py` owns tenant/owner HTTP boundaries. Existing BusinessRecord, AgentWork, Workflow/WorkflowStep, ModelRun, Message, Artifact and AuditEvent tables persist the chain without a schema/backend migration. The source manifest binds project/proposal/workforce versions, task scopes/objectives/acceptance/evidence/runs, complete documents, live engineering diff/QA/review evidence and project budget. Exact approval and author artifact/checkpoint integrity are rechecked before each role and after inference. Document paragraphs are deduplicated by hash without losing text; oversized context blocks review.
+
+The existing zero-cost gateway retrieves permission-filtered memory, reserves project/job budgets and records inference. Live coding review uses models distinct from coding authors and reviewer roles distinct from coding authors. Worker leases fence checkpoints. Saved review artifacts/run references and acknowledged hash-bound messages preserve handoffs. Findings stop at changes_required; deterministic execution ends at fixture_reviewed; live completion only prepares awaiting_delivery_approval. Existing owner agent-work cancellation preserves evidence and allows a fresh chain. Delivery release, client acceptance and staging remain separate unimplemented gates.
+
 ## Exact-approved generated PR connector
 
 `publication.py` owns bounded GitHub Git-data requests; `routes/publication_operations.py` applies owner/tenant authorization. Existing BusinessRecord/Approval/Audit tables persist immutable manifest/hash, mutable execution/recovery state, expiring exact approval and append-only evidence, requiring no database migration. Git metadata is read with explicit UTF-8 or exact binary output; generated code never executes on the API host. Configuration exposes only credential presence and repository allowlist.

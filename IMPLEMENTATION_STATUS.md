@@ -1,5 +1,17 @@
 # Implementation status
 
+## Latest increment — Phase 5 persisted final-review foundation
+
+Connector source **3db86172fa57c28662c9085fdacc0637b294773b** was pushed normally and passed [all five CI jobs](https://github.com/Sharath-holla/Aiventra/actions/runs/38047943880): 244 backend tests, 16 actual Compose browser journeys, PostgreSQL transfer/rollback/service restart/database restart/separate restore, frontend/security checks and real restricted Docker execution/recovery. Normal CI deliberately skipped embedding-weight downloads. No generated PR was published and no live AI was invoked.
+
+Phase 5 now connects approved project/workforce/task evidence to an owner-requested CTO → QA Director → Security Architect → Project Manager → CFO final review. Readiness checks current exact approvals, completed tasks, document integrity and author checkpoints, real engineering candidate evidence for live review, expected workforce tasks, budget and bounded complete review context. Repeated document paragraphs are referenced losslessly; oversized context blocks review instead of silently truncating evidence. Every stage saves an artifact, model-run reference, checkpoint, audit and hash-bound handoff. Source changes before or during inference invalidate the result. Existing scoped memory, authorization, zero-cost gateway, budgets and worker leases remain authoritative.
+
+Project → Delivery reads backend readiness, queues an exact-source review and shows saved statuses/results/errors; pause, resume and cancellation preserve checkpoints. Duplicate request IDs are idempotent and a second active chain is refused. Cancelling a stale review allows a fresh review against current evidence. Fixtures end only at `fixture_reviewed`; a successful live chain would end at `awaiting_delivery_approval`. Neither releases delivery, deploys, publishes a PR or records client acceptance. TEST_REPORT.md records observed checks.
+
+Current phase: **Phase 5 final-review foundation**, not completed client-to-delivery automation. Remaining: immutable delivery package, separate exact owner release approval, tenant-scoped client acceptance/change/defect/support workflows and actual live verification. SQLite remains active with existing data; PostgreSQL-compatible schema/migrations/pgvector/transfer/CI remain preserved. No new schema migration, provider credentials, paid inference, Ollama installation or model download was required.
+
+Local verification: full backend **257 passed**, final cross-connection/security follow-up **13 passed**, complete actual-service browser **18 passed**, production build/typecheck/format/lint/schema checks passed. Saved final-review checksum matched through actual API/worker/web restart. Initial context/criterion/browser-selector failures were repaired and are documented in TEST_REPORT.md. Source publication/CI evidence follows there after execution.
+
 ## Current increment — exact-approved GitHub PR connector
 
 Starting source `817f03c`. Implemented an owner-only scoped GitHub connector, immutable publication manifests, exact base/tree/commit checks, separate expiring owner approval and draft publication, persisted leases/reconciliation, duplicate prevention, stored CI/review feedback and two bounded separately approved repair scopes. Project Engineering now exposes actual connector configuration, candidate selection, manifest approval, publication/recovery and feedback controls. Raw Git object reads preserve UTF-8/newline bytes. No schema migration or active database cutover; SQLite and ZERO_COST_ONLY remain mandatory.

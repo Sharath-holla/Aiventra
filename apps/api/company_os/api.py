@@ -11,6 +11,7 @@ from .routes import (
     business,
     consultation,
     conversations,
+    delivery_operations,
     engineering,
     identity,
     memory_operations,
@@ -51,5 +52,6 @@ for router in (
     staffing_operations.router,
     spending_operations.router,
     publication_operations.router,
+    delivery_operations.router,
 ):
     app.include_router(router)

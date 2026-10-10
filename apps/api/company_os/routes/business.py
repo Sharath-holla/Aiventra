@@ -80,8 +80,8 @@ def update_record(
     session: Session = Depends(session_dependency),
 ):
     record = scoped(session, m.BusinessRecord, record_id, user)
-    if record.kind == "github_publication":
-        raise HTTPException(409, "Publication records use exact approval and reconciliation controls")
+    if record.kind in {"github_publication", "delivery_review"}:
+        raise HTTPException(409, "Publication and final-review records use their dedicated workflow controls")
     session.execute(
         update(m.Organization).where(m.Organization.id == user.org_id).values(paused=m.Organization.paused)
     )

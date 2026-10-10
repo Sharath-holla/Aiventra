@@ -1,5 +1,14 @@
 # Next steps
 
+## Next Phase 5 increment
+
+Connector source `3db8617` passed [all five CI jobs](https://github.com/Sharath-holla/Aiventra/actions/runs/38047943880). Preserve exact approval, Git-object verification, reconciliation and separate repair scopes. Do not publish a generated remote PR without exact owner approval.
+
+1. Verify/publish the persisted final-review foundation in IMPLEMENTATION_STATUS.md and TEST_REPORT.md. Preserve source-change fences, negative-review stops, explicit fixture terminal state and connected Delivery controls.
+2. Build an immutable delivery package from a completed **live**, current-source final review: requirements, exact source/PR references, real QA/build results, documentation, known risks and deployment readiness. Require separate exact owner release approval. Never convert fixture_reviewed into a live release or invent a deployed preview.
+3. Add tenant-scoped client package access and exact-version acceptance, changes, rejection and defect/support workflows, retaining revision history and append-only audit. Use clearly labeled persisted fixtures without claiming client delivery.
+4. Ollama/model installation and weights remain unauthorized. Real local AI needs explicit setup authorization and measured resources. Product GitHub publication additionally needs scoped connector configuration, a genuine live coding candidate and exact owner approval. ZERO_COST_ONLY and active SQLite remain mandatory; PostgreSQL cutover is deferred.
+
 ## Latest milestone 3 continuation
 
 Read docs/ENTERPRISE_MILESTONE_3_SPEC.md first. Preserve the local runtime hardening, SQLite concurrency/recovery checks and saved BA → CTO → PM planning workflow described in IMPLEMENTATION_STATUS.md. Keep SQLite active; no PostgreSQL cutover is authorized.

@@ -1,5 +1,25 @@
 # Aiventra verification report
 
+## Phase 5 final-review continuation — October 10, 2026
+
+Starting source **3db86172fa57c28662c9085fdacc0637b294773b** passed [all five connector CI jobs](https://github.com/Sharath-holla/Aiventra/actions/runs/38047943880). Actual CI evidence: **244 backend tests in 80.34s**, **16 Compose browser journeys in 1.2m**, successful PostgreSQL transfer/rollback and saved service restarts, all **52 table digests** identical after database restart and separate pg_dump/restore, and actual dedicated Docker runner isolation/tests/build/cancellation/result recovery. Normal CI intentionally skipped embedding-weight downloads; no generated PR or live AI was verified or published.
+
+New Phase 5 local checks: complete backend/security/integration suite **257 passed in 323.47s**, one existing Starlette/httpx warning. Before the final concurrency hardening, focused final-review tests passed **12 in 24.19s**. The final 13-test follow-up and browser/build results are recorded below after execution. Ruff, Prettier and strict TypeScript passed; Alembic reports no new upgrade operations. Active SQLite read-only checks: integrity `ok`, zero foreign-key violations, WAL and busy_timeout 30000; REQUIRED_DATABASE_BACKEND=sqlite and AI_SPENDING_MODE=ZERO_COST_ONLY. Managed services were stopped for resource-safe verification without deleting records.
+
+Coverage includes saved requirement/proposal/workforce approval and actual document execution, five review artifacts/model-run references/checkpoints, four acknowledged handoffs, connection reopen, pause/resume, idempotency and active-chain deduplication, expired workforce approval, task/document/budget invalidation, owner/tenant denial, disabled reviewer, oversized complete context, negative findings/incomplete criterion coverage, cancellation/requeue and no fixture delivery. A separate-connection source edit during inference must prevent accepting a review. Coding fixtures explicitly fail live readiness and cannot certify engineering.
+
+Repaired initial failures: all eight initial final-review tests hit an overly small complete-context cap because fixture documents repeat the full proposal. Lossless hash-referenced paragraph deduplication retains every character and fits the bounded context. The next run exposed an invalid test status (422 before the protected route) and incomplete criteria incorrectly entering generic retry; the test uses a valid status and incomplete assessment now requires owner attention. Later inspection found SQLAlchemy cached source state after inference; post-inference organization locking plus expire_all reloads competing edits before checkpoint publication. No production restriction or assertion was removed to make these checks pass.
+
+Verification boundaries: deterministic adapters exercise real persisted workflows; they establish no live model quality, generated GitHub publication, deployment, owner-released delivery or client acceptance. Windows Docker/Ollama remain absent. CI infrastructure evidence belongs to its exact source/run. No paid inference, model installation/download, active database migration or real generated PR publication occurred.
+
+Final concurrency follow-up: **13 passed in 28.39s**, including a separate database connection editing source during inference. The final optimized production build, strict TypeScript, Prettier and Ruff passed. Actual managed API/worker/web restart retained identical final-review evidence: one job/workflow/review record, five artifacts/runs/checkpoints and four acknowledged messages; SHA-256 `62a17720cf95ca2f34d2cc6e437519cc9ea3606fdcf6f700e068b0ecb37ed5d8` matched before/after.
+
+Initial 18-journey browser run: **17 passed, one failed in 4.6m**. The new end-to-end fixture had already reached fixture_reviewed with five saved results and four handoffs; its final assertion accidentally matched the five nested evidence summaries as well as the parent summary. The selector now explicitly selects the direct child; the complete suite is rerun before publication. No backend workflow result was fabricated to repair the assertion.
+
+Corrected complete actual-service browser suite: **18 passed in 4.8m**, including both new Delivery tests, persisted five-role fixture review, four acknowledged handoffs, reload, configuration/blockers and all existing authentication/security/native/memory/workforce journeys. The dark Delivery readiness screenshot was visually inspected. Staged secret scan: **231 blobs, zero findings**. Pushed-source CI is reported separately by exact commit/run after verification.
+
+Final Delivery readiness/mobile follow-up: **one passed in 5.5s** against the actual service, including 390px document-width verification. No frontend route mocking was used.
+
 ## GitHub connector continuation — October 10, 2026
 
 Started at `817f03c`. SQLite remains authoritative; no schema/data migration, local model installation/download, paid inference or generated remote PR publication. All new GitHub responses and live-shaped engineering metadata in `tests/test_publication.py` are explicitly labeled protocol fixtures, not actual GitHub/Docker/AI evidence.

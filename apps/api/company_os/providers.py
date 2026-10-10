@@ -408,6 +408,13 @@ def fixture(schema_name: str, context: dict) -> Response:
             + "\n\nLive specialist analysis remains pending.",
             "acceptance_checks": ["Artifact saved with content hash", "Scope preserved; no external changes"],
         }
+    elif schema_name == "DeliveryReviewResult":
+        data = {
+            "approved": True,
+            "summary": "Explicit deterministic final-review fixture; no live verification, release or client acceptance.",
+            "checked_criteria": list(range(len(context["acceptance"]))),
+            "findings": [],
+        }
     elif schema_name == "MeetingDecision":
         data = {
             "summary": "Explicit fixture meeting; live deliberation remains pending.",

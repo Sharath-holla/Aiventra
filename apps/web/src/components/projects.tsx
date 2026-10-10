@@ -11,6 +11,7 @@ import { api, date, money } from "@/lib/api";
 import type { Task } from "@/lib/types";
 import { Badge, Button, Empty, Panel, Pretty, useApp } from "./common";
 import { PublicationControls } from "./publication-controls";
+import { DeliveryControls } from "./delivery-controls";
 
 export function Projects({
   engineering,
@@ -159,18 +160,26 @@ export function Projects({
       </div>
       {assigning && <SpecialistAssignment projectId={project.id} />}
       <div className="tabs">
-        {["board", "timeline", "dependencies", "engineering", "artifacts"].map(
-          (t) => (
-            <button
-              key={t}
-              className={tab === t ? "active" : ""}
-              onClick={() => setTab(t)}
-            >
-              {t.charAt(0).toUpperCase() + t.slice(1)}
-            </button>
-          ),
-        )}
+        {[
+          "board",
+          "timeline",
+          "dependencies",
+          "engineering",
+          "delivery",
+          "artifacts",
+        ].map((t) => (
+          <button
+            key={t}
+            className={tab === t ? "active" : ""}
+            onClick={() => setTab(t)}
+          >
+            {t.charAt(0).toUpperCase() + t.slice(1)}
+          </button>
+        ))}
       </div>
+      {tab === "delivery" && (
+        <DeliveryControls key={project.id} projectId={project.id} />
+      )}
       {tab === "board" && (
         <div className="kanban">
           {[

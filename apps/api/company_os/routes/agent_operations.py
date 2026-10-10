@@ -334,6 +334,17 @@ def cancel_work(
     workflow_state(
         session, workflow, "BLOCKED", {"reason": "owner cancelled; in-flight usage may still be charged"}
     )
+    if work.kind == "delivery":
+        review = session.get(m.BusinessRecord, work.subject_id)
+        if review and review.org_id == work.org_id and review.kind == "delivery_review":
+            review.status = "cancelled"
+            review.version += 1
+            work.result = {
+                **work.result,
+                "status": "cancelled",
+                "delivery_released": False,
+                "client_accepted": False,
+            }
     for task in children:
         task.status = "cancelled"
         child = session.scalar(select(m.Workflow).where(m.Workflow.task_id == task.id))
