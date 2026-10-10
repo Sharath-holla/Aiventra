@@ -1,5 +1,9 @@
 # Aiventra existing-project audit
 
+## PR connector continuation audit
+
+Source `817f03c` previously passed all five CI jobs. The next missing connector is now implemented with owner-only exact manifest approval, scoped server credential reference/allowlist, verified Git object hashes, durable reconciliation and bounded review repair scopes. Contract fixtures exercise remote responses; no live GitHub publication, live AI candidate or complete delivery is claimed. SQLite remains active and no provider/model installation or paid inference occurred. Current test evidence belongs in TEST_REPORT.md; older missing-feature statements below describe their historical source snapshots.
+
 ## Milestone 2 source audit
 
 Published source `af5b85c` passed [all five CI jobs](https://github.com/Sharath-holla/Aiventra/actions/runs/38018391046), including 208 backend checks, 14 browser journeys, real transfer/failure rollback, actual PostgreSQL restart/separate restore equality and dedicated runner recovery. Local PostgreSQL authorization and live LLM execution remain unverified.

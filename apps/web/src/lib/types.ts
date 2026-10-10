@@ -192,6 +192,8 @@ export interface Meeting extends Entity {
   decision: Json;
 }
 export interface BusinessRecord extends Entity {
+  project_id: string | null;
+  client_id: string | null;
   kind: string;
   title: string;
   status: string;

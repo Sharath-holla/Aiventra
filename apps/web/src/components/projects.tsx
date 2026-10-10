@@ -10,6 +10,7 @@ import {
 import { api, date, money } from "@/lib/api";
 import type { Task } from "@/lib/types";
 import { Badge, Button, Empty, Panel, Pretty, useApp } from "./common";
+import { PublicationControls } from "./publication-controls";
 
 export function Projects({
   engineering,
@@ -483,6 +484,7 @@ export function Projects({
               />
             )}
           </Panel>
+          <PublicationControls projectId={project.id} tasks={tasks} />
         </>
       )}
       {tab === "artifacts" && (

@@ -1,5 +1,21 @@
 # Aiventra verification report
 
+## GitHub connector continuation — October 10, 2026
+
+Started at `817f03c`. SQLite remains authoritative; no schema/data migration, local model installation/download, paid inference or generated remote PR publication. All new GitHub responses and live-shaped engineering metadata in `tests/test_publication.py` are explicitly labeled protocol fixtures, not actual GitHub/Docker/AI evidence.
+
+- Initial complete backend run: **233 passed in 295.10s**, one existing Starlette/httpx warning. Later expiry/lease/pause/owner/UTF-8 edge checks: **15 passed in 184.53s**. The saved full run from the interrupted session completed with **244 passed**, one warning, reported wall time 12,596.89s. Subsequent preview deduplication, source binding at approval/repair and expired uncertain-publication assertions are checked separately before commit and by the entire pushed-source CI suite.
+- Owner approval and exact manifest/task/evidence/commit binding, current proposal/repository authorization, expired approvals, remote base/branch/blob/tree/commit mismatch, no-force behavior, duplicate PR prevention, lost PR responses and interrupted leases are covered. Saved CI/reviews and two separately approved idempotent repair scopes are covered without real network publication.
+- Strict TypeScript, Prettier, optimized Next.js build and Ruff passed, including the final polling/redaction correction. Alembic reports no new upgrade operations. Production npm audit: zero known vulnerabilities. Backend pip-audit: no known vulnerabilities; the local application package is not published on PyPI and cannot be audited there.
+- Earlier browser run: **11 passed, five failed** in 10.2 minutes. It exposed slow company-state reloads, failed native cleanup and an incorrect new portfolio selector. Profiling one read-only state response found 4,112 repeated environment scans (7 million function calls, 8.831s with profiler). Sharing a **fresh per-response** secret snapshot measured 2.329s for 4,249 returned rows without dropping data; polling now schedules its next request only after the previous request finishes. Secret rotation remains covered by regression testing. The new selector now matches the actual portfolio card. Corrected full browser evidence is recorded below after execution.
+- Model-download restriction: normal CI no longer downloads embedding weights. The unchanged real-model semantic verification/restart scripts run only on an explicitly opted-in manual workflow dispatch. PostgreSQL/pgvector schema/transfer/restart/restore and runner verification remain enabled without weights. Do not count the gated model step as executed in normal CI.
+
+Corrected full actual-service browser run: **16 passed in 3.1 minutes**, including publication configuration/candidate controls, persisted cancellation after reload, existing desktop/mobile journeys and CSRF checks. The publication screenshot was visually inspected. No mocked frontend response or real generated PR was used.
+
+Final publication/security follow-up: **28 passed in 153.10s**, one existing dependency warning. This includes preview reuse before/after publication, exact source binding, expired uncertain publication refusing replacement, connection reopen and one-PR retry recovery. Ruff lint/format, strict TypeScript, Prettier and staged secret scan (**225 blobs, zero findings**) passed. Source CI is verified separately by commit/run after push; no local Docker execution is claimed.
+
+Prior source `817f03cde762d1e705434b918fd09a1b5cd434b8` passed [all five CI jobs](https://github.com/Sharath-holla/Aiventra/actions/runs/38023771771): 223 backend tests, 15 browser journeys, actual PostgreSQL/pgvector/embedding transfer/restart/restore and restricted Docker runner execution/recovery. Those historical real-embedding results do not authorize new model downloads or establish live AI coding.
+
 ## Milestone 3 local runtime/planning increment — October 10, 2026
 
 Starting source: clean `7ab79cb`. Active database remains SQLite; no data/schema migration. Read-only hardware inventory and failed loopback probe establish Ollama absence, not model failure. No model installation/download/inference or paid API call occurred.

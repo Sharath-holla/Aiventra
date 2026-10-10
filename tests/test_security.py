@@ -47,6 +47,27 @@ def test_ceo_cannot_author_code(http):
     assert http.patch(f"/agents/{ceo['id']}", json={"tools": ["propose_patch"]}).status_code == 403
 
 
+def test_state_redacts_nested_records_and_observes_secret_rotation(http, company, monkeypatch):
+    from company_os.models import BusinessRecord
+
+    for value in ("controlled-first-private-value", "controlled-rotated-private-value"):
+        monkeypatch.setenv("FIXTURE_ROTATING_SECRET", value)
+        with company["factory"]() as session:
+            session.add(
+                BusinessRecord(
+                    org_id=company["org"].id,
+                    kind="document",
+                    title="Redaction fixture",
+                    data={"nested": [{"content": "café " + value}]},
+                )
+            )
+            session.commit()
+        response = http.get("/state")
+        assert response.status_code == 200
+        assert value not in response.text
+        assert "café [REDACTED]" in response.text
+
+
 def test_agent_permissions_record_denial(company):
     with company["factory"]() as session:
         ceo = session.scalar(select(Agent).where(Agent.role == "CEO"))

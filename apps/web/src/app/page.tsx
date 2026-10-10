@@ -285,10 +285,23 @@ export default function Home() {
   }, []);
   useEffect(() => {
     if (!user || user.role !== "owner") return;
-    const timer = setInterval(() => {
-      refresh().catch((exc) => setError(exc.message));
-    }, 5000);
-    return () => clearInterval(timer);
+    let disposed = false;
+    let timer: ReturnType<typeof setTimeout>;
+    const poll = async () => {
+      try {
+        await refresh();
+      } catch (exc) {
+        if (!disposed)
+          setError(exc instanceof Error ? exc.message : "Refresh failed");
+      } finally {
+        if (!disposed) timer = setTimeout(poll, 5000);
+      }
+    };
+    timer = setTimeout(poll, 5000);
+    return () => {
+      disposed = true;
+      clearTimeout(timer);
+    };
   }, [user, refresh]);
   const login = async (event: React.FormEvent) => {
     event.preventDefault();

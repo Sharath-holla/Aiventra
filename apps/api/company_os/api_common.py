@@ -5,13 +5,14 @@ from . import models as m
 from .security import clean
 
 
-def serialize(row):
+def serialize(row, secrets=None):
     return clean(
         {
             column.name: getattr(row, column.name)
             for column in row.__table__.columns
             if column.name not in {"password_hash", "audit_head", "ciphertext"}
-        }
+        },
+        secrets,
     )
 
 

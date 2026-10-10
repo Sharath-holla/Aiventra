@@ -1,5 +1,11 @@
 # Aiventra OS architecture
 
+## Exact-approved generated PR connector
+
+`publication.py` owns bounded GitHub Git-data requests; `routes/publication_operations.py` applies owner/tenant authorization. Existing BusinessRecord/Approval/Audit tables persist immutable manifest/hash, mutable execution/recovery state, expiring exact approval and append-only evidence, requiring no database migration. Git metadata is read with explicit UTF-8 or exact binary output; generated code never executes on the API host. Configuration exposes only credential presence and repository allowlist.
+
+Preview checks live coding/review/QA evidence and remote base without remote mutation. Publication uses deterministic approved Git objects, a persisted lease, per-stage authority checks and branch/PR reconciliation after uncertain requests. Feedback is bound to the approved remote head. Bounded repairs create new awaiting-approval coding tasks with untrusted saved feedback; existing runner/review/budget gates remain authoritative. See PR_PUBLICATION_WORKFLOW.md. This is fixture-verified infrastructure, not verified remote publication or live AI delivery.
+
 ## Milestone 3 local runtime and saved planning increment
 
 SQLite remains the active development database; this increment adds no tables or migration and preserves PostgreSQL/pgvector compatibility. Every SQLite connection explicitly sets WAL, foreign keys and a 30-second busy timeout. Local inference admission uses a database-wide organization-row mutex and persisted started model runs/worker leases, serializing competing worker processes before reservation. Busy admission leaves work queued with a short backoff and consumes no inference attempt or cost. No write transaction spans the daemon metadata request.

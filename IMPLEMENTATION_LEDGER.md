@@ -1,5 +1,9 @@
 # Implementation ledger
 
+## GitHub connector continuation
+
+Started from `817f03c`. Added separate owner-only GitHub publication domain/router and connected Engineering controls. Persisted exact manifests, one-hour approvals, five-minute recovery leases, Git object verification, no-force branch/draft creation, duplicate reconciliation, bounded CI/review evidence and two idempotent separately approved repair scopes. No database migration, paid inference, model installation or real generated PR publication. TEST_REPORT.md records exact local/CI evidence and unresolved live boundaries.
+
 ## Milestone 3 — local execution foundation and saved planning
 
 Started from clean `7ab79cb`. Preserved SQLite records/backend, all existing PostgreSQL/pgvector migration/transfer tools and mandatory ZERO_COST_ONLY. Rechecked hardware and local Ollama absence without downloading or invoking a model. Added native idle cancellation/timeout cleanup, local resource/stop/capability controls, persisted local admission, explicit SQLite busy timeout, durable BA → CTO → PM artifacts/messages/checkpoints and an exact-approved workforce revision path. Added integrated planning UI and explicit deterministic browser fixture, SQLite multiwriter/WAL/process-death tests and planning service-restart digest checks in CI. TEST_REPORT.md records exact completed checks and failures repaired. No real model response, live benchmark, generated remote PR, Docker workstation execution or complete client delivery is claimed.

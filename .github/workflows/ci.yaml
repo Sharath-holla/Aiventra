@@ -1,5 +1,15 @@
 name: verify
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      allow_model_downloads:
+        description: 'Explicitly authorize embedding model weights download for this CI run'
+        type: boolean
+        default: false
+env:
+  AIVENTRA_ALLOW_MODEL_DOWNLOADS: ${{ github.event_name == 'workflow_dispatch' && inputs.allow_model_downloads }}
 permissions: {contents: read}
 jobs:
   runner:
@@ -72,6 +82,7 @@ jobs:
       - name: Verify SQLite transfer, safe refusal and transactional rollback on real PostgreSQL
         run: docker compose exec -T -e CI=true api python - < scripts/verify_database_transfer.py
       - name: Verify actual local embeddings and PostgreSQL vector retrieval
+        if: env.AIVENTRA_ALLOW_MODEL_DOWNLOADS == 'true'
         run: |
           docker compose exec -T api python -m company_os.embeddings --download
           docker compose exec -T api python - --prepare < scripts/verify_semantic_memory.py
@@ -80,7 +91,9 @@ jobs:
       - name: Verify durable conversations across actual service restarts
         run: |
           docker compose exec -T api python - < scripts/verify_conversation_recovery.py > /tmp/conversations-before.json
-          docker compose exec -T api python - < scripts/verify_semantic_memory.py > /tmp/memory-before.json
+          if [ "$AIVENTRA_ALLOW_MODEL_DOWNLOADS" = true ]; then
+            docker compose exec -T api python - < scripts/verify_semantic_memory.py > /tmp/memory-before.json
+          fi
           docker compose exec -T api python - < scripts/verify_staffing_recovery.py > /tmp/staffing-before.json
           docker compose exec -T api python - < scripts/verify_zero_cost_recovery.py > /tmp/zero-cost-before.json
           docker compose exec -T api python - < scripts/verify_planning_recovery.py > /tmp/planning-before.json
@@ -93,9 +106,11 @@ jobs:
           docker compose exec -T api python - < scripts/verify_conversation_recovery.py > /tmp/conversations-after.json
           cmp /tmp/conversations-before.json /tmp/conversations-after.json
           cat /tmp/conversations-after.json
-          docker compose exec -T api python - < scripts/verify_semantic_memory.py > /tmp/memory-after.json
-          cmp /tmp/memory-before.json /tmp/memory-after.json
-          cat /tmp/memory-after.json
+          if [ "$AIVENTRA_ALLOW_MODEL_DOWNLOADS" = true ]; then
+            docker compose exec -T api python - < scripts/verify_semantic_memory.py > /tmp/memory-after.json
+            cmp /tmp/memory-before.json /tmp/memory-after.json
+            cat /tmp/memory-after.json
+          fi
           docker compose exec -T api python - < scripts/verify_staffing_recovery.py > /tmp/staffing-after.json
           cmp /tmp/staffing-before.json /tmp/staffing-after.json
           cat /tmp/staffing-after.json

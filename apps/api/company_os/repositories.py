@@ -79,7 +79,7 @@ def _repository_autocrlf(root: Path, environment: dict[str, str]) -> str | None:
     return _global_autocrlf() or _system_autocrlf()
 
 
-def git(root: Path, *args: str) -> str:
+def git(root: Path, *args: str, raw: bool = False) -> str | bytes:
     environment = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
     environment.update(
         {"GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull, "GIT_TERMINAL_PROMPT": "0"}
@@ -91,14 +91,16 @@ def git(root: Path, *args: str) -> str:
     result = subprocess.run(
         ["git", *options, "-C", str(root), *args],
         capture_output=True,
-        text=True,
+        text=not raw,
+        encoding=None if raw else "utf-8",
         timeout=30,
         check=False,
         env=environment,
     )
     if result.returncode:
-        raise ValueError("Git operation failed: " + redact(result.stderr[:500]))
-    return result.stdout.strip()
+        error = result.stderr.decode(errors="replace") if raw else result.stderr
+        raise ValueError("Git operation failed: " + redact(error[:500]))
+    return result.stdout if raw else result.stdout.strip()
 
 
 def discover(root: Path) -> dict:

@@ -191,6 +191,12 @@ async def coding_step(session: Session, workflow: Workflow, token: str) -> None:
     workspace = settings().repository_root.resolve() / ".worktrees" / project.id / task.id
     context = source_context(workspace if workspace.exists() else Path(repository.path), task.objective)
     context["acceptance"] = task.acceptance
+    if task.payload.get("publication_id"):
+        context["remote_review_feedback"] = {
+            "publication_id": task.payload["publication_id"],
+            "feedback_hash": task.payload["feedback_hash"],
+            "untrusted_feedback": task.payload["feedback"],
+        }
     repair_round = task.evidence.get("repair_round", 0)
     patch_name = round_name("patch", repair_round)
     review_names = [round_name(name, repair_round) for name in ("review", "review_2")]

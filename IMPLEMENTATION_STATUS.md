@@ -1,5 +1,15 @@
 # Implementation status
 
+## Current increment — exact-approved GitHub PR connector
+
+Starting source `817f03c`. Implemented an owner-only scoped GitHub connector, immutable publication manifests, exact base/tree/commit checks, separate expiring owner approval and draft publication, persisted leases/reconciliation, duplicate prevention, stored CI/review feedback and two bounded separately approved repair scopes. Project Engineering now exposes actual connector configuration, candidate selection, manifest approval, publication/recovery and feedback controls. Raw Git object reads preserve UTF-8/newline bytes. No schema migration or active database cutover; SQLite and ZERO_COST_ONLY remain mandatory.
+
+Verification is controlled protocol/authorization testing plus actual-service browser integration. No product publication credential/repository allowlist is configured locally, and no real generated PR was published. Ollama installation/model downloads are explicitly deferred. Live AI execution and completed client delivery remain unverified. See PR_PUBLICATION_WORKFLOW.md and TEST_REPORT.md for boundaries and current results.
+
+Local evidence: saved full backend run **244 passed**; corrected full browser run **16 passed**, 3.1 minutes; strict TypeScript, formatting, production build, dependency security audits and no Alembic drift passed. Final binding/reconciliation follow-ups and pushed-source CI are recorded in TEST_REPORT.md. State serialization now takes a fresh secret snapshot per response and polling waits for completion, fixing slow reload failures while preserving all existing rows and secret rotation. Existing embedding-weight CI downloads require an explicit opted-in manual run; normal CI does not download model weights.
+
+Previous local-runtime/planning source `817f03cde762d1e705434b918fd09a1b5cd434b8` passed [all five CI jobs](https://github.com/Sharath-holla/Aiventra/actions/runs/38023771771), including 223 backend tests, 15 browser journeys, PostgreSQL/pgvector transfer/restart/restore and actual restricted-runner execution/recovery. This evidence applies to that source; the connector increment requires its own verification below.
+
 ## Current milestone 3 — local execution and saved planning
 
 Starting source `7ab79cb`, clean tree. Hardware was rechecked: Ryzen 5 5600H, 6 cores/12 threads, 7.34 GiB RAM with 1.01 GiB free, RX 6500M reporting approximately 4 GiB VRAM, C: 338.01 GiB free. Ollama executable/service/standard paths and loopback endpoint were unavailable. No runtime/model was installed or downloaded; no actual model benchmark result is claimed.

@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     execution_enabled: bool = False
     runner_url: str = "http://127.0.0.1:8090"
     runner_token: str = ""
+    github_publication_token_env: str = "AIVENTRA_GITHUB_TOKEN"
+    github_publication_repositories: str = ""
     artifact_root: Path = Path("artifacts")
     repository_root: Path = Path("data/repositories")
     provider_allowed_hosts: str = (

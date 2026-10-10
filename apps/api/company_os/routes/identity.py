@@ -19,6 +19,7 @@ from ..schemas import (
 from ..security import (
     audit,
     current_user,
+    environment_secrets,
     owner,
     password_hasher,
     token_for,
@@ -115,6 +116,9 @@ def me(user: m.User = Depends(current_user)):
 
 @router.get("/state")
 def state(user: m.User = Depends(owner), session: Session = Depends(session_dependency)):
+    # A fresh request snapshot preserves rotation while avoiding thousands of
+    # repeated process-environment scans when serializing the company history.
+    secrets = environment_secrets()
     names = {
         "departments": m.Department,
         "agents": m.Agent,
@@ -151,19 +155,19 @@ def state(user: m.User = Depends(owner), session: Session = Depends(session_depe
         "benchmark_profiles": m.BenchmarkProfile,
     }
     result = {
-        name: [serialize(row) for row in tenant_rows(session, model, user, 300)]
+        name: [serialize(row, secrets) for row in tenant_rows(session, model, user, 300)]
         for name, model in names.items()
     }
     task_ids = [row["id"] for row in result["tasks"]]
     result["dependencies"] = [
-        serialize(row)
+        serialize(row, secrets)
         for row in session.scalars(
             select(m.TaskDependency).where(
                 m.TaskDependency.task_id.in_(task_ids), m.TaskDependency.depends_on.in_(task_ids)
             )
         )
     ]
-    result["organization"] = serialize(session.get(m.Organization, user.org_id))
+    result["organization"] = serialize(session.get(m.Organization, user.org_id), secrets)
     result["runtime"] = {
         "ai_spending_mode": settings().ai_spending_mode,
         "mock_enabled": settings().mock_enabled,
