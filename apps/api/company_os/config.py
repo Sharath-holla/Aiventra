@@ -43,6 +43,10 @@ class Settings(BaseSettings):
     embedding_endpoint: str = "http://127.0.0.1:11434"
     memory_context_chars: int = Field(default=12000, ge=1000, le=24000)
     scheduler_concurrency: int = Field(default=4, ge=1, le=16)
+    ollama_context_tokens: int = Field(default=8192, ge=2048, le=32768)
+    ollama_keep_alive_seconds: int = Field(default=0, ge=0, le=300)
+    ollama_read_timeout_seconds: int = Field(default=120, ge=5, le=300)
+    ollama_request_timeout_seconds: int = Field(default=180, ge=10, le=600)
     login_window_seconds: int = Field(ge=10, le=3600, default=60)
     login_account_limit: int = Field(ge=1, le=100, default=10)
     login_source_limit: int = Field(ge=1, le=10000, default=100)

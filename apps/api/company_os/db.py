@@ -30,6 +30,7 @@ def make_engine(url: str):
         def configure(connection, _):
             cursor = connection.cursor()
             cursor.execute("PRAGMA foreign_keys=ON")
+            cursor.execute("PRAGMA busy_timeout=30000")
             cursor.execute("PRAGMA journal_mode=WAL")
             cursor.close()
 

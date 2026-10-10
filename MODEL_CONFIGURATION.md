@@ -1,5 +1,13 @@
 # Model configuration
 
+## Milestone 3 hardware recheck — October 10, 2026
+
+Read-only Windows inventory: Ryzen 5 5600H, 6 physical/12 logical cores; 7.34 GiB RAM, 1.01 GiB free at measurement; RX 6500M reporting 4 GiB and integrated AMD graphics reporting 512 MiB; C: 338.01 GiB free. No `ollama` command/service or standard executable was found; HTTP loopback metadata was unavailable. No installation/download or live benchmark was performed. GPU acceleration is unverified.
+
+Recommended first coding measurement: [Qwen2.5-Coder 0.5B, 398 MB download](https://ollama.com/library/qwen2.5-coder), then [1.5B, 986 MB](https://ollama.com/library/qwen2.5-coder:1.5b) after freeing memory. These are candidate file sizes, not usable-memory/quality promises. Download/installation approval was requested; no approval is assumed from silence.
+
+New server controls: `OLLAMA_CONTEXT_TOKENS=8192`, `OLLAMA_KEEP_ALIVE_SECONDS=0`, `OLLAMA_READ_TIMEOUT_SECONDS=120`, `OLLAMA_REQUEST_TIMEOUT_SECONDS=180`, within agent/workflow deadlines. Admission allows one local inference across workers; no hundreds of loaded models. Cold loading no longer shares the remote 15-second idle bound. Context uses the existing conservative UTF-8 routing bound and cannot silently truncate tasks; models/tasks exceeding the configured bound remain waiting. Reduce saved context/objective size for small models or measure memory before raising context. Native tools additionally require installed metadata advertising tools, and all results remain schema-validated. See the [official chat API](https://docs.ollama.com/api/chat) and [tool interface](https://docs.ollama.com/capabilities/tool-calling).
+
 ## Milestone 2 local inventory and next setup
 
 ZERO_COST_ONLY remains mandatory. Remote inference is blocked even if a credential/catalog is available; no free entitlement verifier is implemented. No disclosed chat key was installed or used. Existing encrypted vault, adapters, streaming/tool traces, benchmarks and guarded resume are preserved. No live LLM output or new provider capability is claimed.

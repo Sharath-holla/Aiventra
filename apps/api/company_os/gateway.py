@@ -20,6 +20,7 @@ from .models import (
     ModelConfig,
     ModelEvaluation,
     ModelRun,
+    Organization,
     Project,
     Provider,
     Task,
@@ -29,6 +30,7 @@ from .provider_state import probe_for
 from .providers import (
     FreeProviderUnavailable,
     HTTPAdapter,
+    LocalInferenceBusy,
     ProviderError,
     configured,
     fixture,
@@ -121,7 +123,11 @@ def eligible_models(
         if (
             not capabilities.issubset(model.capabilities)
             or model.quality < quality
-            or model.context_tokens < context_tokens
+            or min(
+                model.context_tokens,
+                settings().ollama_context_tokens if provider.kind == "ollama" else model.context_tokens,
+            )
+            < context_tokens
             or measured_quality < quality
         ):
             continue
@@ -303,12 +309,35 @@ async def execute[T: BaseModel](
         session.refresh(provider)
         if not model.enabled or not provider.enabled:
             continue
+        # No SQLite write transaction may span the local daemon's metadata network request.
+        session.commit()
         try:
             decision = await spending.authorize(provider, model)
         except spending.InferenceBlocked as exc:
             blocked_decisions.append({"model_id": model.id, **exc.decision.public()})
             continue  # An unavailable local daemon must not suppress another safe local candidate.
         if provider.kind == "ollama":
+            # Database-wide mutex covers all worker processes/tenants on this installation.
+            # Acquire before counting and keep it through the durable run reservation commit.
+            first_org = session.scalar(select(Organization.id).order_by(Organization.id).limit(1))
+            session.execute(
+                update(Organization).where(Organization.id == first_org).values(name=Organization.name)
+            )
+            busy = session.scalar(
+                select(ModelRun.id)
+                .join(ModelConfig, ModelConfig.id == ModelRun.model_id)
+                .join(Provider, Provider.id == ModelConfig.provider_id)
+                .join(Workflow, Workflow.id == ModelRun.workflow_id)
+                .where(
+                    Provider.kind == "ollama",
+                    ModelRun.status == "started",
+                    Workflow.lease_until > now(),
+                )
+                .limit(1)
+            )
+            if busy:
+                session.rollback()
+                raise LocalInferenceBusy("Waiting for the local inference slot; no request sent")
             spending.record_local(session, provider, model, decision)
         if project:
             session.refresh(project)
@@ -402,6 +431,30 @@ async def execute[T: BaseModel](
         trace = None
         last_trace = 0.0
 
+        async def check_execution(model=model, provider=provider):
+            current = session.execute(
+                select(Workflow.status, Workflow.lease_token).where(Workflow.id == workflow.id)
+            ).one()
+            if current.status != "running" or current.lease_token != workflow.lease_token:
+                raise ProviderError(
+                    "Native execution cancelled; usage reconciliation required", uncertain=True
+                )
+            session.refresh(agent)
+            session.refresh(session.get(Organization, workflow.org_id))
+            session.refresh(model)
+            session.refresh(provider)
+            if project:
+                session.refresh(project)
+            try:
+                check_agent(session, agent, "read_context", project)
+                if not model.enabled or not provider.enabled:
+                    raise PermissionError()
+            except PermissionError:
+                raise ProviderError(
+                    "Native execution authority revoked; reconciliation required", uncertain=True
+                ) from None
+            session.commit()  # Release read snapshots too; cancellation must be visible on the next poll.
+
         async def emit(
             preview, events, complete, tool_count, streamed=True, model=model, provider=provider, run=run
         ):
@@ -409,29 +462,7 @@ async def execute[T: BaseModel](
             if not complete and events != 1 and time.monotonic() - last_trace < 0.2:
                 return
             if not complete:
-                current = session.execute(
-                    select(Workflow.status, Workflow.lease_token).where(Workflow.id == workflow.id)
-                ).one()
-                if current.status != "running" or current.lease_token != workflow.lease_token:
-                    raise ProviderError(
-                        "Native execution cancelled; usage reconciliation required", uncertain=True
-                    )
-                session.refresh(agent)
-                from .models import Organization
-
-                session.refresh(session.get(Organization, workflow.org_id))
-                session.refresh(model)
-                session.refresh(provider)
-                if project:
-                    session.refresh(project)
-                try:
-                    check_agent(session, agent, "read_context", project)
-                    if not model.enabled or not provider.enabled:
-                        raise PermissionError()
-                except PermissionError:
-                    raise ProviderError(
-                        "Native execution authority revoked; reconciliation required", uncertain=True
-                    ) from None
+                await check_execution()
             if trace is None:
                 from .models import RunTrace
 
@@ -445,8 +476,15 @@ async def execute[T: BaseModel](
             last_trace = time.monotonic()
 
         try:
-            if provider.kind != "mock" and (native_tools or "streaming" in model.capabilities):
+            if provider.kind != "mock" and (
+                provider.kind == "ollama" or native_tools or "streaming" in model.capabilities
+            ):
+                from .models import RunTrace
                 from .native import NativeAdapter
+
+                trace = RunTrace(org_id=workflow.org_id, run_id=run.id, state="awaiting_response")
+                session.add(trace)
+                session.commit()
 
                 call = NativeAdapter(getattr(adapter, "client", None)).request(
                     provider,
@@ -459,6 +497,7 @@ async def execute[T: BaseModel](
                     history=native_history,
                     emit=emit,
                     stream="streaming" in model.capabilities,
+                    check=check_execution,
                 )
             elif provider.kind != "mock":
                 call = (adapter or HTTPAdapter()).request(
@@ -469,7 +508,11 @@ async def execute[T: BaseModel](
                 if provider.kind == "mock"
                 else await asyncio.wait_for(
                     call,
-                    timeout=min(remaining, 60),
+                    timeout=min(
+                        deadline - time.monotonic(),
+                        workflow.deadline_at - now(),
+                        settings().ollama_request_timeout_seconds if provider.kind == "ollama" else 60,
+                    ),
                 )
             )
             run.input_tokens, run.output_tokens = response.input_tokens, response.output_tokens
@@ -543,6 +586,8 @@ async def execute[T: BaseModel](
         except ValidationError:
             error = "Structured result failed validation; bounded fallback required"
             run.status, run.error = "quality_failed", error
+            if trace:
+                trace.state, trace.preview = "invalid_output", ""
             transition(session, workflow, agent, "FAILED", step, run.id, {"error": error})
             session.commit()
         previous.append(run)

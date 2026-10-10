@@ -40,7 +40,11 @@ async def work_step(session: Session, workflow: m.Workflow, token: str):
     project = session.get(m.Project, work.project_id) if work.project_id else None
     if project:
         project_authority(session, project)
-    if work.kind == "tools":
+    if work.kind == "planning":
+        from .planning import planning_step
+
+        await planning_step(session, workflow, token, work, project)
+    elif work.kind == "tools":
         from .tools import tool_step
 
         await tool_step(session, workflow, token, work, project)

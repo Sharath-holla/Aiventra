@@ -1,5 +1,23 @@
 # Aiventra verification report
 
+## Milestone 3 local runtime/planning increment — October 10, 2026
+
+Starting source: clean `7ab79cb`. Active database remains SQLite; no data/schema migration. Read-only hardware inventory and failed loopback probe establish Ollama absence, not model failure. No model installation/download/inference or paid API call occurred.
+
+- Full backend suite: **222 passed**, 180.34 seconds; one existing Starlette/httpx deprecation warning.
+- Focused native/zero-cost/staffing/planning/recovery run: **86 passed**, 46.79 seconds. Ten new transport/SQLite checks separately passed in 3.06 seconds.
+- Ruff lint and format checks passed across backend/tests/scripts/migrations. Strict TypeScript, Prettier and production Next.js build passed. Alembic check: no new upgrade operations.
+- New native fixtures cover idle streaming and complete-response cancellation before any token, timeout cleanup, terminal stop reasons retaining usage, unsupported-tool refusal and bounded local request options. These are controlled HTTP protocol fixtures, not a running Ollama model.
+- New planning fixtures cover idempotent queueing, three saved/checkpointed stages across connection disposal, two acknowledged hashed handoffs, separate exact workforce approval, concurrent draft invalidation, no-provider waits without fake documents and occupied-local-slot backoff without spending/attempt consumption.
+- Real SQLite tests use eight writer threads/200 committed updates with a concurrent WAL reader, reopen integrity/equality, explicit connection pragmas and abrupt child-process death rolling back an uncommitted write. All temp records stay under data/pytest-temp.
+- All **15 browser journeys passed**, 4.4 minutes, including saved BA → CTO → PM fixture documents, reload, draft v2 and separate approval navigation; existing desktop/mobile and zero-cost journeys passed. The new workforce screenshot was visually inspected.
+- Final indexed-tool identity and strict deadline correction: **44 relevant native/planning tests passed**, 21.32 seconds; this includes one additional tool-index test after the 222-test full run. CI will rerun the entire final source suite.
+- Actual managed API/worker/web restart retained identical planning evidence: 1 job/workflow, 3 documents, 2 acknowledged messages, 3 runs/checkpoints and 2 staffing revisions; SHA-256 `ee7568878edd7212e133567a55832e4083ae5c787e13e63d38fb95bc55aab2c4` matched before/after. API/worker readiness passed; SQLite remained authoritative. CI includes the same read-only planning digest around real Compose restarts; its result will be recorded by exact source/run after push.
+
+Repaired failures: the first non-elevated pytest run could not create Windows temporary/cache directories (44 tests passed, 20 setup errors); it was rerun with repository temp access. Four existing contract expectations then exposed a new callback signature and too-small context default; the callback fixture was updated, the conservative local context default corrected to 8192 and all old assertions retained. Six new standalone adapter fixtures exposed unnecessary Ollama credential lookup on transient provider objects; credential-free Ollama now never reads a provider secret. Final full backend run above is green. No tests were skipped to hide these failures.
+
+Live boundaries: no real local benchmark/profile, BA/CTO/PM model quality, GPU acceleration, generated GitHub PR or full client delivery is verified by these tests. PostgreSQL/Docker compatibility and new service-restart checks require the separately reported CI run; this workstation has no Docker executable.
+
 ## Owner storage preference — SQLite runtime
 
 The owner selected SQLite for active use and retained PostgreSQL compatibility. The existing private DATABASE_URL was verified as SQLite and preserved; REQUIRED_DATABASE_BACKEND=sqlite was configured locally and in the example. Four targeted startup-fence/SQLite migration/readiness checks passed (one existing dependency warning). PostgreSQL schema/migration/pgvector/transfer/Compose/CI files were preserved. No database migration or record reset occurred. This configuration/documentation increment does not claim a new full-suite run; the previously verified source evidence remains below.

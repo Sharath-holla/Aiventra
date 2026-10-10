@@ -1,5 +1,14 @@
 # Next steps
 
+## Latest milestone 3 continuation
+
+Read docs/ENTERPRISE_MILESTONE_3_SPEC.md first. Preserve the local runtime hardening, SQLite concurrency/recovery checks and saved BA → CTO → PM planning workflow described in IMPLEMENTATION_STATUS.md. Keep SQLite active; no PostgreSQL cutover is authorized.
+
+1. With explicit installation/download authorization and enough available memory, install loopback-only Ollama with cloud disabled and a small coding model. Start with the 398 MB Qwen2.5-Coder 0.5B candidate; measure actual runtime memory and quality before trying the 986 MB 1.5B model. Published file sizes are not RAM requirements. Do not download a larger model automatically.
+2. Verify installed metadata and real structured/streaming/tool capability. Run existing persisted micro-v1 requirement/coding/repair/structured/tool cases, then real BA → CTO → PM planning and restart evidence. Failed or unsupported capabilities must remain visible; no fixture counts as live success. A small context may fail the conservative routing bound; reduce task/context size or explicitly configure sufficient context after measuring memory.
+3. Implement the missing owner-approved GitHub draft publication connector from PR_PUBLICATION_WORKFLOW.md with exact manifest, scoped secret outside runner/model input, idempotency, CI/review retrieval and bounded repairs. Application source push authorization does not silently authorize generated task publication.
+4. Continue Phase 5 delivery from approved staffing through isolated engineering, independent QA/final review and client acceptance. Production identity, monitoring, encrypted offsite recovery and staging remain separate unfinished infrastructure work.
+
 Current owner decision: **use SQLite only for the active application; keep PostgreSQL compatibility for later**. Do not request PostgreSQL credentials or require a database cutover before continuing development. Preserve existing SQLite records and all PostgreSQL schema/migration/pgvector/transfer infrastructure.
 
 ## Milestone 2 continuation

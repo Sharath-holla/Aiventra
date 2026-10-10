@@ -1,5 +1,9 @@
 # Implementation ledger
 
+## Milestone 3 — local execution foundation and saved planning
+
+Started from clean `7ab79cb`. Preserved SQLite records/backend, all existing PostgreSQL/pgvector migration/transfer tools and mandatory ZERO_COST_ONLY. Rechecked hardware and local Ollama absence without downloading or invoking a model. Added native idle cancellation/timeout cleanup, local resource/stop/capability controls, persisted local admission, explicit SQLite busy timeout, durable BA → CTO → PM artifacts/messages/checkpoints and an exact-approved workforce revision path. Added integrated planning UI and explicit deterministic browser fixture, SQLite multiwriter/WAL/process-death tests and planning service-restart digest checks in CI. TEST_REPORT.md records exact completed checks and failures repaired. No real model response, live benchmark, generated remote PR, Docker workstation execution or complete client delivery is claimed.
+
 ## Owner storage preference — SQLite runtime
 
 After the verified Milestone 2 foundation, the owner selected SQLite for active use while retaining PostgreSQL structure. Local/example configuration pins the existing SQLite backend, and continuation/deployment instructions defer PostgreSQL cutover. Existing PostgreSQL-compatible models, migrations, pgvector, transfer/recovery scripts, optional Compose setup and CI are preserved. No database records are migrated or reset by this configuration/documentation change.

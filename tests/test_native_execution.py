@@ -557,6 +557,7 @@ async def test_benchmark_persists_profiles_and_invalidates_config(http, company,
         history=None,
         emit=None,
         stream=True,
+        check=None,
     ):
         if not supports_tools:
             raise ProviderError("Provider HTTP 400")

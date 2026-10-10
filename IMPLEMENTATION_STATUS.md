@@ -1,5 +1,13 @@
 # Implementation status
 
+## Current milestone 3 — local execution and saved planning
+
+Starting source `7ab79cb`, clean tree. Hardware was rechecked: Ryzen 5 5600H, 6 cores/12 threads, 7.34 GiB RAM with 1.01 GiB free, RX 6500M reporting approximately 4 GiB VRAM, C: 338.01 GiB free. Ollama executable/service/standard paths and loopback endpoint were unavailable. No runtime/model was installed or downloaded; no actual model benchmark result is claimed.
+
+Implemented this increment: local native transport hardening for idle cancellation, finite local read/overall limits, context/output/residency bounds, installed-model tool capability checks, stop-reason validation and honest traces; durable single local inference admission across workers with no-cost/no-attempt backoff; explicit SQLite busy timeout; owner-created BA → CTO → PM checkpointed document workflow, persisted hash-bound handoffs, automatic scoped memory retrieval and a validated new unapproved workforce revision; connected planning/handoff/approval-navigation UI. No database schema or active backend migration is required.
+
+These are engineering and fixture-verification results. Real local quality, actual benchmarks saved from a model, real planning outputs and GPU compatibility remain pending authorized Ollama/model setup and sufficient free memory. GitHub generated draft publication/CI/review connector and complete client delivery remain next functional increments. Existing restricted runner and PostgreSQL compatibility are preserved, with CI evidence reported by exact run rather than assumed locally.
+
 ## Current owner decision — SQLite active, PostgreSQL compatibility retained
 
 Use the existing SQLite database for the running application. PostgreSQL cutover is deferred by owner choice, rather than a blocker awaiting credentials. The local backend fence and example configuration select SQLite; all normalized tables, PostgreSQL migrations/pgvector definitions, transfer/recovery tools and optional compatibility infrastructure are retained. Continue local-model, orchestration, approved PR publication and delivery work on SQLite. Historical PostgreSQL verification below remains valid CI evidence, not authorization to migrate the owner's records.

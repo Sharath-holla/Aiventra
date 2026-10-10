@@ -4,7 +4,7 @@ import { api, money } from "@/lib/api";
 import { Badge, Button, Panel, Pretty, useApp } from "./common";
 
 export function AgentWorkControls() {
-  const { state, run, busy } = useApp();
+  const { state, run, busy, navigate } = useApp();
   const [kind, setKind] = useState("message");
   const [project, setProject] = useState("");
   const [sender, setSender] = useState("");
@@ -40,6 +40,12 @@ export function AgentWorkControls() {
           >
             Convene a meeting
           </button>
+          <button
+            className={kind === "planning" ? "active" : ""}
+            onClick={() => setKind("planning")}
+          >
+            BA → CTO → PM plan
+          </button>
         </div>
         <form
           className="form-grid"
@@ -69,6 +75,26 @@ export function AgentWorkControls() {
               model_override: manualModel || null,
             };
             run(async () => {
+              if (kind === "planning") {
+                const draft = await api<{
+                  version: number;
+                  content_hash: string;
+                  status: string;
+                } | null>(`/projects/${project}/staffing`);
+                if (!draft || draft.status !== "draft")
+                  throw new Error(
+                    "Select a project with an unapproved workforce draft.",
+                  );
+                await api("/agent-planning", {
+                  ...common,
+                  plan_version: draft.version,
+                  plan_hash: draft.content_hash,
+                  objective: body,
+                });
+                pending.current = null;
+                setBody("");
+                return;
+              }
               await api(
                 kind === "message" ? "/agent-messages" : "/agent-meetings",
                 kind === "message"
@@ -180,7 +206,7 @@ export function AgentWorkControls() {
                 </select>
               </label>
             </>
-          ) : (
+          ) : kind === "meeting" ? (
             <>
               <label>
                 Meeting rounds
@@ -229,6 +255,14 @@ export function AgentWorkControls() {
                 spend cap
               </label>
             </>
+          ) : (
+            <p className="full muted">
+              Business Analyst saves requirements, CTO receives that document,
+              then Project Manager saves a task plan and a new workforce draft.
+              Execution requires separate workforce approval. Without an
+              eligible local model, the workflow waits without an inference
+              call.
+            </p>
           )}
           <label>
             Maximum estimated spend (USD)
@@ -267,20 +301,25 @@ export function AgentWorkControls() {
             </select>
           </label>
           <label className="full">
-            {kind === "message" ? "Agent message objective" : "Meeting agenda"}
+            {kind === "message"
+              ? "Agent message objective"
+              : kind === "planning"
+                ? "Planning objective"
+                : "Meeting agenda"}
             <textarea
               value={body}
               onChange={(e) => setBody(e.target.value)}
               minLength={10}
-              maxLength={12000}
+              maxLength={kind === "planning" ? 2000 : 12000}
               rows={4}
               required
             />
           </label>
           <p className="muted full">
             First-round meeting contributions receive the same saved evidence
-            and no earlier verdicts. Live requests may spend API credits;
-            missing eligible models put work into a recorded waiting state.
+            and no earlier verdicts. ZERO_COST_ONLY permits verified local
+            inference; missing eligible models put work into a saved waiting
+            state.
           </p>
           <div className="full">
             <Button
@@ -293,7 +332,9 @@ export function AgentWorkControls() {
             >
               {kind === "message"
                 ? "Queue agent message"
-                : "Start bounded meeting"}
+                : kind === "planning"
+                  ? "Start saved planning workflow"
+                  : "Start bounded meeting"}
             </Button>
           </div>
         </form>
@@ -353,6 +394,31 @@ export function AgentWorkControls() {
                     </Button>
                   )}
                 <Pretty value={work.result} />
+                {work.kind === "planning" && (
+                  <>
+                    {state.messages
+                      .filter((message) => message.correlation_id === work.id)
+                      .map((message) => (
+                        <p key={message.id}>
+                          {
+                            state.agents.find(
+                              (agent) => agent.id === message.sender,
+                            )?.role
+                          }{" "}
+                          →{" "}
+                          {
+                            state.agents.find(
+                              (agent) => agent.id === message.recipient,
+                            )?.role
+                          }{" "}
+                          <Badge>{message.status}</Badge>
+                        </p>
+                      ))}
+                    <Button secondary onClick={() => navigate("allocation")}>
+                      Review workforce draft
+                    </Button>
+                  </>
+                )}
                 {typeof work.result.artifact_id === "string" && (
                   <Pretty
                     value={

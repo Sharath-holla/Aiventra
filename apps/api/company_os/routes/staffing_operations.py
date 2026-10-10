@@ -32,7 +32,9 @@ class PlannedTask(Strict):
 
 
 class PlanContent(Strict):
-    planner: Literal["policy-rules-v1 (deterministic planning, no AI call)"]
+    planner: str = Field(
+        pattern=r"^(policy-rules-v1 \(deterministic planning, no AI call\)|agent-chain:[a-f0-9-]{36})$"
+    )
     requirement_version: int = Field(ge=1)
     proposal_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
     mode: Literal["live", "mock"]
@@ -86,6 +88,8 @@ def revise(
     if plan.status != "draft" or plan.version != data.version:
         raise HTTPException(409, "Only the current draft can be edited")
     content = clean(data.content.model_dump())
+    if content["planner"] != plan.content["planner"]:
+        raise HTTPException(422, "Planner provenance cannot be changed by editing the draft")
     try:
         staffing.validate(session, plan, content)
     except (ValueError, PermissionError) as exc:

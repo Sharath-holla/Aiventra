@@ -29,6 +29,10 @@ class ProviderUnavailable(ProviderError):
         self.context = context
 
 
+class LocalInferenceBusy(Exception):
+    """Retry admission without creating a model run, spending or consuming an attempt."""
+
+
 class FreeProviderUnavailable(ProviderUnavailable):
     def __init__(self, context: dict):
         super().__init__(context)
@@ -101,7 +105,7 @@ class HTTPAdapter:
             provider.base_url, settings().provider_allowed_hosts, local_allowed=provider.kind == "ollama"
         )
         try:
-            secret = secret_for(provider)
+            secret = "" if provider.kind == "ollama" else secret_for(provider)
         except VaultUnavailable:
             raise ProviderError("Provider credential vault unavailable") from None
         if provider.kind != "ollama" and not secret:
@@ -158,7 +162,12 @@ class HTTPAdapter:
                 "prompt": prompt,
                 "format": schema,
                 "stream": False,
-                "options": {"num_predict": max_output},
+                "options": {
+                    "num_predict": max_output,
+                    "num_ctx": min(model.context_tokens or 4096, settings().ollama_context_tokens),
+                    "temperature": 0,
+                },
+                "keep_alive": settings().ollama_keep_alive_seconds,
             }
         elif provider.kind in {"compatible", "xai"}:
             path, headers = "/chat/completions", {"Authorization": f"Bearer {secret}"}
@@ -174,7 +183,13 @@ class HTTPAdapter:
         else:
             raise ProviderError("Unsupported provider kind")
         own_client = self.client is None
-        client = self.client or httpx.AsyncClient(timeout=60, follow_redirects=False, trust_env=False)
+        client = self.client or httpx.AsyncClient(
+            timeout=httpx.Timeout(
+                60, read=settings().ollama_read_timeout_seconds if provider.kind == "ollama" else 60
+            ),
+            follow_redirects=False,
+            trust_env=False,
+        )
         try:
             response = await client.post(base + path, headers=headers, json=body)
             if response.status_code >= 400:
@@ -229,7 +244,11 @@ class HTTPAdapter:
             try:
                 if secret:
                     output = output.replace(secret, "[REDACTED]")
-                result = scrub_secret(json.loads(output), secret)
+                result = (
+                    {"_invalid_output": True}
+                    if provider.kind == "ollama" and data.get("done_reason", "stop") != "stop"
+                    else scrub_secret(json.loads(output), secret)
+                )
             except (ValueError, TypeError):
                 # Usage must survive malformed output so it can be charged before escalating.
                 result = {"_invalid_output": True}
@@ -362,6 +381,22 @@ def fixture(schema_name: str, context: dict) -> Response:
                 "Repository modification approval",
                 "Cloud and deployment approval",
             ],
+        }
+    elif schema_name == "ProjectPlanResult":
+        data = {
+            "title": "Explicit fixture project plan",
+            "summary": "Deterministic workflow test only; no live planning was performed.",
+            "tasks": [
+                {
+                    "key": "requirements",
+                    "role": "Business Analyst",
+                    "kind": "document",
+                    "objective": "Document approved requirements and acceptance criteria",
+                    "acceptance": ["Explicit fixture evidence"],
+                    "depends_on": [],
+                }
+            ],
+            "risks": ["Real model quality remains unverified"],
         }
     elif schema_name == "DocumentResult":
         data = {

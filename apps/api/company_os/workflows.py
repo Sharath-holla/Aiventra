@@ -26,7 +26,7 @@ from .models import (
     WorkflowStep,
 )
 from .organization import agent_for
-from .providers import ProviderError, ProviderUnavailable, configured
+from .providers import LocalInferenceBusy, ProviderError, ProviderUnavailable, configured
 from .schemas import Analysis, DocumentResult, ProposalContent, Recommendation
 from .security import audit, check_agent, digest, redact
 
@@ -460,6 +460,13 @@ async def tick(factory=SessionLocal) -> bool:
             else:
                 raise ValueError("Unknown workflow kind")
             session.commit()
+        except LocalInferenceBusy as exc:
+            session.rollback()
+            workflow = session.get(Workflow, workflow.id)
+            if workflow.lease_token == token:
+                workflow.status, workflow.lease_until = "queued", now() + 2
+                workflow.last_error = str(exc)
+                session.commit()
         except ProviderUnavailable as exc:
             session.rollback()
             workflow = session.get(Workflow, workflow.id)

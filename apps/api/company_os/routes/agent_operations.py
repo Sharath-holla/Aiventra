@@ -65,6 +65,13 @@ class BenchmarkInput(ProbeInput):
     budget_micro: int = Field(default=1000000, ge=1000, le=5000000)
 
 
+class PlanningInput(WorkInput):
+    project_id: str
+    plan_version: int = Field(ge=1)
+    plan_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
+    objective: str = Field(min_length=10, max_length=2000)
+
+
 def approved_project(session: Session, project_id: str, user: m.User):
     project = scoped(session, m.Project, project_id, user)
     try:
@@ -157,6 +164,46 @@ def enqueue(
 @router.get("/agents/runtime")
 def runtime(user: m.User = Depends(owner), session: Session = Depends(session_dependency)):
     return snapshot(session, user.org_id)
+
+
+@router.post("/agent-planning", status_code=201)
+def start_planning(
+    data: PlanningInput, user: m.User = Depends(owner), session: Session = Depends(session_dependency)
+):
+    previous = existing_work(session, data.request_id, user, digest(data.model_dump(mode="json")))
+    if previous:
+        return previous
+    project = approved_project(session, data.project_id, user)
+    from ..planning import ROLES
+    from ..staffing import lock_org
+
+    lock_org(session, user.org_id)
+    plan = session.scalar(select(m.StaffingPlan).where(m.StaffingPlan.project_id == project.id))
+    if (
+        not plan
+        or plan.status != "draft"
+        or plan.version != data.plan_version
+        or plan.content_hash != data.plan_hash
+    ):
+        raise HTTPException(409, "Select the current unapproved workforce draft")
+    agents = [agent_for(session, user.org_id, role) for role in ROLES]
+    for agent in agents:
+        authorized_agent(session, agent.id, user, project, "write_artifact")
+    return enqueue(
+        session,
+        user,
+        data,
+        "planning",
+        plan.id,
+        [a.id for a in agents],
+        {
+            "objective": data.objective,
+            "plan_version": plan.version,
+            "plan_hash": plan.content_hash,
+            "model_override": data.model_override,
+        },
+        project=project,
+    )
 
 
 @router.post("/agent-tool-jobs", status_code=201)

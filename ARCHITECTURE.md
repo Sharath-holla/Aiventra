@@ -1,5 +1,13 @@
 # Aiventra OS architecture
 
+## Milestone 3 local runtime and saved planning increment
+
+SQLite remains the active development database; this increment adds no tables or migration and preserves PostgreSQL/pgvector compatibility. Every SQLite connection explicitly sets WAL, foreign keys and a 30-second busy timeout. Local inference admission uses a database-wide organization-row mutex and persisted started model runs/worker leases, serializing competing worker processes before reservation. Busy admission leaves work queued with a short backoff and consumes no inference attempt or cost. No write transaction spans the daemon metadata request.
+
+Ollama uses the native chat transport for both streaming and complete responses. Installed metadata is checked again per call under ZERO_COST_ONLY; native tools require the installed manifest to advertise tools. Requests bound output/context, deterministic temperature and model residency. Authority is checked once per second even before the first token or while a complete response is pending; cancellation closes the stream and retains uncertain usage. Token-limit/unknown stops retain usage but fail result validation. Traces distinguish awaiting response, streaming, completed transport, invalid output and interruption. A closed connection does not prove the daemon immediately stopped computation.
+
+Owner `/agent-planning` creates a durable BA → CTO → PM workflow for an approved project and exact unapproved staffing revision. Each stage uses the existing permission-filtered memory retrieval/gateway and saves an artifact/checkpoint. Hashed document handoffs become persistent messages acknowledged by the next role. PM produces a bounded validated DAG, new staffing revision and saved plan document. Separate exact owner staffing approval is still required; planning cannot launch engineering, publish a PR or approve itself. Concurrent edits/approval invalidate the planning result. The UI shows saved handoffs and links to the workforce approval surface. Live model quality is not established by deterministic fixtures.
+
 ## Current storage decision
 
 The owner selected SQLite for active application storage after the Milestone 2 increment. Keep data/company.db authoritative, with REQUIRED_DATABASE_BACKEND=sqlite in local configuration. PostgreSQL-compatible models, migrations, pgvector types/index definitions, transfer tooling and compatibility CI remain preserved for an optional future migration. The PostgreSQL Compose configuration is an alternative compatibility environment, not the selected local runtime. No PostgreSQL login or cutover is required for continued development.

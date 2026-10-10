@@ -24,6 +24,7 @@ class Decision:
     reason: str
     local_candidate: bool = False
     evidence_digest: str = ""
+    capabilities: tuple[str, ...] = ()
 
     def public(self):
         return asdict(self)
@@ -127,6 +128,7 @@ def installed_manifest(tags, detail, identifier):
         "No provider token charges — local computing resources consumed",
         True,
         hashlib.sha256(repr((row, detail)).encode()).hexdigest(),
+        tuple(c for c in detail.get("capabilities", []) if isinstance(c, str)),
     )
 
 

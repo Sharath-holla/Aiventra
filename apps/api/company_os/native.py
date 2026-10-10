@@ -1,5 +1,6 @@
 """Bounded native SSE/NDJSON inference. Only public text and function calls are retained."""
 
+import asyncio
 import json
 from urllib.parse import quote
 
@@ -192,7 +193,12 @@ def request_spec(provider, model, system, prompt, schema, tools, history, max_ou
             "json_schema": {"name": "agent_result", "strict": True, "schema": strict_schema(schema)},
         }
     if kind == "ollama":
-        body["options"] = {"num_predict": max_output}
+        body["options"] = {
+            "num_predict": max_output,
+            "num_ctx": min(model.context_tokens or 4096, settings().ollama_context_tokens),
+            "temperature": 0,
+        }
+        body["keep_alive"] = settings().ollama_keep_alive_seconds
         return "/api/chat", {}, body
     if kind not in {"compatible", "xai"}:
         raise ProviderError("Unsupported native provider")
@@ -299,9 +305,16 @@ class Decoder:
             self.text += message.get("content", "")
             for call in message.get("tool_calls", []):
                 function = call["function"]
-                self.call(len(self.calls), function["name"], function["arguments"])
+                index = function.get("index", len(self.calls))
+                if type(index) is not int or index not in range(4):
+                    raise ProviderError("Invalid local tool index", uncertain=True)
+                previous = self.calls.get(str(index))
+                if previous and previous["name"] != function["name"]:
+                    raise ProviderError("Local tool identity changed within stream", uncertain=True)
+                self.call(index, "" if previous else function["name"], function["arguments"])
             if event.get("done"):
                 self.terminal = True
+                self.invalid_output = event.get("done_reason", "stop") not in {"stop", "tool_calls"}
                 self.input_tokens, self.output_tokens = (
                     event.get("prompt_eval_count"),
                     event.get("eval_count"),
@@ -425,14 +438,22 @@ class NativeAdapter:
         history=None,
         emit=None,
         stream=True,
+        check=None,
     ):
         from . import spending
 
-        await spending.authorize(provider, model)
+        decision = await spending.authorize(provider, model)
+        if (
+            provider.kind == "ollama"
+            and tools
+            and decision.state == "LOCAL_AVAILABLE"
+            and "tools" not in decision.capabilities
+        ):
+            raise ProviderError("Installed Ollama model does not advertise tool calling; no inference sent")
         base = validate_endpoint(
             provider.base_url, settings().provider_allowed_hosts, local_allowed=provider.kind == "ollama"
         )
-        secret = secret_for(provider)
+        secret = "" if provider.kind == "ollama" else secret_for(provider)
         if provider.kind != "ollama" and not secret:
             raise ProviderError("Provider credentials are not configured")
         path, headers, body = request_spec(
@@ -445,11 +466,18 @@ class NativeAdapter:
                 body["stream"] = False
                 body.pop("stream_options", None)
         client = self.client or httpx.AsyncClient(
-            timeout=httpx.Timeout(60, read=15), follow_redirects=False, trust_env=False
+            timeout=httpx.Timeout(
+                60,
+                read=settings().ollama_read_timeout_seconds if provider.kind == "ollama" else 15,
+            ),
+            follow_redirects=False,
+            trust_env=False,
         )
         decoder = Decoder(provider.kind)
         total, data_lines = 0, []
-        try:
+
+        async def consume():
+            nonlocal total, data_lines
             async with client.stream("POST", base + path, headers=headers, json=body) as response:
                 if response.status_code >= 400:
                     raise ProviderError(
@@ -494,6 +522,18 @@ class NativeAdapter:
                             )
                     if data_lines:
                         decoder.feed(json.loads("\n".join(data_lines)))
+
+        pending = None
+        try:
+            if check:
+                await check()
+            pending = asyncio.create_task(consume())
+            # Check authority even while connecting, loading a model or awaiting its first token.
+            while not pending.done():
+                await asyncio.wait({pending}, timeout=1)
+                if check:
+                    await check()
+            await pending
             result = decoder.result(bool(tools))
             result.data = clean(scrub_secret(result.data, secret))
             if emit:
@@ -510,5 +550,9 @@ class NativeAdapter:
         except (KeyError, TypeError, ValueError):
             raise ProviderError("Invalid native protocol; reconciliation required", uncertain=True) from None
         finally:
+            if pending is not None:
+                if not pending.done():
+                    pending.cancel()
+                await asyncio.gather(pending, return_exceptions=True)
             if self.client is None:
                 await client.aclose()
