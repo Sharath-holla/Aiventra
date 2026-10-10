@@ -1,5 +1,15 @@
 # Aiventra OS architecture
 
+## Checkout, PDF and bounded history increment — October 11, 2026
+
+Current design is documented in [docs/CHECKOUT_PDF_HISTORY.md](docs/CHECKOUT_PDF_HISTORY.md); the owner brief is preserved separately. runner_checkout.py materializes commit-pinned, hash-verified GitHub text snapshots exclusively in the trusted dedicated runner volume. repository_checkouts.py persists owner commands/receipts using existing BusinessRecord and Approval models; checkout_operations.py exposes scoped, separately approved test execution/recovery. No Git checkout, hook or generated code runs in the API/worker host. Existing isolated suites/daemon policies and independent engineering/publication/delivery gates remain authoritative.
+
+pdf_ingestion.py invokes fixed pdf_parser.py in a credential-free OS-resource-limited subprocess. PDF source SHA, page association, parser version, version/replacement links and redacted extracted artifacts persist through existing draft/approval/memory paths. Original PDFs reside in private organization/hash-addressed artifact storage for owner reprocessing; backups must include that directory. draft_documents.py removes replaced/removed chunks/grants, tombstones memory and prevents source synchronization from recreating retired artifacts. Submitted evidence remains immutable.
+
+history.py and history_operations.py implement bounded owner/project/task keyset pages with signed scoped cursors. New hashed audit details carry the existing locked Organization.version as _history_position, preserving same-second insertion order without changing historical audit rows or schema. Conversation turn pages retain immutable positions and existing trace/document/model/approval references; conversation-list cursors snapshot their sorting key. /state bounds historical collections to 30 by default. UI pages deduplicate IDs and preserve older loaded turns through SSE updates, including cancellation-related version gaps.
+
+SQLite stays active at d45f80a6ce12 with WAL/30000 ms busy_timeout; no DDL/backend cutover/reset is introduced. PostgreSQL-compatible models/queries/migrations/transfer/pgvector/recovery CI remain. ZERO_COST_ONLY is unchanged. TEST_REPORT.md distinguishes fixture transport, actual application persistence/browser checks and actual CI Docker/PostgreSQL verification; no live AI, generated PR or real client delivery is implied.
+
 ## Task-specific routing and imported knowledge
 
 task_routing.py separates strict task requirements, scoped candidate selection and explanations from API routers. Profiles live in existing StaffingPlan/StaffingRevision JSON; exact approval copies them into Task.payload. task_ready verifies their approved binding and enabled approval owner; gateway/resume-free enforce actual capabilities, complexity/risk quality, minimum context, project sensitivity, policies, zero-cost and current task-case benchmark constraints. Automatic fallback stays within three eligible distinct attempts; exact manual choices cannot silently change. Reviewers use independent agent/model diversity checks. No extra model daemon is started for logical agents.

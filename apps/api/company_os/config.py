@@ -21,6 +21,9 @@ class Settings(BaseSettings):
     web_origin: str = "http://localhost:3000"
     mock_enabled: bool = True
     execution_enabled: bool = False
+    pdf_upload_limit: int = Field(default=1048576, ge=1024, le=1048576)
+    pdf_page_limit: int = Field(default=50, ge=1, le=100)
+    pdf_timeout_seconds: int = Field(default=5, ge=1, le=10)
     runner_url: str = "http://127.0.0.1:8090"
     runner_token: str = ""
     github_publication_token_env: str = "AIVENTRA_GITHUB_TOKEN"

@@ -55,6 +55,9 @@ type Draft = {
       bytes: number;
       source_sha256?: string;
       warnings?: string[];
+      format?: string;
+      page_count?: number;
+      document_version?: number;
     }[];
     requirement_id?: string;
     manual_proposal_id?: string;
@@ -532,7 +535,7 @@ export function ProjectWizard({ initialId = "" }: { initialId?: string }) {
                 <input
                   aria-label="Upload project requirements"
                   type="file"
-                  accept=".txt,.md,.csv,.json,.docx"
+                  accept=".txt,.md,.csv,.json,.docx,.pdf"
                   disabled={saving || !!error}
                   onChange={(event) => {
                     const file = event.target.files?.[0];
@@ -558,8 +561,9 @@ export function ProjectWizard({ initialId = "" }: { initialId?: string }) {
               </label>
               <p className="muted">
                 UTF-8 TXT, Markdown, CSV or valid JSON · 16 KB each. DOCX · 1 MB
-                file / 64 KB extracted text. Six files / 2 MB total. PDF and
-                images require a secure parser and are unavailable.
+                file / 64 KB extracted text. PDF · 1 MB / 50 pages, text only.
+                Six files / 2 MB total. Scanned images need OCR and are
+                unsupported.
               </p>
               {!!row?.data.attachments.length && (
                 <label>
@@ -583,6 +587,10 @@ export function ProjectWizard({ initialId = "" }: { initialId?: string }) {
                 <div key={file.id}>
                   <p>
                     {file.name} · parsed and saved · {file.bytes} bytes
+                    {file.page_count ? ` · ${file.page_count} pages` : ""}
+                    {file.document_version
+                      ? ` · version ${file.document_version}`
+                      : ""}
                     {file.redacted ? " · sensitive content redacted" : ""}
                   </p>
                   {file.warnings?.map((warning) => (
@@ -601,6 +609,27 @@ export function ProjectWizard({ initialId = "" }: { initialId?: string }) {
                       submission. Content is untrusted data.
                     </p>
                   </details>
+                  {file.format === "pdf" && (
+                    <Button
+                      secondary
+                      disabled={saving || !!error}
+                      onClick={() =>
+                        execute(async () => {
+                          const draft = await save();
+                          const result = await api<Draft>(
+                            `/project-drafts/${draft.id}/attachments/${file.id}/reprocess`,
+                            {
+                              version: draft.version,
+                              request_id: crypto.randomUUID(),
+                            },
+                          );
+                          acceptAttachment(result, draft);
+                        })
+                      }
+                    >
+                      Reprocess {file.name}
+                    </Button>
+                  )}
                   <Button
                     secondary
                     disabled={saving || !!error}

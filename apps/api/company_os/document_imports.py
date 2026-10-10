@@ -68,15 +68,37 @@ def extract(name, raw):
     ]
 
 
-async def parse_document(name, raw):
+async def parse_document(name, raw, mime=None):
     if len(raw) > MAX_UPLOAD:
         raise HTTPException(413, "Document exceeds 1 MB")
-    try:
-        content, warnings = await asyncio.wait_for(asyncio.to_thread(extract, name, raw), timeout=2)
-    except TimeoutError:
-        raise HTTPException(422, "Document extraction exceeded its time limit") from None
+    extra = {}
+    if name.lower().endswith(".pdf"):
+        from .config import settings
+        from .pdf_ingestion import parse_pdf
+
+        if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9 ._-]{0,150}\.pdf", name, re.I) or re.search(
+            r"(\.env|secret|password|wallet|private.?key|seed.?phrase)", name, re.I
+        ):
+            raise HTTPException(422, "Use a safe PDF document name")
+        if mime not in {None, "application/pdf", "application/octet-stream"}:
+            raise HTTPException(422, "PDF MIME type does not match the document")
+        if len(raw) > settings().pdf_upload_limit:
+            raise HTTPException(413, "PDF upload limit exceeded")
+        result = await parse_pdf(raw)
+        content, extra = result.pop("content"), result
+        warnings = [
+            "Text only; PDF metadata, actions, external links, embedded files and OCR are not imported"
+        ]
+    elif raw.startswith(b"%PDF-"):
+        raise HTTPException(422, "PDF content requires a .pdf filename")
+    else:
+        try:
+            content, warnings = await asyncio.wait_for(asyncio.to_thread(extract, name, raw), timeout=2)
+        except TimeoutError:
+            raise HTTPException(422, "Document extraction exceeded its time limit") from None
     return content, {
         "source_sha256": hashlib.sha256(raw).hexdigest(),
+        **extra,
         "format": name.rsplit(".", 1)[-1].lower(),
         "extractor": "bounded-document-v1",
         "warnings": warnings,

@@ -11,9 +11,9 @@ from sqlalchemy.orm import Session
 from .. import models as m
 from .. import project_setup as setup
 from .. import spending
-from ..artifacts import save_artifact
 from ..db import session_dependency
 from ..document_imports import MAX_UPLOAD, parse_document
+from ..draft_documents import attach, pdf_source, retire
 from ..schemas import Strict
 from ..security import audit, clean, digest, owner
 from ..staffing import lock_org
@@ -202,7 +202,7 @@ async def upload(
 ):
     raw = await file.read(MAX_UPLOAD + 1)
     name = file.filename or ""
-    content, metadata = await parse_document(name, raw)
+    content, metadata = await parse_document(name, raw, file.content_type)
     data = Command(version=version, request_id=request_id)
 
     # Bind upload retries to the actual document, not just its command envelope.
@@ -216,40 +216,7 @@ async def upload(
     )
 
     def operation(row):
-        if row.status != "draft":
-            raise HTTPException(409, "Attachments cannot change after submission")
-        attachments = row.data["attachments"]
-        previous = next((item for item in attachments if item["id"] == replace_id), None)
-        if replace_id and not previous:
-            raise HTTPException(404, "Attachment is outside this draft")
-        attachments = [item for item in attachments if item["id"] != replace_id]
-        if len(attachments) >= 6 or sum(item["bytes"] for item in attachments) + len(raw) > 2 * MAX_UPLOAD:
-            raise HTTPException(413, "Draft supports six documents and 2 MB total")
-        artifact = save_artifact(session, user.org_id, name, content, kind="project_requirement_attachment")
-        form = row.data["form"]
-        previous_artifact = session.get(m.Artifact, previous["id"]) if previous else None
-        if not form["text"].strip() or (
-            previous_artifact and form["text"] == previous_artifact.content[:30000]
-        ):
-            form = {**form, "text": artifact.content[:30000]}
-        row.data = {
-            **row.data,
-            "form": form,
-            "attachments": [
-                *attachments,
-                {
-                    "id": artifact.id,
-                    "name": name,
-                    "sha256": artifact.sha256,
-                    "bytes": len(raw),
-                    "redacted": content != artifact.content,
-                    "parsed": True,
-                    **metadata,
-                    "replaces": replace_id,
-                },
-            ],
-        }
-        row.version += 1
+        attach(session, user, row, name, raw, content, metadata, replace_id)
 
     return transaction(session, lambda: change(session, user, record_id, upload_data, "uploaded", operation))
 
@@ -275,6 +242,7 @@ def remove_attachment(
         form = row.data["form"]
         if previous and form["text"] == previous.content[:30000]:
             form = {**form, "text": ""}
+        retire(session, previous)
         # Preserve private source artifacts and audit history; unlink only the active draft reference.
         row.data = {
             **row.data,
@@ -286,6 +254,52 @@ def remove_attachment(
     command = Removal(**data.model_dump(), attachment_id=attachment_id)
     return transaction(
         session, lambda: change(session, user, record_id, command, "attachment_removed", operation)
+    )
+
+
+@router.post("/project-drafts/{record_id}/attachments/{attachment_id}/reprocess")
+async def reprocess_attachment(
+    record_id: str,
+    attachment_id: str,
+    data: Command,
+    user: m.User = Depends(owner),
+    session: Session = Depends(session_dependency),
+):
+    class Reprocess(Command):
+        attachment_id: str
+
+    command = Reprocess(**data.model_dump(), attachment_id=attachment_id)
+    row = setup.owned(session, record_id, user)
+    if str(data.request_id) in row.data.get("requests", {}):
+        return transaction(
+            session, lambda: change(session, user, record_id, command, "reprocessed", lambda _: None)
+        )
+    item = next((item for item in row.data["attachments"] if item["id"] == attachment_id), None)
+    if not item or item.get("format") != "pdf":
+        raise HTTPException(404, "Active PDF attachment not found")
+    if row.status != "draft":
+        raise HTTPException(409, "Submitted source is immutable; create a new approved requirement revision")
+    import hashlib
+
+    path = pdf_source(user.org_id, item["source_sha256"])
+    if not path.is_file() or path.stat().st_size > MAX_UPLOAD:
+        raise HTTPException(409, "Original PDF unavailable; upload a replacement")
+    raw = path.read_bytes()
+    if hashlib.sha256(raw).hexdigest() != item["source_sha256"]:
+        raise HTTPException(409, "PDF source integrity changed")
+    content, metadata = await parse_document(item["name"], raw, "application/pdf")
+    return transaction(
+        session,
+        lambda: change(
+            session,
+            user,
+            record_id,
+            command,
+            "reprocessed",
+            lambda current: attach(
+                session, user, current, item["name"], raw, content, metadata, attachment_id
+            ),
+        ),
     )
 
 

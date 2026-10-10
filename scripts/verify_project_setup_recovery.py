@@ -6,6 +6,7 @@ import json
 from company_os import models as m
 from company_os.config import settings
 from company_os.db import SessionLocal
+from company_os.draft_documents import pdf_source
 from company_os.security import digest
 from sqlalchemy import select
 
@@ -24,6 +25,11 @@ with SessionLocal() as session:
             assert artifact.org_id == row.org_id
             assert artifact.sha256 == item["sha256"] == hashlib.sha256(artifact.content.encode()).hexdigest()
             attachments.append({"id": artifact.id, "sha256": artifact.sha256})
+            if item.get("format") == "pdf":
+                source = pdf_source(row.org_id, item["source_sha256"])
+                assert source.stat().st_size <= 1048576
+                assert hashlib.sha256(source.read_bytes()).hexdigest() == item["source_sha256"]
+                attachments[-1]["source_sha256"] = item["source_sha256"]
     print(
         json.dumps(
             {

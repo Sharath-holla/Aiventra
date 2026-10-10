@@ -18,5 +18,8 @@ def serialize(row, secrets=None):
 
 def tenant_rows(session: Session, model, user: m.User, limit=500):
     return session.scalars(
-        select(model).where(model.org_id == user.org_id).order_by(model.created_at.desc()).limit(limit)
+        select(model)
+        .where(model.org_id == user.org_id)
+        .order_by(model.created_at.desc(), model.id.desc())
+        .limit(limit)
     ).all()

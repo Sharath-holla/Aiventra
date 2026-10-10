@@ -35,6 +35,14 @@ async function proxy(
       request.method === "GET" &&
       path[0] === "conversations" &&
       path[2] === "events";
+    const checkoutCommand =
+      request.method === "POST" &&
+      ((path.length === 3 &&
+        path[0] === "repositories" &&
+        path[2] === "checkout") ||
+        (path.length === 3 &&
+          path[0] === "repository-checkouts" &&
+          ["execute", "reconcile", "cleanup"].includes(path[2])));
     const response = await fetch(
       `${base}/${endpoint}${request.nextUrl.search}`,
       {
@@ -43,7 +51,9 @@ async function proxy(
         body:
           request.method === "GET" ? undefined : await request.arrayBuffer(),
         cache: "no-store",
-        signal: streaming ? request.signal : AbortSignal.timeout(30000),
+        signal: streaming
+          ? request.signal
+          : AbortSignal.timeout(checkoutCommand ? 210000 : 30000),
       },
     );
     const responseHeaders = {

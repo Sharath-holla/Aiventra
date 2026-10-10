@@ -31,7 +31,10 @@ def retrieve(session: Session, org_id: str, project_id: str, query: str = "", li
     for artifact in session.scalars(
         select(Artifact)
         .where(
-            Artifact.org_id == org_id, Artifact.project_id == project_id, Artifact.conversation_id.is_(None)
+            Artifact.org_id == org_id,
+            Artifact.project_id == project_id,
+            Artifact.conversation_id.is_(None),
+            Artifact.kind != "retired_requirement_attachment",
         )
         .order_by(Artifact.created_at.desc())
         .limit(20)

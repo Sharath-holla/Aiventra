@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import type { Repository } from "@/lib/types";
 import { Button, Panel, Pretty, useApp } from "./common";
+import { RepositoryCheckout } from "./repository-checkout";
 
 export function RepositoryImport({ projectId }: { projectId: string }) {
   const { run, busy, state } = useApp();
@@ -99,6 +100,7 @@ export function RepositoryImport({ projectId }: { projectId: string }) {
           <summary>{row.name} · read-only findings</summary>
           <p>Commit: {row.baseline_commit}</p>
           <Pretty value={row.report} />
+          <RepositoryCheckout repositoryId={row.id} />
         </details>
       ))}
       {result && !imports.some((row) => row.id === result.id) && (

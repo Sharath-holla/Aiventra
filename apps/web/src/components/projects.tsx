@@ -16,6 +16,7 @@ import { PackageControls } from "./package-controls";
 import { DeliveryFollowups } from "./delivery-followups";
 import { Staffing } from "./staffing";
 import { RepositoryImport } from "./repository-import";
+import { ProjectHistory } from "./project-history";
 
 export function Projects({
   engineering,
@@ -26,7 +27,7 @@ export function Projects({
 }) {
   const { state, run, busy } = useApp();
   const [selected, setSelected] = useState(initialId);
-  const [tab, setTab] = useState("board");
+  const [tab, setTab] = useState(engineering ? "engineering" : "board");
   const [path, setPath] = useState("");
   const [repoName, setRepoName] = useState("");
   const [repository, setRepository] = useState("");
@@ -230,6 +231,11 @@ export function Projects({
                 </summary>
                 <p>Acceptance criteria: {task.acceptance.join(" · ")}</p>
                 <Pretty value={task.evidence} />
+                <ProjectHistory
+                  key={task.id}
+                  projectId={project.id}
+                  taskId={task.id}
+                />
                 {executions
                   .filter((execution) => execution.task_id === task.id)
                   .map((execution) => (
@@ -339,25 +345,28 @@ export function Projects({
         </div>
       )}
       {tab === "timeline" && (
-        <Panel
-          title="Delivery milestones"
-          subtitle="Ordered milestones; no invented delivery dates"
-        >
-          <div className="timeline">
-            {state.milestones
-              .filter((m) => m.project_id === selected)
-              .sort((a, b) => a.position - b.position)
-              .map((m, i) => (
-                <div key={m.id}>
-                  <span>{i + 1}</span>
-                  <h3>{m.name}</h3>
-                  <p>
-                    Dates require an approved schedule and workload estimate.
-                  </p>
-                </div>
-              ))}
-          </div>
-        </Panel>
+        <>
+          <ProjectHistory key={selected} projectId={selected} />
+          <Panel
+            title="Delivery milestones"
+            subtitle="Ordered milestones; no invented delivery dates"
+          >
+            <div className="timeline">
+              {state.milestones
+                .filter((m) => m.project_id === selected)
+                .sort((a, b) => a.position - b.position)
+                .map((m, i) => (
+                  <div key={m.id}>
+                    <span>{i + 1}</span>
+                    <h3>{m.name}</h3>
+                    <p>
+                      Dates require an approved schedule and workload estimate.
+                    </p>
+                  </div>
+                ))}
+            </div>
+          </Panel>
+        </>
       )}
       {tab === "dependencies" && (
         <Panel
@@ -656,6 +665,11 @@ export function Projects({
             <Pretty value={details.payload} />
             <h3>Execution evidence</h3>
             <Pretty value={details.evidence} />
+            <ProjectHistory
+              key={details.id}
+              projectId={project.id}
+              taskId={details.id}
+            />
             {details.kind === "coding" &&
               details.status === "awaiting_approval" && (
                 <CodingApproval task={details} />

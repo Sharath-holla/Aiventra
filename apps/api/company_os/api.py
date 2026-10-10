@@ -10,12 +10,14 @@ from .routes import (
     agent_operations,
     business,
     case_operations,
+    checkout_operations,
     client_operations,
     closure_operations,
     consultation,
     conversations,
     delivery_operations,
     engineering,
+    history_operations,
     identity,
     memory_operations,
     package_operations,
@@ -47,6 +49,7 @@ app.add_middleware(
 )
 for router in (
     identity.router,
+    history_operations.router,
     project_setup_operations.router,
     consultation.router,
     administration.router,
@@ -65,5 +68,6 @@ for router in (
     client_operations.router,
     case_operations.router,
     closure_operations.router,
+    checkout_operations.router,
 ):
     app.include_router(router)

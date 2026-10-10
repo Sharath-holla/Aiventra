@@ -85,21 +85,31 @@ def turn_data(session, turn):
     return result
 
 
-def snapshot(session, conversation):
-    turns = list(
-        session.scalars(
-            select(m.ConversationTurn)
-            .where(m.ConversationTurn.conversation_id == conversation.id)
-            .order_by(m.ConversationTurn.position.desc())
-            .limit(100)
-        )
+def snapshot(session, conversation, before=None):
+    query = select(m.ConversationTurn).where(m.ConversationTurn.conversation_id == conversation.id)
+    if before is not None:
+        query = query.where(m.ConversationTurn.position < before)
+    turns = list(session.scalars(query.order_by(m.ConversationTurn.position.desc()).limit(21)))
+    linked = {identity for turn in turns[:20] for identity in turn.attachment_ids}
+    recent = (
+        select(m.Artifact.id)
+        .where(m.Artifact.conversation_id == conversation.id)
+        .order_by(m.Artifact.created_at.desc(), m.Artifact.id.desc())
+        .limit(20)
     )
     attachments = list(
-        session.scalars(select(m.Artifact).where(m.Artifact.conversation_id == conversation.id))
+        session.scalars(
+            select(m.Artifact).where(
+                m.Artifact.org_id == conversation.org_id,
+                m.Artifact.conversation_id == conversation.id,
+                (m.Artifact.id.in_(linked)) | (m.Artifact.id.in_(recent)),
+            )
+        )
     )
     return {
         "conversation": serialize(conversation),
-        "turns": [turn_data(session, row) for row in reversed(turns)],
+        "turns": [turn_data(session, row) for row in reversed(turns[:20])],
+        "next_cursor": str(turns[19].position) if len(turns) > 20 else None,
         "total_turns": session.scalar(
             select(func.count())
             .select_from(m.ConversationTurn)
@@ -115,7 +125,7 @@ def snapshot(session, conversation):
 @router.get("")
 def list_conversations(
     search: str = Query(default="", max_length=100),
-    before: str | None = None,
+    before: str | None = Query(default=None, max_length=1024),
     user: m.User = Depends(owner),
     session: Session = Depends(session_dependency),
 ):
@@ -127,18 +137,21 @@ def list_conversations(
                 escape="\\",
             )
         )
+    from ..history import cursor, decode
+
+    scope = f"{user.org_id}:conversations:{search}"
     if before:
-        cursor = scoped(session, m.Conversation, before, user)
+        _, stamp, identity = decode(before, scope)
         query = query.where(
-            (m.Conversation.updated_at < cursor.updated_at)
-            | ((m.Conversation.updated_at == cursor.updated_at) & (m.Conversation.id < cursor.id))
+            (m.Conversation.updated_at < stamp)
+            | ((m.Conversation.updated_at == stamp) & (m.Conversation.id < identity))
         )
     rows = list(
         session.scalars(query.order_by(m.Conversation.updated_at.desc(), m.Conversation.id.desc()).limit(51))
     )
     return {
         "items": [serialize(row) for row in rows[:50]],
-        "next_cursor": rows[49].id if len(rows) > 50 else None,
+        "next_cursor": cursor(scope, [0, rows[49].updated_at, rows[49].id]) if len(rows) > 50 else None,
     }
 
 
@@ -184,6 +197,16 @@ def create_conversation(
 @router.get("/{record_id}")
 def detail(record_id: str, user: m.User = Depends(owner), session: Session = Depends(session_dependency)):
     return snapshot(session, scoped(session, m.Conversation, record_id, user))
+
+
+@router.get("/{record_id}/history")
+def older_history(
+    record_id: str,
+    before: int = Query(ge=1),
+    user: m.User = Depends(owner),
+    session: Session = Depends(session_dependency),
+):
+    return snapshot(session, scoped(session, m.Conversation, record_id, user), before)
 
 
 @router.post("/{record_id}/turns", status_code=201)

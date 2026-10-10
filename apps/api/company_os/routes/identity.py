@@ -1,7 +1,7 @@
 import asyncio
 import json
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
 from sqlalchemy import select, text
 from sqlalchemy.exc import SQLAlchemyError
@@ -115,7 +115,11 @@ def me(user: m.User = Depends(current_user)):
 
 
 @router.get("/state")
-def state(user: m.User = Depends(owner), session: Session = Depends(session_dependency)):
+def state(
+    user: m.User = Depends(owner),
+    session: Session = Depends(session_dependency),
+    history_limit: int = Query(default=30, ge=1, le=300),
+):
     # A fresh request snapshot preserves rotation while avoiding thousands of
     # repeated process-environment scans when serializing the company history.
     secrets = environment_secrets()
@@ -154,8 +158,20 @@ def state(user: m.User = Depends(owner), session: Session = Depends(session_depe
         "benchmark_results": m.BenchmarkResult,
         "benchmark_profiles": m.BenchmarkProfile,
     }
+    historical = {
+        "messages",
+        "audit",
+        "runs",
+        "agent_state_events",
+        "run_traces",
+        "tool_invocations",
+        "notifications",
+    }
     result = {
-        name: [serialize(row, secrets) for row in tenant_rows(session, model, user, 300)]
+        name: [
+            serialize(row, secrets)
+            for row in tenant_rows(session, model, user, history_limit if name in historical else 300)
+        ]
         for name, model in names.items()
     }
     task_ids = [row["id"] for row in result["tasks"]]
@@ -169,6 +185,7 @@ def state(user: m.User = Depends(owner), session: Session = Depends(session_depe
     ]
     result["organization"] = serialize(session.get(m.Organization, user.org_id), secrets)
     result["runtime"] = {
+        "history_limit": history_limit,
         "ai_spending_mode": settings().ai_spending_mode,
         "mock_enabled": settings().mock_enabled,
         "execution_enabled": settings().execution_enabled,

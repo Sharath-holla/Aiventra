@@ -16,6 +16,8 @@ services:
     environment:
       RUNNER_TOKEN: ${RUNNER_TOKEN:?Run scripts/configure.py}
       RUNNER_DAEMON_URL: http://runner-daemon:2375
+      GITHUB_PUBLICATION_REPOSITORIES: ${GITHUB_PUBLICATION_REPOSITORIES:-}
+      AIVENTRA_GITHUB_TOKEN: ${AIVENTRA_GITHUB_TOKEN:-}
     volumes: ["runner-staging:/jobs"]
     networks: [default, runner-control]
     depends_on: {runner-daemon: {condition: service_healthy}}
@@ -31,6 +33,7 @@ services:
     depends_on: {runner: {condition: service_healthy}}
   api:
     environment:
+      EXECUTION_ENABLED: "true"
       RUNNER_URL: http://runner:8090
 networks:
   runner-control: {internal: true}

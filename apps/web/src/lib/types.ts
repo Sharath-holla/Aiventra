@@ -413,6 +413,7 @@ export interface RunTrace extends Entity {
   usage_known: boolean;
 }
 export interface ConversationSnapshot {
+  next_cursor: string | null;
   conversation: Conversation;
   turns: ConversationTurn[];
   total_turns: number;

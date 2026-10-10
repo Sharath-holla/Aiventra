@@ -97,6 +97,45 @@ export function CEOChat({
 }) {
   const { state, refresh, navigate } = useApp();
   const [snapshot, setSnapshot] = useState<ConversationSnapshot | null>(null);
+  const [olderBusy, setOlderBusy] = useState(false);
+  const mergeRecent = useCallback((next: ConversationSnapshot) => {
+    setSnapshot((current) => {
+      if (
+        !current ||
+        current.conversation.id !== next.conversation.id ||
+        !current.turns.length
+      )
+        return next;
+      const known = new Set(current.turns.map((row) => row.id));
+      if (
+        next.total_turns > current.total_turns &&
+        next.turns.length &&
+        next.turns.every((row) => !known.has(row.id))
+      )
+        return next;
+      const turns = [
+        ...new Map(
+          [...current.turns, ...next.turns].map((row) => [row.id, row]),
+        ).values(),
+      ].sort((a, b) => a.position - b.position);
+      return {
+        ...next,
+        turns,
+        attachments: [
+          ...new Map(
+            [...current.attachments, ...next.attachments].map((row) => [
+              row.id,
+              row,
+            ]),
+          ).values(),
+        ],
+        next_cursor:
+          current.turns[0].position < (next.turns[0]?.position || 0)
+            ? current.next_cursor
+            : next.next_cursor,
+      };
+    });
+  }, []);
   const [loading, setLoading] = useState(Boolean(conversationId));
   const [text, setText] = useState("");
   const [mode, setMode] = useState<"live" | "mock">("live");
@@ -142,11 +181,15 @@ export function CEOChat({
   const activeId = conversation?.id || conversationId;
   const reload = useCallback(async () => {
     if (activeId)
-      setSnapshot(
+      mergeRecent(
         await api<ConversationSnapshot>(`/conversations/${activeId}`),
       );
-  }, [activeId]);
+  }, [activeId, mergeRecent]);
   useEffect(() => {
+    setSnapshot(null);
+    setLoading(Boolean(conversationId));
+    setOlderBusy(false);
+    setError("");
     if (!conversationId) return;
     let mounted = true;
     api<ConversationSnapshot>(`/conversations/${conversationId}`)
@@ -167,7 +210,7 @@ export function CEOChat({
     if (!activeId) return;
     const source = new EventSource(`/api/conversations/${activeId}/events`);
     source.addEventListener("snapshot", (event) => {
-      setSnapshot(JSON.parse((event as MessageEvent).data));
+      mergeRecent(JSON.parse((event as MessageEvent).data));
       setStreamState("Connected");
     });
     source.onerror = () => setStreamState("Reconnecting");
@@ -180,7 +223,7 @@ export function CEOChat({
       source.close();
       clearInterval(timer);
     };
-  }, [activeId, reload]);
+  }, [activeId, reload, mergeRecent]);
   useEffect(() => {
     if (nearBottom.current && timeline.current)
       timeline.current.scrollTop = timeline.current.scrollHeight;
@@ -230,7 +273,7 @@ export function CEOChat({
       setAttached([]);
       requestKey.current = { fingerprint: "", id: "" };
       nearBottom.current = true;
-      setSnapshot(
+      mergeRecent(
         await api<ConversationSnapshot>(`/conversations/${current.id}`),
       );
       if (!conversationId) onCreated(current.id);
@@ -260,7 +303,7 @@ export function CEOChat({
         data,
       );
       setAttached((ids) => [...ids, artifact.id]);
-      setSnapshot(
+      mergeRecent(
         await api<ConversationSnapshot>(`/conversations/${current.id}`),
       );
       await refresh();
@@ -397,6 +440,53 @@ export function CEOChat({
           )}
           {!!snapshot?.turns.length && (
             <div className="conversation-timeline">
+              {snapshot.next_cursor && (
+                <Button
+                  disabled={olderBusy}
+                  onClick={async () => {
+                    setOlderBusy(true);
+                    try {
+                      const older = await api<ConversationSnapshot>(
+                        `/conversations/${snapshot.conversation.id}/history?before=${snapshot.next_cursor}`,
+                      );
+                      setSnapshot((current) =>
+                        !current ||
+                        current.conversation.id !== older.conversation.id
+                          ? current
+                          : {
+                              ...current,
+                              attachments: [
+                                ...new Map(
+                                  [
+                                    ...current.attachments,
+                                    ...older.attachments,
+                                  ].map((row) => [row.id, row]),
+                                ).values(),
+                              ],
+                              turns: [
+                                ...new Map(
+                                  [...older.turns, ...current.turns].map(
+                                    (row) => [row.id, row],
+                                  ),
+                                ).values(),
+                              ].sort((a, b) => a.position - b.position),
+                              next_cursor: older.next_cursor,
+                            },
+                      );
+                    } catch (e) {
+                      setError(
+                        e instanceof Error
+                          ? e.message
+                          : "History failed to load",
+                      );
+                    } finally {
+                      setOlderBusy(false);
+                    }
+                  }}
+                >
+                  Load older chat history
+                </Button>
+              )}
               {snapshot.total_turns > snapshot.turns.length && (
                 <p className="muted">
                   Showing the latest {snapshot.turns.length} of{" "}
@@ -967,8 +1057,10 @@ export function ConversationHistory() {
   const [cursor, setCursor] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const generation = useRef(0);
   const load = useCallback(
     async (before = "") => {
+      const requestGeneration = ++generation.current;
       setLoading(true);
       setError("");
       try {
@@ -978,21 +1070,33 @@ export function ConversationHistory() {
           items: Conversation[];
           next_cursor: string | null;
         }>(`/conversations?${query}`);
+        if (generation.current !== requestGeneration) return;
         setItems((current) =>
-          before ? [...current, ...result.items] : result.items,
+          before
+            ? [
+                ...new Map(
+                  [...current, ...result.items].map((row) => [row.id, row]),
+                ).values(),
+              ]
+            : result.items,
         );
         setCursor(result.next_cursor);
       } catch (exc) {
-        setError(exc instanceof Error ? exc.message : "History unavailable");
+        if (generation.current === requestGeneration)
+          setError(exc instanceof Error ? exc.message : "History unavailable");
       } finally {
-        setLoading(false);
+        if (generation.current === requestGeneration) setLoading(false);
       }
     },
     [search],
   );
   useEffect(() => {
+    generation.current++;
     const timer = setTimeout(() => void load(), 200);
-    return () => clearTimeout(timer);
+    return () => {
+      generation.current++;
+      clearTimeout(timer);
+    };
   }, [load]);
   return (
     <section className="history-workspace">

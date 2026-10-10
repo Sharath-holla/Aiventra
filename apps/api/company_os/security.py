@@ -89,7 +89,12 @@ def audit(
         "actor": actor,
         "action": action,
         "subject": subject,
-        "detail": clean(detail or {}),
+        "detail": {
+            **clean(detail or {}),
+            "_history_position": session.scalar(
+                select(Organization.version).where(Organization.id == org_id)
+            ),
+        },
         "created_at": now(),
         "previous_hash": head,
         "project_id": project_id,

@@ -1,5 +1,9 @@
 # Aiventra existing-project audit
 
+## Checkout/PDF/history continuation — October 11, 2026
+
+Inspected actual clean f240412/master, latest owner brief, current implementation/ledger/architecture/security/test reports, SQLite schema, source and Git history. Preserved the verified task allocation/DOCX/read-only import/Phase 4/5 modules. Added restricted broker-only text snapshot acquisition and separately approved verification; bounded PDF extraction/versioned reprocessing/private source recovery; project/task/chat pagination. No schema migration or active data replacement occurred. Current limits and deliberately unsupported binary/OCR/live paths are explicit in docs/CHECKOUT_PDF_HISTORY.md. TEST_REPORT.md records observed failures, repairs, local evidence and exact-source CI after execution; older completion statements below describe earlier increments.
+
 ## October 10 Simple UI continuation audit
 
 Actual clean starting HEAD f45fcde/master was inspected; implementation claims were checked against routers/domain modules, SQLite models, consulting/planning/gateway, restricted engineering/publication and Phase 5 delivery services. Unchanged baseline 300 backend and 23 browser checks passed. Existing approvals/delivery were reused rather than rebuilt. Missing simplified Home, durable project wizard and explicit project-level Lead/worker choices are implemented in this increment; PROJECT_WIZARD.md and LEAD_AI_ORCHESTRATION.md state remaining adaptive allocation/import/document/live-execution gaps. TEST_REPORT.md records final verification, not historical readiness claims.

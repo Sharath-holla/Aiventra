@@ -31,6 +31,15 @@ jobs:
           docker compose -f compose.yaml -f compose.runner.yaml exec -T runner python - --snapshot < scripts/verify_runner_isolation.py > /tmp/runner-after.json
           cmp /tmp/runner-before.json /tmp/runner-after.json
           cat /tmp/runner-after.json
+      - name: Verify checkout fixtures with actual Docker execution and broker restart
+        run: |
+          docker compose -f compose.yaml -f compose.runner.yaml exec -T runner python - < scripts/verify_checkout_isolation.py
+          docker compose -f compose.yaml -f compose.runner.yaml exec -T runner python - --snapshot < scripts/verify_checkout_isolation.py > /tmp/checkout-before.json
+          docker compose -f compose.yaml -f compose.runner.yaml restart runner
+          docker compose -f compose.yaml -f compose.runner.yaml up -d --wait --wait-timeout 120 runner
+          docker compose -f compose.yaml -f compose.runner.yaml exec -T runner python - --snapshot < scripts/verify_checkout_isolation.py > /tmp/checkout-after.json
+          cmp /tmp/checkout-before.json /tmp/checkout-after.json
+          cat /tmp/checkout-after.json
       - run: docker compose -f compose.yaml -f compose.runner.yaml logs && docker compose -f compose.yaml -f compose.runner.yaml down -v
         if: always()
   secrets:
@@ -117,9 +126,13 @@ jobs:
           docker compose exec -T api python - < scripts/verify_delivery_recovery.py > /tmp/delivery-before.json
           docker compose exec -T api python - < scripts/verify_package_recovery.py > /tmp/packages-before.json
           docker compose exec -T api python - < scripts/verify_project_setup_recovery.py > /tmp/project-setup-before.json
+          docker compose exec -T api python - < scripts/verify_history_recovery.py > /tmp/history-before.json
           docker compose restart api worker web
           docker compose up -d --wait --wait-timeout 90
           curl --fail http://localhost:8000/health/ready
+          docker compose exec -T api python - < scripts/verify_history_recovery.py > /tmp/history-after.json
+          cmp /tmp/history-before.json /tmp/history-after.json
+          cat /tmp/history-after.json
           docker compose exec -T api python - < scripts/verify_project_setup_recovery.py > /tmp/project-setup-after.json
           cmp /tmp/project-setup-before.json /tmp/project-setup-after.json
           cat /tmp/project-setup-after.json

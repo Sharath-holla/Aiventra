@@ -100,14 +100,25 @@ def test_attachment_project_scope_and_submitted_immutability(http, company):
     )
 
 
-def test_exact_proposal_approval_grants_document_to_assigned_project(http, company):
+@pytest.mark.parametrize("format", ["markdown", "pdf"])
+def test_exact_proposal_approval_grants_document_to_assigned_project(http, company, format):
     from sqlalchemy import select
 
     row = create(http, company, planning_mode="manual")
+    if format == "pdf":
+        from tests.test_pdf_ingestion import pdf
+
+        file = (
+            "knowledge.pdf",
+            pdf("Project-specific PDF with explicit source provenance"),
+            "application/pdf",
+        )
+    else:
+        file = ("knowledge.md", b"Project-specific document with explicit source provenance")
     row = http.post(
         f"/project-drafts/{row['id']}/attachments",
         data=command(row),
-        files={"file": ("knowledge.md", b"Project-specific document with explicit source provenance")},
+        files={"file": file},
     ).json()
     attachment_id = row["data"]["attachments"][0]["id"]
     row = http.post(f"/project-drafts/{row['id']}/submit", json=command(row)).json()

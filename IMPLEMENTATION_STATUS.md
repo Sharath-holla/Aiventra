@@ -1,5 +1,15 @@
 # Implementation status
 
+## Restricted checkout, PDF and history — October 11, 2026
+
+Continued from actual clean f240412/master under docs/CHECKOUT_PDF_HISTORY_SPEC.md. Implemented broker-only allowlisted immutable GitHub text snapshots, per-project receipts/hash integrity/limits/TTL/startup cleanup, owner request recovery, separately approved exact-source restricted tests and saved execution controls. Acquisition creates no Git branches/commits/pushes/PRs and never executes repository code. Existing metadata imports cannot bypass the autonomous coding approval path. Real authenticated checkout remains pending scoped connector/runner verification; GitHub transport and positive checkout UI contracts are explicitly fixtures.
+
+Implemented real bounded PDF subprocess extraction, filename/MIME/structure/action/resource checks, page/source/parser provenance, private original retention and version-bound upload/reprocess/replace/remove. Retired documents lose searchable chunks/grants and cannot reappear through index synchronization. Exact proposal approval grants current PDFs through existing project-memory permissions; submitted evidence is immutable. OCR, arbitrary binary imports and raw-source retention automation remain unsupported.
+
+Implemented recent/older project/task audit and chat turn pages, signed scoped cursors, stable same-second audit insertion positions using existing organization locking, saved-reference retention, ID deduplication, cancellation-version-gap handling and stale-search protection. Historical /state collections default to 30; no records are deleted. Engineering checkout/PDF provenance/Timeline/task history controls use actual endpoints. docs/CHECKOUT_PDF_HISTORY.md lists API/security/configuration/limits.
+
+SQLite remains authoritative at d45f80a6ce12; WAL/busy_timeout/serialized writes and PostgreSQL/pgvector compatibility are preserved without DDL or reset. ZERO_COST_ONLY remains mandatory. No model install/download, paid inference, live AI, generated PR, deployment or real client delivery occurred. Verification/publication evidence is recorded in TEST_REPORT.md after observation. This is the requested bounded increment; do not start another major feature without owner approval.
+
 ## Task-specific workforce and read-only imports — October 10–11, 2026
 
 Source **0b3df92** is pushed normally to origin/master with exact remote SHA equality. [All six CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38076888005): 343 backend / 25 ordinary browser / four isolated delivery checks, frontend/security checks, actual restricted Docker isolation/recovery and PostgreSQL transfer/restart/separate restore. Local final regression passed 343 backend / 25 ordinary / four isolated delivery checks; saved SQLite draft/workforce hashes matched across actual service restart. TEST_REPORT.md records exact timings, digests and the unchanged successful reruns after one load-related browser timeout. This completes the task-routing/DOCX/read-only-import increment, not full engineering readiness or live AI delivery. The evidence-only follow-up changes no tested application source.

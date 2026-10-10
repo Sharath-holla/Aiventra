@@ -10,6 +10,7 @@ import json
 import logging
 import os
 import sys
+import time
 from pathlib import Path
 from uuid import uuid4
 
@@ -45,7 +46,9 @@ async def main():
     from alembic import command
     from alembic.config import Config
     from company_os import models as m
+    from company_os import repository_checkouts
     from company_os.api import app
+    from company_os.config import settings
     from company_os.db import SessionLocal, engine
     from company_os.health import heartbeat
     from company_os.organization import seed
@@ -136,6 +139,67 @@ async def main():
             },
         ).json()
         saved["unredeemed_invitation"] = invitation["token"]
+        # Private checkout UI contract. Neither GitHub nor Docker is contacted.
+        with SessionLocal() as session:
+            repository = m.Repository(
+                org_id=org.id,
+                project_id=saved["packages"]["acceptance"]["project_id"],
+                name="Deterministic checkout UI fixture",
+                path="remote-metadata-only",
+                baseline_commit="a" * 40,
+                report={
+                    "remote_metadata_only": True,
+                    "repository": "fixture/checkout-ui",
+                    "branch": "main",
+                    "verification": "DETERMINISTIC FIXTURE; NO GITHUB OR DOCKER",
+                },
+            )
+            session.add(repository)
+            session.commit()
+            saved["checkout_repository"] = repository.id
+        settings().execution_enabled = True
+        receipts = {}
+        execution_receipts = {}
+
+        async def fixture_broker(method, path, data=None, params=None, timeout=200):
+            if path == "/checkouts":
+                value = {
+                    **data,
+                    "status": "ready",
+                    "source_digest": "d" * 64,
+                    "expires_at": int(time.time()) + 3600,
+                    "file_count": 1,
+                    "bytes": 80,
+                    "notice": "DETERMINISTIC UI FIXTURE; NO GITHUB OR DOCKER EXECUTION",
+                }
+                receipts[data["job_id"]] = value
+                return value
+            identity = path.split("/")[2]
+            if method == "GET":
+                return receipts[identity]
+            if path.endswith("/cleanup"):
+                receipts[identity] = {**receipts[identity], "status": "cleaned"}
+                return receipts[identity]
+            if path.endswith("/execute"):
+                value = {
+                    "job_id": data["job_id"],
+                    "status": "completed",
+                    "exit_code": 0,
+                    "build": {"exit_code": 0},
+                    "logs": "DETERMINISTIC RUNNER ADAPTER; NO GITHUB OR DOCKER EXECUTION",
+                }
+                execution_receipts[data["job_id"]] = value
+                return value
+            raise AssertionError("Unexpected fixture broker request")
+
+        repository_checkouts.broker = fixture_broker
+
+        async def fixture_result(identity):
+            return execution_receipts[identity]
+
+        from company_os import sandbox
+
+        sandbox.stored_result = fixture_result
     (root / "data" / "phase5-browser-state.json").write_text(json.dumps(saved), encoding="utf-8")
 
     worker_id = str(uuid4())

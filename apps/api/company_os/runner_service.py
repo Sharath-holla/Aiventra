@@ -15,6 +15,7 @@ import httpx
 from fastapi import FastAPI, HTTPException, Request
 from pydantic import ValidationError
 
+from .runner_checkout import CheckoutExecution, CheckoutInput, CheckoutScope
 from .runner_protocol import SUITES, RunInput
 
 ROOT = Path(os.environ.get("RUNNER_STAGING_ROOT", "/jobs"))
@@ -60,6 +61,9 @@ async def lifespan(_app):
         raise RuntimeError("Generate a private RUNNER_TOKEN before starting the broker")
     ROOT.mkdir(parents=True, exist_ok=True)
     prune()
+    from .runner_checkout import recover
+
+    recover(ROOT)
     async with httpx.AsyncClient(base_url=DAEMON, trust_env=False, timeout=180) as client:
         # Dedicated daemon only: cleanup this broker's interrupted executions on restart.
         response = await client.get(
@@ -89,7 +93,23 @@ async def lifespan(_app):
             result.raise_for_status()
             inspect = await client.get(f"/images/{image}/json")
             inspect.raise_for_status()
-    yield
+
+    async def expire_checkouts():
+        from .runner_checkout import expire_sources
+
+        while True:
+            await asyncio.sleep(30)
+            expire_sources(ROOT)
+
+    maintenance = asyncio.create_task(expire_checkouts())
+    try:
+        yield
+    finally:
+        maintenance.cancel()
+        try:
+            await maintenance
+        except asyncio.CancelledError:
+            pass
 
 
 app = FastAPI(
@@ -228,6 +248,10 @@ async def run(request: Request):
         data = RunInput.model_validate_json(raw)
     except ValidationError:
         raise HTTPException(422, "Invalid restricted runner request") from None
+    return await run_input(data)
+
+
+async def run_input(data: RunInput):
     job_id = str(data.job_id)
     try:
         await asyncio.wait_for(gate.acquire(), timeout=1)
@@ -319,3 +343,54 @@ async def cancel(job_id: UUID, request: Request):
         async with httpx.AsyncClient(base_url=DAEMON, trust_env=False, timeout=10) as client:
             await remove(client, state["container"])
     return {"status": "cancellation_requested"}
+
+
+@app.post("/checkouts")
+async def create_checkout(data: "CheckoutInput", request: Request):
+    from .runner_checkout import checkout
+
+    authenticate(request)
+    try:
+        await asyncio.wait_for(gate.acquire(), timeout=1)
+    except TimeoutError:
+        raise HTTPException(429, "Runner capacity reached") from None
+    try:
+        return await checkout(ROOT, data)
+    finally:
+        gate.release()
+
+
+@app.get("/checkouts/{identity}")
+async def read_checkout(identity: UUID, org_id: UUID, project_id: UUID, request: Request):
+    from .runner_checkout import get
+
+    authenticate(request)
+    return get(ROOT, identity, org_id, project_id)
+
+
+@app.post("/checkouts/{identity}/cleanup")
+async def cleanup_checkout(identity: UUID, data: "CheckoutScope", request: Request):
+    from .runner_checkout import cleanup, get, store
+
+    authenticate(request)
+    value = get(ROOT, identity, data.org_id, data.project_id)
+    if value["status"] == "fetching":
+        raise HTTPException(409, "Checkout acquisition still running")
+    cleanup(ROOT, identity)
+    value["status"] = "cleaned"
+    store(ROOT, identity, value)
+    return value
+
+
+@app.post("/checkouts/{identity}/execute")
+async def execute_checkout(identity: UUID, data: "CheckoutExecution", request: Request):
+    from .runner_checkout import files, get
+
+    authenticate(request)
+    value = get(ROOT, identity, data.org_id, data.project_id)
+    try:
+        snapshot = files(ROOT, value)
+        run = RunInput(job_id=data.job_id, suite=data.suite, files=snapshot, timeout=data.timeout)
+    except ValueError:
+        raise HTTPException(409, "Checkout unavailable or integrity changed") from None
+    return await run_input(run)

@@ -1,5 +1,13 @@
 # Implementation ledger
 
+## Restricted checkout/PDF/history increment — October 11, 2026
+
+Starting f240412/master. Source modules: runner_checkout.py, repository_checkouts.py, checkout_operations.py, pdf_ingestion.py, pdf_parser.py, draft_documents.py, history.py and history_operations.py. Reused existing runner_protocol/service, BusinessRecord/Approval/Artifact/memory, project wizard, conversations and project workspaces. No schema migration or active-data replacement. New audit details use the already serialized organization version; historical hashes/rows remain intact. Current owner specification and design are preserved in docs/CHECKOUT_PDF_HISTORY_SPEC.md and docs/CHECKOUT_PDF_HISTORY.md.
+
+Security/behavior: GET-only commit-pinned broker snapshots, project scope/integrity/capacity/TTL/restart cleanup, separate expiring exact source/suite approval and one persisted execution per approval; PDF fixed-code child resource controls and private source/page/version provenance; retired-memory tombstones; scoped stable keyset pages and honest saved UI states. Existing autonomous engineering, publication/release authority and ZERO_COST_ONLY are unchanged. Positive GitHub/checkout UI source/runner responses are deterministic fixtures; actual Docker/PostgreSQL evidence is recorded separately after CI. No live model/PR/customer delivery success is claimed.
+
+TEST_REPORT.md records baseline 343, first complete 372-test backend run, later focused tests, repaired Windows launcher/ordering/fixture/CSRF/version findings and final local/CI verification as observed. Normal source commit/push and exact CI identifiers are appended only after execution. Stop after this increment pending a new owner instruction.
+
 ## Task allocation/import increment — October 10–11, 2026
 
 Published application source **0b3df922064b7ad183c3aca3ec8f80130a39caca**, ordinary origin/master push and exact SHA equality. [All six Actions jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38076888005): 343 backend / 29 total browser checks, frontend/security audits, actual Docker runner result recovery, 56-table PostgreSQL transfer/restart/separate restore, and exact task-profile/wizard service recovery. Final local 343 backend / 29 browser checks and SQLite restart digests passed. One overlapping-load native browser timeout passed unchanged individually and in the full sequential rerun; no production gate/assertion/timeout was weakened. TEST_REPORT.md preserves the original failure and final evidence. This documentation-only follow-up changes no tested application/test/infrastructure source.

@@ -115,6 +115,8 @@ def put(
 
 
 def sync_source(session, row):
+    if isinstance(row, m.Artifact) and row.kind == "retired_requirement_attachment":
+        return
     key = f"{row.__tablename__}:{row.id}"
     project_id = getattr(row, "project_id", None)
     client_id = getattr(row, "client_id", None)

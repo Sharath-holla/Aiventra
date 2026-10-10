@@ -1,5 +1,15 @@
 # Next steps
 
+## Stop after checkout/PDF/history increment
+
+Preserve the implemented bounded increment in docs/CHECKOUT_PDF_HISTORY.md and the existing SQLite records/Phase 4/5 gates. Do not start a new major feature until the owner approves it. TEST_REPORT.md records final verification/publication evidence after observation; historical lists below are not the current implementation checklist.
+
+Pending external verification: configure a least-privilege allowlisted GitHub reader in the dedicated runner and test an owner-authorized real text-source repository at a pinned SHA. Workstation Docker is unavailable; use the actual CI isolation/restart evidence separately. Do not use chat-disclosed credentials or convert fixture source/runner responses into live claims. Binary/secret-shaped repository content is refused, and snapshots do not create Git worktrees/commits/PRs. Existing autonomous engineering and generated publication still need their independent approvals.
+
+Future owner-approved scope may add broader safe binary/document fidelity, explicit original-PDF retention/garbage collection and operational least-privilege/filesystem/egress/backup/load verification. PDF originals must be backed up alongside SQLite/extracted artifacts. No OCR is implemented. Submitted documents require a new approved requirement revision to change.
+
+Live local model setup/benchmarking, genuine Lead/specialist engineering/independent QA, separately approved generated PRs and real client release/acceptance remain pending; no install/download or paid fallback is currently authorized. PostgreSQL cutover remains deferred; compatible schema/migrations/transfer/recovery CI are retained. Keep ZERO_COST_ONLY and SQLite active.
+
 ## Current task allocation/import continuation
 
 Preserve the implemented task-routing, DOCX lifecycle and read-only GitHub increment described in IMPLEMENTATION_STATUS.md and docs/TASK_ALLOCATION_IMPORT_SPEC.md. Do not rebuild the wizard or existing approval/runner/delivery engines.
