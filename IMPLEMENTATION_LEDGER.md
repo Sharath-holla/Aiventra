@@ -2,6 +2,8 @@
 
 ## Phase 5 increments B–F — release, client response and closure
 
+Published source **2e9ba43**, ordinary origin/master push and exact remote SHA verified. [All six CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38062389394): 300 backend / 23 browser checks, frontend/security/dependency checks, actual restricted runner recovery, 56-table PostgreSQL transfer/restart/restore and actual partial-package checkpoint restart/resume. TEST_REPORT.md records exact timings/digests and repaired initial failures. A documentation-only evidence follow-up changes no tested application source.
+
 Implemented source: exact owner release/withdrawal, invitation grants and filtered client downloads; immutable acceptance/rejection/change/defect/support statements; bounded owner-approved analysis and follow-up work with existing restricted engineering/QA gates; current delivery timeline, separate closure/reopen and connected owner/client UI. Positive live-shaped provenance exists only in disposable network-denied tests. No actual live AI, generated PR, deployment or real client release/acceptance is claimed.
 
 Actual additive SQLite revision d45f80a6ce12 preserved all 53 previous tables / 28,231 rows, aggregate digest 9fd814aab60b4ce831414c7a2cb9f7494d844e2ee230af4cd5acb16bed7f8efe; private backup retained. Integrity/foreign keys/no Alembic drift passed. Actual API/worker restart between package validation and freeze retained digest 12be1c3b63571d474e4ee16b080a7b5e242b16542b716f1a6f18fd87b8c462d9, then resumed the same fixture workflow to two checkpoints and finalized manifest 5833bd190d37cc57cd7da26a0e8475d49aff91d7d8e1f3dc32fd7ce1457bf805. It remained unreleased.

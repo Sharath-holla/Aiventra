@@ -2,6 +2,8 @@
 
 ## Current Phase 5 completion audit — October 10, 2026
 
+Exact published source **2e9ba43** passed [all six CI jobs](https://github.com/Sharath-holla/Aiventra/actions/runs/38062389394): 300 backend/23 browser checks, actual restricted Docker recovery, 56-table PostgreSQL compatibility/restart/restore and partial-package preparation recovery. Final checks have no failures; local and CI evidence plus synthetic/live boundaries are recorded in TEST_REPORT.md. This audit does not certify production readiness or live client delivery.
+
 Actual source now contains separate owner release/withdrawal, invitation/project grants, allowlisted client delivery/downloads, append-only exact-version statements, scoped case analysis/approved follow-up engineering and closure/reopen. Earlier statements below that these modules are absent are historical. Tests exercise both real API/UI/SQLite execution and explicitly synthetic live-shaped provenance; no production bypass, paid inference, actual client release or generated PR was used.
 
 Repaired findings: pending analysis tasks now flush before handoff-message foreign keys; client internal-artifact denial retains 404 privacy semantics; review readiness guards absent artifact IDs; stale/source edits (including requirement text without revision), tampered manifests/files, revoked grants, disabled owners, uncertain finance and expired approvals fail closed. Current-package withdrawal updates lifecycle without overwriting a newer version; closed projects require explicit reopen. Case resolution checks the full approved task payload/scope, and reanalysis retains old approvals/results.
