@@ -141,6 +141,8 @@ def project_control(
     session: Session = Depends(session_dependency),
 ):
     project = scoped(session, m.Project, record_id, user)
+    if project.status == "closed":
+        raise HTTPException(409, "Closed projects require the dedicated, audited reopen action")
     from ..workflows import project_authority
 
     if data.enabled:

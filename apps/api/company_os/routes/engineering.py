@@ -316,9 +316,9 @@ def approve_coding(
 def artifact_detail(
     record_id: str, user: m.User = Depends(current_user), session: Session = Depends(session_dependency)
 ):
-    artifact = scoped(session, m.Artifact, record_id, user)
-    if user.role != "owner" and not artifact.project_id:
+    if user.role != "owner":
         raise HTTPException(404, "Artifact not found")
+    artifact = scoped(session, m.Artifact, record_id, user)
     return serialize(artifact)
 
 

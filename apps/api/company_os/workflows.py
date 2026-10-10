@@ -284,6 +284,17 @@ async def document_step(session: Session, workflow: Workflow, token: str) -> Non
         "checks": result.acceptance_checks,
     }
     task.status = "completed"
+    session.execute(
+        update(Message)
+        .where(
+            Message.org_id == workflow.org_id,
+            Message.task_id == task.id,
+            Message.recipient == agent.id,
+            Message.type == "delivery_case_assignment",
+            Message.status == "delivered",
+        )
+        .values(status="acknowledged", acknowledged_at=now())
+    )
     checkpoint(session, workflow, token, "document", task.evidence, complete=True)
     audit(
         session,

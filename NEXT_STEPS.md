@@ -1,5 +1,15 @@
 # Next steps
 
+## Current continuation after Phase 5 delivery gates
+
+Preserve immutable packages, the separate exact owner release gate, invitations/project grants, scoped client files/statements, bounded change/defect/support work and exact closure/reopen. Complete local regression and pushed-source CI recorded in TEST_REPORT.md before claiming this increment verified. Older unfinished-release lists below are historical.
+
+1. With explicit installation/model-download authorization and measured available memory, verify a local Ollama model under ZERO_COST_ONLY. Run persisted benchmarks and real BA → CTO → PM, engineering, independent QA and five-role review. No deterministic fixture counts as live success; no model setup or paid fallback is authorized now.
+2. Verify genuine coding evidence and the least-privilege repository connector, then obtain exact owner approval before publishing any generated draft PR. Existing source pushes do not authorize generated PRs. Preserve interrupted-request reconciliation and bounded separately approved repairs.
+3. Prepare a new live-reviewed package, inspect explicit disclosures/recipients, obtain its exact owner release approval, and verify an actual invited client's acceptance/change journey. Current positive release/client browser contracts use disposable synthetic provenance only. Never release fixture packages or call test acceptance real client delivery.
+4. Add binary build-artifact export and an approved staging/deployment connector with actual smoke/rollback evidence. Deployment currently stays not_verified; source patches and test receipts are not deployed binaries.
+5. Complete production identity/least privilege, encrypted offsite backup/restore, monitoring/incidents and load/capacity checks before a production readiness claim. SQLite stays active with existing records; PostgreSQL cutover remains deferred until explicitly authorized. Phase 6 is not declared complete or started by fixture success.
+
 ## Active Phase 5 completion order
 
 Increment A source **203127b** is published and [all five CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38056412779), including 269 backend/19 browser checks and actual database/runner/package recovery. Preserve this verified increment and continue with the exact owner release gate and invitation-based project access.

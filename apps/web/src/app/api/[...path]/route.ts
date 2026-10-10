@@ -66,8 +66,14 @@ async function proxy(
     }
     if (
       request.method === "GET" &&
-      path[0] === "delivery-packages" &&
-      path[2] === "files" &&
+      ((path[0] === "delivery-packages" && path[2] === "files") ||
+        (path[0] === "delivery-cases" && path[2] === "attachments") ||
+        (path[0] === "client" &&
+          path[1] === "cases" &&
+          path[3] === "attachments") ||
+        (path[0] === "client" &&
+          path[1] === "deliveries" &&
+          path[3] === "files")) &&
       response.ok
     ) {
       return new Response(response.body, {
@@ -89,7 +95,10 @@ async function proxy(
       jar.delete("company-session");
       return NextResponse.json({ ok: true }, { headers: responseHeaders });
     }
-    if (endpoint === "auth/login" && response.ok) {
+    if (
+      ["auth/login", "auth/redeem-invitation"].includes(endpoint) &&
+      response.ok
+    ) {
       jar.set("company-session", body.access_token, {
         httpOnly: true,
         sameSite: "strict",

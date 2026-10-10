@@ -65,6 +65,23 @@ jobs:
         working-directory: apps/web
       - run: npm run format:check && npm run typecheck && npm run build && npm audit --omit=dev
         working-directory: apps/web
+  delivery-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - run: pip install uv && uv sync --extra dev --locked
+      - run: npm ci && npx playwright install --with-deps chromium
+        working-directory: apps/web
+      - name: Isolated delivery UI contracts; outbound inference prohibited
+        run: npx playwright test --config playwright.phase5.config.ts --reporter=line
+        working-directory: apps/web
+        env:
+          PHASE5_FIXTURE_PYTHON: ../../.venv/bin/python
   integration:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -125,6 +142,16 @@ jobs:
           docker compose exec -T api python - < scripts/verify_zero_cost_recovery.py > /tmp/zero-cost-after.json
           cmp /tmp/zero-cost-before.json /tmp/zero-cost-after.json
           cat /tmp/zero-cost-after.json
+      - name: Recover partial deterministic package after actual API and worker restart
+        run: |
+          docker compose stop worker
+          docker compose exec -T api python - --prepare < scripts/verify_package_preparation_recovery.py > /tmp/preparation-before.json
+          docker compose restart api worker web
+          docker compose up -d --wait --wait-timeout 90
+          docker compose exec -T api python - < scripts/verify_package_preparation_recovery.py > /tmp/preparation-after.json
+          cmp /tmp/preparation-before.json /tmp/preparation-after.json
+          cat /tmp/preparation-after.json
+          docker compose exec -T api python - --resume --verify < scripts/verify_package_preparation_recovery.py
       - name: Verify actual database restart and pg_dump restoration without replacing active data
         run: |
           docker compose stop api worker web

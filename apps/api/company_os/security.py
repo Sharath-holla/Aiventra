@@ -206,6 +206,18 @@ def scoped(session: Session, model, record_id: str, user: User):
             raise HTTPException(404, "Record not found")
         if isinstance(row, (Project, Requirement)) and row.client_id != user.client_id:
             raise HTTPException(404, "Record not found")
+        if isinstance(row, Project):
+            from .client_access import grant_for
+
+            try:
+                grant_for(session, user, row.id)
+            except PermissionError:
+                raise HTTPException(404, "Record not found") from None
+        if isinstance(row, Requirement):
+            from .client_access import requirement_allowed
+
+            if not requirement_allowed(session, user, row):
+                raise HTTPException(404, "Record not found")
         if hasattr(row, "project_id") and row.project_id:
             scoped(session, Project, row.project_id, user)
     return row

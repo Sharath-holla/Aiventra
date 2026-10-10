@@ -1,5 +1,13 @@
 # Implementation ledger
 
+## Phase 5 increments B–F — release, client response and closure
+
+Implemented source: exact owner release/withdrawal, invitation grants and filtered client downloads; immutable acceptance/rejection/change/defect/support statements; bounded owner-approved analysis and follow-up work with existing restricted engineering/QA gates; current delivery timeline, separate closure/reopen and connected owner/client UI. Positive live-shaped provenance exists only in disposable network-denied tests. No actual live AI, generated PR, deployment or real client release/acceptance is claimed.
+
+Actual additive SQLite revision d45f80a6ce12 preserved all 53 previous tables / 28,231 rows, aggregate digest 9fd814aab60b4ce831414c7a2cb9f7494d844e2ee230af4cd5acb16bed7f8efe; private backup retained. Integrity/foreign keys/no Alembic drift passed. Actual API/worker restart between package validation and freeze retained digest 12be1c3b63571d474e4ee16b080a7b5e242b16542b716f1a6f18fd87b8c462d9, then resumed the same fixture workflow to two checkpoints and finalized manifest 5833bd190d37cc57cd7da26a0e8475d49aff91d7d8e1f3dc32fd7ce1457bf805. It remained unreleased.
+
+Tests, failures repaired, publication SHA and exact CI evidence are recorded in TEST_REPORT.md after observation. Existing A source 203127b/five green jobs and earlier connector/runner/zero-cost foundations are preserved. SQLite remains active and no model installation/download or paid invocation occurred.
+
 ## Phase 5 increment A — immutable packages
 
 Published **203127b**, ordinary origin/master push, [all five CI jobs green](https://github.com/Sharath-holla/Aiventra/actions/runs/38056412779). Observed 269 backend/19 Compose browser checks, actual package-file service recovery, 53-table PostgreSQL transfer/restart/restore and real restricted runner verification. This documentation-only follow-up records evidence without changing tested application source. No model installation/download, paid inference, generated PR or actual client release occurred.

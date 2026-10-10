@@ -42,6 +42,10 @@ import { MemoryBrowser } from "@/components/memory-browser";
 import { Staffing } from "@/components/staffing";
 import { Communications } from "@/components/communications";
 import { CEOChat, ConversationHistory } from "@/components/conversations";
+import {
+  ClientDeliveries,
+  RedeemInvitation,
+} from "@/components/client-deliveries";
 
 const groups = [
   {
@@ -410,6 +414,7 @@ export default function Home() {
                 Sign in <ArrowRight size={16} />
               </Button>
             </form>
+            <RedeemInvitation onUser={setUser} />
             <div className="login-hint">
               <ShieldCheck size={18} />
               <p>
@@ -775,6 +780,20 @@ function ClientPortal({ user }: { user: User }) {
       <Logo />
       <h1>Client workspace</h1>
       <p>{user.email}</p>
+      <Button
+        secondary
+        onClick={async () => {
+          try {
+            await api("/auth/logout", {});
+            window.location.reload();
+          } catch (cause) {
+            setError(String(cause));
+          }
+        }}
+      >
+        Sign out of client workspace
+      </Button>
+      <ClientDeliveries />
       {error && <div className="alert error">{error}</div>}
       <form
         onSubmit={async (e) => {

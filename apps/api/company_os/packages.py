@@ -366,16 +366,51 @@ def assemble(session, package):
 def integrity(session, package, current=False):
     if not package.finalized_at or digest(package.manifest) != package.manifest_hash:
         raise PermissionError("Package manifest is not frozen or failed hash verification")
+    expected = {
+        "package_id": package.id,
+        "org_id": package.org_id,
+        "client_id": package.client_id,
+        "project_id": package.project_id,
+        "version": package.version,
+        "review_id": package.review_id,
+        "source_hash": package.source_hash,
+        "classification": package.classification,
+        "created_at": package.created_at,
+        "created_by": package.owner_id,
+        "supersedes_id": package.supersedes_id,
+    }
+    if any(package.manifest.get(key) != value for key, value in expected.items()):
+        raise PermissionError("Frozen manifest identity does not match its package scope")
+    sources = [row for row in package.manifest["files"] if row["purpose"] == "internal_evidence"]
+    if len(sources) != 1 or sources[0]["sha256"] != package.source_hash:
+        raise PermissionError("Frozen source file is not bound to the reviewed source hash")
+    if len({row["id"] for row in package.manifest["files"]}) != len(package.manifest["files"]):
+        raise PermissionError("Frozen file identifiers must be unique")
     for reference in package.manifest["files"]:
         read_blob(package, reference)
     if current:
+        project = session.get(m.Project, package.project_id)
         source = review_evidence(
             session,
-            session.get(m.Project, package.project_id),
+            project,
             session.get(m.BusinessRecord, package.review_id),
         )
         if digest(source) != package.source_hash:
             raise PermissionError("Package source is stale")
+        proposal = session.get(m.Proposal, project.proposal_id)
+        requirement = session.get(m.Requirement, proposal.requirement_id)
+        required = canonical(
+            {
+                "title": requirement.title,
+                "version": requirement.version,
+                "text": requirement.text,
+                "answers": requirement.answers,
+                "acceptance": source["acceptance"],
+            }
+        )
+        reference = next(row for row in package.manifest["files"] if row["purpose"] == "requirements")
+        if sha(required.encode()) != reference["sha256"] or project.name != package.manifest["project_name"]:
+            raise PermissionError("Approved requirement or project identity changed after freeze")
     return True
 
 
@@ -417,6 +452,17 @@ async def package_step(session, workflow, token):
         )
         package.manifest, package.manifest_hash = manifest, digest(manifest)
         package.finalized_at, package.status = now(), manifest["status_at_freeze"]
+        if package.classification == "live_reviewed":
+            from .release import transition
+
+            transition(
+                session,
+                session.get(m.Project, package.project_id),
+                "blocked" if manifest["blockers"] else "awaiting_owner_release",
+                "worker",
+                package.request_id,
+                {"package_id": package.id, "manifest_hash": package.manifest_hash},
+            )
         notify(
             session, package, "Delivery package blocked" if manifest["blockers"] else "Delivery package ready"
         )

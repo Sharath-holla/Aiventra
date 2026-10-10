@@ -113,7 +113,8 @@ def readiness(session, project, mode):
             if task.kind == "coding":
                 author_models.add(run.model_id)
         if task.kind == "document":
-            artifact = session.get(m.Artifact, task.evidence.get("artifact_id"))
+            artifact_id = task.evidence.get("artifact_id")
+            artifact = session.get(m.Artifact, artifact_id) if artifact_id else None
             if (
                 not artifact
                 or artifact.org_id != project.org_id
@@ -341,6 +342,18 @@ async def review_step(session, workflow, token, work, project):
             else "fixture_reviewed"
             if workflow.mode == "mock"
             else "awaiting_delivery_approval"
+        )
+        session.add(
+            m.Notification(
+                org_id=work.org_id,
+                severity="info" if approved else "warning",
+                title="Final review passed"
+                if approved and workflow.mode == "live"
+                else "Deterministic final-review fixture completed"
+                if approved
+                else "Final review requires changes",
+                subject_id=record.id,
+            )
         )
     else:
         session.add(

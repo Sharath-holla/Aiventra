@@ -87,6 +87,13 @@ def start(
         },
     )
     session.add(record)
+    if data.mode == "live":
+        from ..release import transition
+
+        try:
+            transition(session, project, "final_review", user.id, data.request_id)
+        except PermissionError as exc:
+            raise HTTPException(409, str(exc)) from None
     audit(
         session,
         user.org_id,

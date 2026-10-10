@@ -44,11 +44,11 @@ def upgrade(url, backup_root):
                 names = [name for name in inspect(connection).get_table_names() if name != "alembic_version"]
                 previous = inventory_existing(connection, names)
                 revision = connection.scalar(text("SELECT version_num FROM alembic_version"))
-                if revision not in {"a31d07edc482", "c72e51d9af04"}:
+                if revision not in {"a31d07edc482", "c72e51d9af04", "d45f80a6ce12"}:
                     raise ValueError("Unexpected source revision; inspect pending migrations first")
                 config = Config("alembic.ini")
                 config.attributes["connection"] = connection
-                command.upgrade(config, "c72e51d9af04")
+                command.upgrade(config, "d45f80a6ce12")
                 if inventory_existing(connection, names) != previous:
                     raise ValueError("Existing application records changed during additive migration")
                 if connection.scalar(text("PRAGMA integrity_check")) != "ok":
@@ -63,7 +63,7 @@ def upgrade(url, backup_root):
                     "previous_digest": hashlib.sha256(
                         json.dumps(previous, sort_keys=True).encode()
                     ).hexdigest(),
-                    "revision": "c72e51d9af04",
+                    "revision": "d45f80a6ce12",
                     "integrity": "ok",
                     "foreign_key_violations": 0,
                 }

@@ -34,7 +34,13 @@ def requirements(user: m.User = Depends(current_user), session: Session = Depend
     query = select(m.Requirement).where(m.Requirement.org_id == user.org_id)
     if user.role != "owner":
         query = query.where(m.Requirement.client_id == user.client_id)
-    return [serialize(row) for row in session.scalars(query).all()]
+    from ..client_access import requirement_allowed, requirement_view
+
+    return [
+        serialize(row) if user.role == "owner" else requirement_view(row)
+        for row in session.scalars(query).all()
+        if user.role == "owner" or requirement_allowed(session, user, row)
+    ]
 
 
 @router.post("/requirements", status_code=201)
@@ -68,6 +74,10 @@ def requirement_detail(
     record_id: str, user: m.User = Depends(current_user), session: Session = Depends(session_dependency)
 ):
     requirement = scoped(session, m.Requirement, record_id, user)
+    if user.role != "owner":
+        from ..client_access import requirement_view
+
+        return {**requirement_view(requirement), "proposals": []}
     proposals = session.scalars(select(m.Proposal).where(m.Proposal.requirement_id == requirement.id)).all()
     return {**serialize(requirement), "proposals": [serialize(row) for row in proposals]}
 
@@ -80,6 +90,10 @@ def clarify(
     session: Session = Depends(session_dependency),
 ):
     requirement = scoped(session, m.Requirement, record_id, user)
+    if user.role != "owner" and session.scalar(
+        select(m.Project.id).join(m.Proposal).where(m.Proposal.requirement_id == requirement.id)
+    ):
+        raise HTTPException(409, "Approved project changes require a versioned delivery change request")
     result = session.execute(
         update(m.Requirement)
         .where(m.Requirement.id == requirement.id, m.Requirement.version == data.version)

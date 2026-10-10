@@ -2,6 +2,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, date } from "@/lib/api";
 import { Badge, Button, Empty, Panel, Pretty, useApp } from "./common";
+import {
+  ClientAccessControls,
+  type ClientAccess,
+} from "./client-access-controls";
+import { ReleaseControls } from "./release-controls";
 
 type DeliveryFile = {
   id: string;
@@ -55,6 +60,13 @@ export function PackageControls({ projectId }: { projectId: string }) {
   const [limitations, setLimitations] = useState("");
   const [documents, setDocuments] = useState<Record<string, string>>({});
   const [visible, setVisible] = useState<Record<string, boolean>>({});
+  const [access, setAccess] = useState<ClientAccess>({
+    invitations: [],
+    grants: [],
+  });
+  const [recipients, setRecipients] = useState<string[]>([]);
+  const [patches, setPatches] = useState(false);
+  const [deadline, setDeadline] = useState("");
   const request = useRef<{ hash: string; id: string } | null>(null);
   const reviews = state.records.filter(
     (row) =>
@@ -109,6 +121,7 @@ export function PackageControls({ projectId }: { projectId: string }) {
         block the package. Fixture packages remain nonproduction and cannot be
         released.
       </p>
+      <ClientAccessControls projectId={projectId} onAccess={setAccess} />
       <form
         onSubmit={(event) => {
           event.preventDefault();
@@ -120,6 +133,11 @@ export function PackageControls({ projectId }: { projectId: string }) {
             release_notes: notes,
             test_summary: tests,
             limitations: limitations.split("\n").filter(Boolean),
+            recipient_ids: recipients,
+            include_source_patches: patches,
+            acceptance_deadline: deadline
+              ? Math.floor(new Date(deadline).getTime() / 1000)
+              : null,
             documents: purposes
               .filter((purpose) => documents[purpose])
               .map((purpose) => ({
@@ -232,6 +250,52 @@ export function PackageControls({ projectId }: { projectId: string }) {
             </div>
           ))}
         </details>
+        <fieldset>
+          <legend>Exact intended recipients</legend>
+          {!access.grants.some(
+            (grant) => grant.enabled && !grant.revoked_at,
+          ) && (
+            <p className="muted">
+              Invite a client and have them redeem their token before selecting
+              recipients.
+            </p>
+          )}
+          {access.grants
+            .filter((grant) => grant.enabled && !grant.revoked_at)
+            .map((grant) => (
+              <label className="check" key={grant.id}>
+                <input
+                  type="checkbox"
+                  checked={recipients.includes(grant.user_id)}
+                  onChange={(event) =>
+                    setRecipients(
+                      event.target.checked
+                        ? [...recipients, grant.user_id]
+                        : recipients.filter((id) => id !== grant.user_id),
+                    )
+                  }
+                />
+                {grant.email} ·{" "}
+                {grant.can_respond ? "Can respond" : "Read only"}
+              </label>
+            ))}
+          <label>
+            Acceptance deadline (optional, local time)
+            <input
+              type="datetime-local"
+              value={deadline}
+              onChange={(event) => setDeadline(event.target.value)}
+            />
+          </label>
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={patches}
+              onChange={(event) => setPatches(event.target.checked)}
+            />
+            Approve verified source patches for client disclosure
+          </label>
+        </fieldset>
         <div className="button-row">
           <Button type="submit" disabled={busy || !review}>
             Prepare immutable package
@@ -334,6 +398,7 @@ export function PackageControls({ projectId }: { projectId: string }) {
               </p>
             ))}
           </details>
+          {item.finalized_at && <ReleaseControls item={item} reload={reload} />}
         </section>
       ))}
     </Panel>

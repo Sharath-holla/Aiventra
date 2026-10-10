@@ -168,6 +168,19 @@ def prepare(
     )
     session.add(package)
     session.flush()
+    if package.classification == "live_reviewed":
+        from ..release import transition
+
+        checked(
+            lambda: transition(
+                session,
+                project,
+                "package_preparation",
+                user.id,
+                package.request_id,
+                {"package_id": package.id},
+            )
+        )
     audit(
         session,
         user.org_id,
@@ -233,6 +246,14 @@ def cancel(record_id: str, user: m.User = Depends(owner), session: Session = Dep
     workflow = session.get(m.Workflow, package.workflow_id)
     workflow.status, workflow.lease_token, workflow.lease_until = "cancelled", uid(), 0
     package.status = "cancelled"
+    if package.classification == "live_reviewed":
+        from ..release import transition
+
+        checked(
+            lambda: transition(
+                session, session.get(m.Project, package.project_id), "cancelled", user.id, package.request_id
+            )
+        )
     audit(
         session,
         user.org_id,

@@ -1,5 +1,13 @@
 # Security
 
+## Current release/client boundary
+
+Separate owner release authority binds frozen version/hash and expiration; current evidence, recipients, grants, finance and newer versions are checked again at publication. Fixtures are never releasable. Invitation secrets are random, one-use, expiring and stored only as hashes; retries never return a saved raw token. Redemption cannot reset an existing account password. Clients require enabled identity, matching tenant/client/project, current invitation/grant and intended recipient access. Internal artifact and semantic-memory routes are owner-only; client summaries and repository references are allowlisted, and private manifests/prompts/finance never cross that boundary.
+
+Released files and client case attachments use hash-derived private storage, actual hash verification and authenticated no-store/nosniff download routes. Text attachments are bounded and untrusted; no attachment is executed. Response update/delete is blocked in SQLite and PostgreSQL. Generic record mutations cannot alter delivery_* authority/proofs/cases. Organization-serialized UUID commands atomically save results/checkpoints/audit; source/approval/permission is checked again for new actions. Existing idempotent results retain their historical meaning and do not restore withdrawn file access.
+
+Owner-approved case scope cannot bypass repository/coding/QA approval. Fixture work remains a live release/closure blocker. Closure requires current accepted evidence and a separate owner approval; closed projects need explicit reopen before current release withdrawal. Production identity/egress/offsite recovery and least-privilege operational validation remain unfinished. Older sections below document earlier increments.
+
 ## Frozen delivery evidence
 
 Owner/tenant-only package routes recheck exact review/source provenance before preparation. The existing organization lock serializes versions and duplicate requests; worker checkpoints retain lease/cancellation fences. SQLite/PostgreSQL migration guards reject finalized manifest/input/identity edits and package deletion. Private hash-derived file paths reject traversal/linked directories; reads verify byte length and SHA-256 and downloads use no-store/nosniff attachments. No private file path or arbitrary binary enters a client response. Fixture classification cannot grant release authority. Release/client grants and tightening historical client artifact/memory access are the following increments, not completed controls in this source.

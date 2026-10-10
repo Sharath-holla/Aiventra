@@ -60,7 +60,7 @@ def test_schema_version_and_extra_tables_rejected(tmp_path):
     engine = readonly_engine(source)
     with engine.connect() as connection:
         check_schema(connection)
-        assert len(inventory(connection)) == 53
+        assert len(inventory(connection)) == 56
     engine.dispose()
     with sqlite3.connect(source) as connection:
         connection.execute("UPDATE alembic_version SET version_num='stale'")

@@ -197,6 +197,9 @@ async def test_additive_migration_retains_records_and_db_freezes_finalized_versi
     # schema. No private application data or existing delivery row is removed.
     engine = company["factory"].kw["bind"]
     with engine.begin() as connection:
+        m.DeliveryResponse.__table__.drop(connection)
+        m.ClientAccessGrant.__table__.drop(connection)
+        m.ClientInvitation.__table__.drop(connection)
         m.DeliveryPackage.__table__.drop(connection)
         connection.execute(text("CREATE TABLE alembic_version (version_num VARCHAR(32) PRIMARY KEY)"))
         connection.execute(text("INSERT INTO alembic_version VALUES ('a31d07edc482')"))

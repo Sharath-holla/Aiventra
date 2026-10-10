@@ -1,5 +1,15 @@
 # Client-to-delivery workflow
 
+## Current implemented workflow
+
+Approved requirement/proposal → exact approved staffing → authorized task execution/restricted engineering/independent QA → five-role final review → immutable package validation/freeze → separate exact owner release approval → explicit release → intended invited client files/response → approved follow-up work or acceptance → separate owner closure approval/close. These are enforced backend gates with connected UI; no stage establishes live AI quality by itself.
+
+Owner Project → Delivery now exposes package documents/disclosures, recipient grants, expiring invitations, exact approval/release/withdrawal, cases, analysis artifacts, scope approvals, follow-up tasks, timeline and closure/reopen. Clients redeem an invitation at login, then see only their granted projects and intended released versions. Withdrawn/unreleased/internal files cannot be downloaded. The portal shows real saved hashes, files, requirements, limitations, issues and deployment not_verified rather than a fabricated deployed preview.
+
+Formal acceptance/rejection/changes bind exact version/hash and deadline with an explicit reason; duplicates are idempotent and decisions cannot rewrite history. Defects/support additionally save severity, priority, reproduction, feature/criteria references and bounded text attachments. BA/PM impact analysis is owner-started and budgeted. Exact owner impact approval precedes new document/coding work; coding retains separate repository authorization. Resolution checks actual task/result/QA evidence. A revision requires a fresh review/package/release; the original package never changes. Fixture analysis/work is visibly fixture_verified and still blocks live completion.
+
+Closing checks the latest intact live release and acceptance, all work/cases, settled reservations/spending and audit validity, then requires a separate exact expiring owner approval. Explicit reopening keeps package/response/closure history. Notifications are internal persisted records; no email, external client message, generated PR, deployment or real release was sent during development. The following sections retain historical design/status statements.
+
 ## Increment A — frozen packages
 
 Completed final review → owner selects exact reviewed source/documents → durable artifact-validation checkpoint → freeze checkpoint → package_ready or package_blocked. Each version has canonical manifest/file hashes, actual provenance, bounded private immutable files and a supersedes reference. Missing required documents persist as blockers. Fixture packages retain fixture_nonproduction and cannot certify client release. The owner Delivery workspace and authenticated downloads consume real saved state. Separate release approval/client access/acceptance/closure are the next increments; historical unimplemented statements below refer to earlier source.

@@ -9,6 +9,9 @@ from .routes import (
     administration,
     agent_operations,
     business,
+    case_operations,
+    client_operations,
+    closure_operations,
     consultation,
     conversations,
     delivery_operations,
@@ -18,6 +21,7 @@ from .routes import (
     package_operations,
     provider_operations,
     publication_operations,
+    release_operations,
     spending_operations,
     staffing_operations,
 )
@@ -55,5 +59,9 @@ for router in (
     publication_operations.router,
     delivery_operations.router,
     package_operations.router,
+    release_operations.router,
+    client_operations.router,
+    case_operations.router,
+    closure_operations.router,
 ):
     app.include_router(router)

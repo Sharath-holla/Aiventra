@@ -8,8 +8,8 @@
     "start": "next start --hostname 0.0.0.0",
     "typecheck": "tsc --noEmit",
     "test:e2e": "playwright test",
-    "format": "prettier --write src tests *.ts *.json",
-    "format:check": "prettier --check src tests *.ts *.json"
+    "format": "prettier --write src tests tests-phase5 *.ts *.json",
+    "format:check": "prettier --check src tests tests-phase5 *.ts *.json"
   },
   "dependencies": {
     "lucide-react": "1.53.0",

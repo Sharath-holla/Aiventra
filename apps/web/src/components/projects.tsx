@@ -13,6 +13,7 @@ import { Badge, Button, Empty, Panel, Pretty, useApp } from "./common";
 import { PublicationControls } from "./publication-controls";
 import { DeliveryControls } from "./delivery-controls";
 import { PackageControls } from "./package-controls";
+import { DeliveryFollowups } from "./delivery-followups";
 
 export function Projects({
   engineering,
@@ -183,6 +184,10 @@ export function Projects({
           <DeliveryControls key={project.id} projectId={project.id} />
           <PackageControls
             key={`packages:${project.id}`}
+            projectId={project.id}
+          />
+          <DeliveryFollowups
+            key={`followups:${project.id}`}
             projectId={project.id}
           />
         </>

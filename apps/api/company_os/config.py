@@ -25,6 +25,8 @@ class Settings(BaseSettings):
     runner_token: str = ""
     github_publication_token_env: str = "AIVENTRA_GITHUB_TOKEN"
     github_publication_repositories: str = ""
+    delivery_release_ttl_seconds: int = Field(default=3600, ge=60, le=86400)
+    client_invitation_ttl_seconds: int = Field(default=172800, ge=60, le=604800)
     artifact_root: Path = Path("artifacts")
     repository_root: Path = Path("data/repositories")
     provider_allowed_hosts: str = (

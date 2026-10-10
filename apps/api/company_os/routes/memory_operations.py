@@ -8,7 +8,7 @@ from ..api_common import serialize
 from ..db import now, session_dependency, uid
 from ..embeddings import fingerprint
 from ..schemas import Strict
-from ..security import audit, current_user, owner, scoped
+from ..security import audit, owner, scoped
 from ..semantic_memory import access_clause, backfill, index_pending, put, search
 
 router = APIRouter(prefix="/semantic-memory")
@@ -52,7 +52,7 @@ def browse(
     project_id: str | None = None,
     query: str = Query(default="", max_length=500),
     agent_id: str | None = None,
-    user: m.User = Depends(current_user),
+    user: m.User = Depends(owner),
     session: Session = Depends(session_dependency),
 ):
     if project_id:

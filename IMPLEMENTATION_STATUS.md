@@ -1,5 +1,17 @@
 # Implementation status
 
+## Current Phase 5 continuation — October 10, 2026
+
+Increment A remains published as 203127b (five green CI jobs). The next source increment implements separate exact owner release approval/publication/withdrawal, invitation-only project grants, filtered client delivery downloads, immutable version/hash-bound client responses, persisted change/defect/support analysis and approved follow-up work, closure and explicit reopen. Owner and client UI controls call these real APIs. No production readiness, live AI, real client release/acceptance, generated PR publication or deployment is claimed. TEST_REPORT.md separates disposable contract fixtures, actual local persistence/restart evidence and pushed-source CI.
+
+Active SQLite was additively upgraded to d45f80a6ce12 after a private backup. All 53 pre-existing tables / 28,231 rows retained identical digests; integrity and foreign-key checks passed. The three new tables are client_invitations, client_access_grants and delivery_responses (56 total). SQLite remains authoritative; PostgreSQL/pgvector migrations, transfer and compatibility CI remain available. WAL, busy timeouts, organization write serialization and ZERO_COST_ONLY are preserved.
+
+Release binds the exact frozen version/hash and expiring enabled-owner approval, then rechecks source documents, newer versions, files, intended recipients/grants, deadline, unresolved revisions/defects and finance. Deterministic packages cannot release. Invitation tokens are shown once and only hashes persist. Clients see explicit released content through current project grants, never internal manifests, model prompts, memory, private artifacts or finance. Revocation/withdrawal blocks file access while authorized response history is retained.
+
+Client acceptance, rejection, changes, defects and support are append-only statements with saved workflow checkpoints, reasons and optional bounded text evidence. Owner-authorized BA/PM analysis saves actual task/artifact/model-run/checkpoint provenance. Exact impact approval precedes follow-up tasks; coding still requires separate repository approval and restricted execution/independent QA. Fixture results remain fixture_verified and block live resolution/release/closure. Reanalysis preserves scope/task/approval history. Closing requires current released acceptance, completed work, resolved cases, settled finance, intact evidence and a separate exact owner closure approval; reopening preserves history.
+
+Remaining live work: authorized local-model setup and measured quality, genuine isolated coding/QA/final review, scoped GitHub publication authorization, a genuine owner-approved release/client acceptance and authorized deployment. Binary build export, production identity, encrypted offsite recovery and operational/load verification remain incomplete. No provider key is requested. Older sections below are dated implementation history, not current missing-feature lists.
+
 ## Phase 5 increment A — immutable package preparation
 
 Application source **203127b30d67bdf4369e209870b335843b52f866** is pushed normally and [all five CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38056412779): 269 backend checks, 19 Compose browser journeys, actual frozen-package recovery, 53-table PostgreSQL transfer/restart/restore and restricted runner execution/recovery. Model downloads stayed skipped. Continue with separate owner release and scoped client access; increment A does not complete Phase 5.

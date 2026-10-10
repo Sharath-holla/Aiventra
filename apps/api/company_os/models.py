@@ -1,7 +1,7 @@
 from typing import Any
 
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import JSON, BigInteger, ForeignKey, Index, Integer, String, Text, UniqueConstraint
+from sqlalchemy import JSON, BigInteger, ForeignKey, Index, Integer, String, Text, UniqueConstraint, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .db import Base, now, uid
@@ -637,4 +637,61 @@ class DeliveryPackage(Tenant, Base):
     __table_args__ = (
         UniqueConstraint("org_id", "project_id", "version"),
         UniqueConstraint("org_id", "request_id"),
+    )
+
+
+class ClientInvitation(Tenant, Base):
+    __tablename__ = "client_invitations"
+    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id"), index=True)
+    client_id: Mapped[str] = mapped_column(ForeignKey("clients.id"))
+    owner_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    email: Mapped[str] = mapped_column(String(254))
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True)
+    request_id: Mapped[str] = mapped_column(String(36))
+    request_hash: Mapped[str] = mapped_column(String(64))
+    expires_at: Mapped[int] = mapped_column()
+    redeemed_at: Mapped[int | None] = mapped_column()
+    redeemed_by: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
+    revoked_at: Mapped[int | None] = mapped_column()
+    can_respond: Mapped[bool] = mapped_column(default=True)
+    __table_args__ = (UniqueConstraint("org_id", "request_id"),)
+
+
+class ClientAccessGrant(Tenant, Base):
+    __tablename__ = "client_access_grants"
+    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id"), index=True)
+    client_id: Mapped[str] = mapped_column(ForeignKey("clients.id"))
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
+    invitation_id: Mapped[str] = mapped_column(ForeignKey("client_invitations.id"))
+    can_respond: Mapped[bool] = mapped_column(default=True)
+    revoked_at: Mapped[int | None] = mapped_column()
+    __table_args__ = (UniqueConstraint("org_id", "user_id", "project_id"),)
+
+
+class DeliveryResponse(Tenant, Base):
+    """Append-only exact-package client statement, separate from mutable case progress."""
+
+    __tablename__ = "delivery_responses"
+    package_id: Mapped[str] = mapped_column(ForeignKey("delivery_packages.id"), index=True)
+    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id"), index=True)
+    client_id: Mapped[str] = mapped_column(ForeignKey("clients.id"))
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    workflow_id: Mapped[str] = mapped_column(ForeignKey("workflows.id"), unique=True)
+    request_id: Mapped[str] = mapped_column(String(36))
+    request_hash: Mapped[str] = mapped_column(String(64))
+    package_version: Mapped[int] = mapped_column()
+    manifest_hash: Mapped[str] = mapped_column(String(64))
+    kind: Mapped[str] = mapped_column(String(40))
+    reason: Mapped[str] = mapped_column(Text)
+    evidence: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    __table_args__ = (
+        UniqueConstraint("org_id", "request_id"),
+        Index(
+            "uq_delivery_package_acceptance",
+            "org_id",
+            "package_id",
+            unique=True,
+            sqlite_where=text("kind = 'accept'"),
+            postgresql_where=text("kind = 'accept'"),
+        ),
     )

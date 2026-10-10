@@ -1,5 +1,13 @@
 # Aiventra existing-project audit
 
+## Current Phase 5 completion audit — October 10, 2026
+
+Actual source now contains separate owner release/withdrawal, invitation/project grants, allowlisted client delivery/downloads, append-only exact-version statements, scoped case analysis/approved follow-up engineering and closure/reopen. Earlier statements below that these modules are absent are historical. Tests exercise both real API/UI/SQLite execution and explicitly synthetic live-shaped provenance; no production bypass, paid inference, actual client release or generated PR was used.
+
+Repaired findings: pending analysis tasks now flush before handoff-message foreign keys; client internal-artifact denial retains 404 privacy semantics; review readiness guards absent artifact IDs; stale/source edits (including requirement text without revision), tampered manifests/files, revoked grants, disabled owners, uncertain finance and expired approvals fail closed. Current-package withdrawal updates lifecycle without overwriting a newer version; closed projects require explicit reopen. Case resolution checks the full approved task payload/scope, and reanalysis retains old approvals/results.
+
+Verification evidence belongs to TEST_REPORT.md by exact source/run. Remaining limits include no measured live local model, no genuine coding-to-client-delivery journey, no authorized deployment or binary build export, bounded text/context/file sizes and unfinished production identity/offsite recovery/operational capacity work. CI Docker/PostgreSQL evidence must not be represented as local Docker execution or active database cutover.
+
 ## Phase 5 continuation audit
 
 Final-review source `f601d33` passed [all five CI jobs](https://github.com/Sharath-holla/Aiventra/actions/runs/38050159682): 257 backend tests, 18 browser journeys, actual saved review recovery, PostgreSQL restart/separate restore and restricted Docker runner checks. Context/criteria/selector failures and a competing-connection source-cache issue were repaired; TEST_REPORT.md records exact evidence. Fixtures remain explicitly non-delivery, no live AI/generated PR was verified and model-weight download remained skipped.

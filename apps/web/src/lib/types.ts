@@ -85,6 +85,7 @@ export interface Proposal extends Entity {
   };
 }
 export interface Project extends Entity {
+  version: number;
   name: string;
   status: string;
   client_id: string;
