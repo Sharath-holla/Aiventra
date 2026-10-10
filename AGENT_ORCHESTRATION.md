@@ -1,5 +1,7 @@
 # Agent orchestration
 
+Wizard consulting adds strict LeadAnalysis, mandatory BA/CTO/PM/CFO and bounded optional Cloud/Security/FinOps contributions before exact Lead synthesis. Existing persisted checkpoints/messages, admission, memory and finance remain authoritative; legacy consultation is preserved. Manual plans record owner authorship, not AI activity. Existing BA → CTO → PM staffing planning applies Lead selection at its final stage and still requires exact staffing approval. See LEAD_AI_ORCHESTRATION.md for fixture/live limits.
+
 ## Current orchestration status
 
 Persistent scoped messages/meetings, agent delegation, workforce scheduling, leases/checkpoints, bounded tools and pause/recovery are implemented and regression-tested. The current milestone adds WAITING_FOR_FREE_PROVIDER with saved employee/context/revision, notification/audit and explicit guarded owner resume. No simulated response is presented as live inference. Source and evidence are in ARCHITECTURE.md, WORKFORCE_PLANNING.md, ZERO_COST_AI_POLICY.md and TEST_REPORT.md; older missing-feature descriptions below are historical.

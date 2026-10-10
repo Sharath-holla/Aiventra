@@ -116,9 +116,13 @@ jobs:
           docker compose exec -T api python - < scripts/verify_planning_recovery.py > /tmp/planning-before.json
           docker compose exec -T api python - < scripts/verify_delivery_recovery.py > /tmp/delivery-before.json
           docker compose exec -T api python - < scripts/verify_package_recovery.py > /tmp/packages-before.json
+          docker compose exec -T api python - < scripts/verify_project_setup_recovery.py > /tmp/project-setup-before.json
           docker compose restart api worker web
           docker compose up -d --wait --wait-timeout 90
           curl --fail http://localhost:8000/health/ready
+          docker compose exec -T api python - < scripts/verify_project_setup_recovery.py > /tmp/project-setup-after.json
+          cmp /tmp/project-setup-before.json /tmp/project-setup-after.json
+          cat /tmp/project-setup-after.json
           docker compose exec -T api python - < scripts/verify_planning_recovery.py > /tmp/planning-after.json
           cmp /tmp/planning-before.json /tmp/planning-after.json
           cat /tmp/planning-after.json

@@ -1,5 +1,7 @@
 # Model routing and provider evidence
 
+Wizard project_setup choices now constrain the existing gateway and resume-free route. Selected Lead is exact for lead_intake/proposal/planning_2; worker pools and role/department overrides intersect existing policies. Missing manual assignments wait; conflicting job overrides/revoked owners/changed requirement versions are denied. Preferences never establish zero-cost entitlement or bypass capability/quality/context, independent review or budgets. GPT-6.1 Sol is an unavailable preference label without an invented API identifier. See LEAD_AI_ORCHESTRATION.md and PROJECT_WIZARD.md; task/workstream overrides and live quality verification remain pending.
+
 ## Current mandatory filter: zero-cost eligibility
 
 Before every routing preference or budget decision, ZERO_COST_ONLY blocks remote paid/unknown-cost models. Registry zero prices, keys and catalog success are not free-entitlement proof. Local Ollama requires credential-free loopback configuration and installed-GGUF metadata before each inference. Missing eligibility preserves WAITING_FOR_FREE_PROVIDER for explicit scoped owner resumption. See ZERO_COST_AI_POLICY.md and PROVIDER_ELIGIBILITY.md; historical remote adapter contracts below are fixture tests, not live authorization.

@@ -42,6 +42,8 @@ import { MemoryBrowser } from "@/components/memory-browser";
 import { Staffing } from "@/components/staffing";
 import { Communications } from "@/components/communications";
 import { CEOChat, ConversationHistory } from "@/components/conversations";
+import { SimpleHome } from "@/components/simple-home";
+import { ProjectWizard } from "@/components/project-wizard";
 import {
   ClientDeliveries,
   RedeemInvitation,
@@ -85,6 +87,11 @@ const groups = [
   },
 ] as const;
 const titles: Record<string, [string, string]> = {
+  home: ["Home", "Your next idea starts here."],
+  "new-project": [
+    "New project",
+    "Describe it. Choose your AI. Review the plan.",
+  ],
   allocation: [
     "Workforce allocation",
     "Shape the team. Approve the work. Follow the evidence.",
@@ -173,7 +180,9 @@ function Logo() {
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
   const [state, setState] = useState<State | null>(null);
-  const [view, setView] = useState("chat");
+  const [view, setView] = useState("home");
+  const [setupId, setSetupId] = useState("");
+  const [advanced, setAdvanced] = useState(false);
   const [conversationId, setConversationId] = useState("");
   const [draft, setDraft] = useState(0);
   const [projectId, setProjectId] = useState("");
@@ -202,6 +211,18 @@ export default function Home() {
       if (!recordId) setDraft((current) => current + 1);
     }
     if (nextView === "projects") setProjectId(recordId || "");
+    if (nextView === "new-project") setSetupId(recordId || "");
+    if (
+      ![
+        "home",
+        "new-project",
+        "projects",
+        "activity",
+        "proposals",
+        "settings",
+      ].includes(nextView)
+    )
+      setAdvanced(true);
     if (["proposals", "requirements"].includes(nextView))
       setRequirementId(recordId || "");
     setMobileMenu(false);
@@ -209,11 +230,13 @@ export default function Home() {
     const query = new URLSearchParams({ view: nextView });
     if (recordId)
       query.set(
-        nextView === "chat"
-          ? "conversation"
-          : nextView === "projects"
-            ? "project"
-            : "requirement",
+        nextView === "new-project"
+          ? "draft"
+          : nextView === "chat"
+            ? "conversation"
+            : nextView === "projects"
+              ? "project"
+              : "requirement",
         recordId,
       );
     window.history.pushState({}, "", `/?${query}`);
@@ -241,6 +264,19 @@ export default function Home() {
   useEffect(() => {
     const initial = new URLSearchParams(window.location.search).get("view");
     if (initial && titles[initial]) setView(initial);
+    setSetupId(new URLSearchParams(window.location.search).get("draft") || "");
+    setAdvanced(
+      localStorage.getItem("aiventra-advanced") === "open" ||
+        (!!initial &&
+          ![
+            "home",
+            "new-project",
+            "projects",
+            "activity",
+            "proposals",
+            "settings",
+          ].includes(initial)),
+    );
     setConversationId(
       new URLSearchParams(window.location.search).get("conversation") || "",
     );
@@ -274,11 +310,23 @@ export default function Home() {
     };
     const history = () => {
       const query = new URLSearchParams(window.location.search);
-      const target = query.get("view") || "chat";
+      const target = query.get("view") || "home";
       if (titles[target]) setView(target);
       setConversationId(query.get("conversation") || "");
       setProjectId(query.get("project") || "");
       setRequirementId(query.get("requirement") || "");
+      setSetupId(query.get("draft") || "");
+      if (
+        ![
+          "home",
+          "new-project",
+          "projects",
+          "activity",
+          "proposals",
+          "settings",
+        ].includes(target)
+      )
+        setAdvanced(true);
     };
     window.addEventListener("keydown", keys);
     window.addEventListener("popstate", history);
@@ -517,48 +565,93 @@ export default function Home() {
             </div>
           </div>
           <nav aria-label="Main navigation">
-            <div className="recent-conversations">
-              <span className="nav-label">RECENT CONVERSATIONS</span>
-              {state.conversations
-                .slice()
-                .sort((a, b) => b.updated_at - a.updated_at)
-                .slice(0, 4)
-                .map((conversation) => (
+            <div className="nav-group primary-navigation">
+              {[
+                ["home", "Home", LayoutDashboard],
+                ["new-project", "New project", Plus],
+                ["projects", "My projects", BriefcaseBusiness],
+                ["activity", "Activity", Activity],
+                ["proposals", "Approvals", ShieldCheck],
+                ["settings", "Settings", Settings2],
+              ].map(([key, label, Icon]) => {
+                const NavigationIcon = Icon as typeof LayoutDashboard;
+                return (
                   <button
-                    className={`conversation-link ${conversationId === conversation.id && view === "chat" ? "selected" : ""}`}
-                    key={conversation.id}
-                    title={conversation.title}
-                    onClick={() => navigate(`chat:${conversation.id}`)}
-                  >
-                    <MessageSquare size={14} />
-                    <span>{conversation.title}</span>
-                  </button>
-                ))}
-              {!state.conversations.length && (
-                <small>Your conversations will appear here.</small>
-              )}
-            </div>
-            {groups.map((group) => (
-              <div className="nav-group" key={group.label}>
-                <span className="nav-label">{group.label}</span>
-                {group.items.map(([key, label, Icon]) => (
-                  <button
-                    key={key}
-                    aria-label={label}
+                    key={String(key)}
                     className={`nav-item ${view === key ? "selected" : ""}`}
+                    aria-label={String(label)}
                     aria-current={view === key ? "page" : undefined}
-                    title={label}
-                    onClick={() => navigate(key)}
+                    title={String(label)}
+                    onClick={() => navigate(String(key))}
                   >
-                    <Icon size={17} />
-                    <span>{label}</span>
-                    {key === "proposals" && pending > 0 && (
-                      <span className="nav-count">{pending}</span>
-                    )}
+                    <NavigationIcon size={17} />
+                    <span>{String(label)}</span>
                   </button>
+                );
+              })}
+            </div>
+            <button
+              className="nav-item advanced-toggle"
+              aria-label="Advanced"
+              aria-expanded={advanced}
+              onClick={() => {
+                setAdvanced(!advanced);
+                localStorage.setItem(
+                  "aiventra-advanced",
+                  advanced ? "closed" : "open",
+                );
+              }}
+            >
+              <Settings2 size={17} />
+              <span>Advanced</span>
+              <span aria-hidden="true">{advanced ? "−" : "+"}</span>
+            </button>
+            {advanced && (
+              <>
+                <div className="recent-conversations">
+                  <span className="nav-label">RECENT CONVERSATIONS</span>
+                  {state.conversations
+                    .slice()
+                    .sort((a, b) => b.updated_at - a.updated_at)
+                    .slice(0, 4)
+                    .map((conversation) => (
+                      <button
+                        className={`conversation-link ${conversationId === conversation.id && view === "chat" ? "selected" : ""}`}
+                        key={conversation.id}
+                        title={conversation.title}
+                        onClick={() => navigate(`chat:${conversation.id}`)}
+                      >
+                        <MessageSquare size={14} />
+                        <span>{conversation.title}</span>
+                      </button>
+                    ))}
+                  {!state.conversations.length && (
+                    <small>Your conversations will appear here.</small>
+                  )}
+                </div>
+                {groups.map((group) => (
+                  <div className="nav-group" key={group.label}>
+                    <span className="nav-label">{group.label}</span>
+                    {group.items.map(([key, label, Icon]) => (
+                      <button
+                        key={key}
+                        aria-label={label}
+                        className={`nav-item ${view === key ? "selected" : ""}`}
+                        aria-current={view === key ? "page" : undefined}
+                        title={label}
+                        onClick={() => navigate(key)}
+                      >
+                        <Icon size={17} />
+                        <span>{label}</span>
+                        {key === "proposals" && pending > 0 && (
+                          <span className="nav-count">{pending}</span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
                 ))}
-              </div>
-            ))}
+              </>
+            )}
           </nav>
           <div className="sidebar-bottom">
             <div className="connection">
@@ -663,7 +756,7 @@ export default function Home() {
             </div>
           </header>
           <main className="content">
-            {view !== "chat" && (
+            {!["chat", "home"].includes(view) && (
               <div className="page-heading">
                 <div>
                   <div className="eyebrow">OWNER COMMAND CENTER</div>
@@ -681,9 +774,9 @@ export default function Home() {
                         ? "Worker ready"
                         : "Worker unavailable"}
                   </Badge>
-                  <Button onClick={() => navigate("requirements")}>
+                  <Button onClick={() => navigate("new-project")}>
                     <Plus size={16} />
-                    New requirement
+                    New project
                   </Button>
                 </div>
               </div>
@@ -702,6 +795,10 @@ export default function Home() {
               </div>
             )}
             {view === "overview" && <Overview />}
+            {view === "home" && <SimpleHome />}
+            {view === "new-project" && (
+              <ProjectWizard key={setupId} initialId={setupId} />
+            )}
             {["workforce", "organization"].includes(view) && (
               <Workforce hierarchy={view === "organization"} />
             )}

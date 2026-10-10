@@ -40,6 +40,7 @@ def proposal_content(requirement: Requirement, content: ProposalContent, contrib
 
 
 def publish(session: Session, requirement: Requirement, content: dict) -> Proposal:
+    owner_authored = content.get("authorship") == "owner"
     proposal = Proposal(
         id=uid(),
         org_id=requirement.org_id,
@@ -54,7 +55,9 @@ def publish(session: Session, requirement: Requirement, content: dict) -> Propos
         org_id=requirement.org_id,
         requirement_id=requirement.id,
         mode=requirement.mode,
-        agenda="Compare architectures, cost evidence and risks; one independent contribution per specialist, one synthesis.",
+        agenda="Owner-authored plan submission; no AI meeting or independent analysis occurred."
+        if owner_authored
+        else "Compare architectures, cost evidence and risks; one independent contribution per specialist, one synthesis.",
         contributions=content["specialist_contributions"],
         decision={"recommendation": content["recommendation"], "status": "owner decision required"},
     )
@@ -62,7 +65,9 @@ def publish(session: Session, requirement: Requirement, content: dict) -> Propos
     session.add(
         Message(
             org_id=requirement.org_id,
-            sender=agent_for(session, requirement.org_id, "CEO").id,
+            sender=content["author_id"]
+            if owner_authored
+            else agent_for(session, requirement.org_id, "CEO").id,
             recipient="Human owner",
             type="APPROVAL_REQUEST",
             correlation_id=requirement.id,
@@ -73,7 +78,7 @@ def publish(session: Session, requirement: Requirement, content: dict) -> Propos
     audit(
         session,
         requirement.org_id,
-        "consulting-worker",
+        content["author_id"] if owner_authored else "consulting-worker",
         "proposal.published",
         proposal.id,
         {"mode": requirement.mode, "version": proposal.version},

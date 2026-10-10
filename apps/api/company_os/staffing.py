@@ -344,6 +344,12 @@ def participants(session: Session, workflow: m.Workflow) -> list[str]:
             "CFO",
         ]
     )
+    if workflow.kind == "consulting" and workflow.requirement_id:
+        from .project_setup import consulting_steps
+
+        steps = consulting_steps(session, session.get(m.Requirement, workflow.requirement_id))
+        if steps:
+            roles = ["CEO" if step in {"lead_intake", "proposal"} else step for step in steps]
     return list(
         session.scalars(select(m.Agent.id).where(m.Agent.org_id == workflow.org_id, m.Agent.role.in_(roles)))
     )

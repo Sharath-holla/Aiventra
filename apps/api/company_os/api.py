@@ -19,6 +19,7 @@ from .routes import (
     identity,
     memory_operations,
     package_operations,
+    project_setup_operations,
     provider_operations,
     publication_operations,
     release_operations,
@@ -46,6 +47,7 @@ app.add_middleware(
 )
 for router in (
     identity.router,
+    project_setup_operations.router,
     consultation.router,
     administration.router,
     engineering.router,

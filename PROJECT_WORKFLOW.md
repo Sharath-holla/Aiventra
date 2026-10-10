@@ -1,5 +1,7 @@
 # Project workflow
 
+Start at Home → New project: Describe, Choose AI, Review. Owner-bound versioned drafts and parsed uploads persist before any inference; submission queues a live requirement, never an approved Project. Unavailable AI waits or permits a separately authored manual proposal. Exact existing proposal approval creates the Project. Five workspace stages expose requirements, staffing planning, engineering, QA/review and delivery through existing controls. Publication, release and closure approvals remain separate. PROJECT_WIZARD.md describes formats, recovery and remaining scope.
+
 [Owner walkthrough](docs/user-guide.md) covers intake, revision, alternatives and exact approval. [API reference](docs/api.md) lists endpoints.
 
 Implemented path: requirement → persisted analysis/specialists/CFO → alternatives → versioned owner approval → project/milestones → dependent planning tasks → artifacts. Generic specialist assignments create scoped document tasks. Missing provider configuration waits durably.

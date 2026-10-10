@@ -25,7 +25,7 @@ test("premium conversation persists uploads, streams real status and renders fix
   page,
 }) => {
   await signIn(page);
-  await page.goto("/");
+  await page.goto("/?view=chat");
   await expect(
     page.getByRole("heading", { name: "Your autonomous AI company." }),
   ).toBeVisible();
@@ -129,7 +129,7 @@ test("live conversation waits honestly and cancellation persists after reload", 
   page,
 }) => {
   await signIn(page);
-  await page.goto("/");
+  await page.goto("/?view=chat");
   const state = await (await page.context().request.get("/api/state")).json();
   test.skip(
     state.runtime.providers.some(
@@ -171,7 +171,7 @@ test("mobile chat and navigation stay usable without overflow", async ({
 }) => {
   await signIn(page);
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/");
+  await page.goto("/?view=chat");
   await expect(page.getByLabel("Message your AI company")).toBeVisible();
   expect(
     await page.evaluate(
@@ -204,7 +204,7 @@ test("chat consultation opens exact approval and creates its persistent project"
   page,
 }) => {
   await signIn(page);
-  await page.goto("/");
+  await page.goto("/?view=chat");
   await page
     .getByLabel("Conversation provider mode", { exact: true })
     .selectOption("mock");

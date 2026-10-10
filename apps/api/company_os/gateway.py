@@ -178,6 +178,11 @@ async def execute[T: BaseModel](
     check_agent(session, agent, "read_context", project)
     if workflow.mode == "mock" and not settings().mock_enabled:
         raise PermissionError("Mock execution disabled")
+    from .project_setup import routing
+
+    override, pool, selection_reason = routing(
+        session, workflow, agent, step, project, work_override(session, workflow)
+    )
     previous = session.scalars(
         select(ModelRun)
         .where(ModelRun.workflow_id == workflow.id, ModelRun.step_name == step)
@@ -228,7 +233,6 @@ async def execute[T: BaseModel](
         agent.routing_policy,
         task_class,
     )
-    override = work_override(session, workflow)
     if agent.routing_policy == "manual" and not override:
         from .models import ModelPolicy
 
@@ -240,6 +244,8 @@ async def execute[T: BaseModel](
         override = selection.preferred_model_id if selection else None
         if not override:
             raise PermissionError("Manual routing requires an exact model override or employee preference")
+    if pool is not None:
+        candidates = [(model, provider) for model, provider in candidates if model.id in pool]
     candidates = apply_policies(session, agent, project.id if project else None, candidates, override)
     candidates = [(model, provider) for model, provider in candidates if configured(provider)]
     candidates = review_candidates(session, candidates, review_against or [], review_policy)
@@ -261,6 +267,7 @@ async def execute[T: BaseModel](
         "model_override": override,
         "task_class": task_class,
         "step_name": step,
+        "selection_reason": selection_reason,
     }
     wait_context["spending_mode"] = settings().ai_spending_mode
     wait_context["eligibility"] = [

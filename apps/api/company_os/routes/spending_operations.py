@@ -62,9 +62,22 @@ async def resume_free(
         config["policy"],
         config.get("task_class"),
     )
-    candidates = apply_policies(
-        session, agent, config.get("project_id"), candidates, config.get("model_override")
-    )
+    from ..project_setup import routing
+
+    try:
+        override, pool, _ = routing(
+            session,
+            workflow,
+            agent,
+            config.get("step_name"),
+            session.get(m.Project, config["project_id"]) if config.get("project_id") else None,
+            config.get("model_override"),
+        )
+    except PermissionError as exc:
+        raise HTTPException(409, str(exc)) from None
+    if pool is not None:
+        candidates = [(model, provider) for model, provider in candidates if model.id in pool]
+    candidates = apply_policies(session, agent, config.get("project_id"), candidates, override)
     candidates = review_candidates(
         session, candidates, config.get("review_against", []), config.get("review_policy", "prefer_provider")
     )

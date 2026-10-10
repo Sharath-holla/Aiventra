@@ -1,5 +1,15 @@
 # Implementation status
 
+## Simple UI + Lead AI continuation — October 10, 2026
+
+Continued from clean actual HEAD f45fcde/master after source/history inspection and baseline verification (300 backend, 19 ordinary plus four isolated delivery browser tests). Latest brief: docs/SIMPLE_UI_LEAD_AI_SPEC.md; previous enterprise/Phase 4/Phase 5 briefs remain preserved.
+
+Implemented: simple Home/six primary destinations with remembered Advanced access; three-step owner-bound persistent drafts; validated uploads/upload-only requirements; unavailable GPT-6.1 Sol preference and explicit registered alternate; automatic/manual/hybrid pools and role/department overrides; version/request-bound writes; live intake/waiting and honestly attributed manual proposals; gateway-enforced Lead selection; bounded dynamic consultation specialists; five project stages reusing existing services. Approval gates remain intact. PROJECT_WIZARD.md and LEAD_AI_ORCHESTRATION.md describe exact behavior and limits.
+
+No schema migration: existing BusinessRecord/Artifact/Requirement/Workflow persistence preserves active SQLite, existing records, WAL/busy timeouts, serialized writes and PostgreSQL/pgvector compatibility. ZERO_COST_ONLY remains mandatory. No installation, model download, paid inference, generated PR, client release or deployment occurs. Tests/publication evidence is recorded as observed in TEST_REPORT.md. Task/workstream-specific overrides, richer document ingestion/repository import and live AI/delivery verification remain incomplete.
+
+Local final verification: 316 backend tests, all 23 ordinary browser journeys, four isolated delivery contracts and the final QA-stage project journey passed. Strict types/format/build, Python/production npm audits, lint/schema/SQLite integrity checks passed. Nine drafts and three attachments retained identical hashes through actual managed service restart. Publication/CI is recorded after execution; live AI and production readiness remain unclaimed.
+
 ## Current Phase 5 continuation — October 10, 2026
 
 Application source **2e9ba4372cb440b298137b29b36527a380e4c883** is pushed normally to origin/master and [all six CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38062389394): 300 backend tests, 19 Compose browser checks, four isolated delivery browser contracts, frontend build/audits, actual restricted Docker isolation/recovery and 56-table PostgreSQL transfer/restart/restore. Partial package validation survived actual service restart and resumed to freeze without release. Current phase: Phase 5 application delivery gates implemented and fixture/infrastructure verified; live end-to-end delivery and production operational readiness remain pending. The workstation app is running with active SQLite and ZERO_COST_ONLY.

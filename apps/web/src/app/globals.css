@@ -1,5 +1,231 @@
 @import "./design-tokens.css";
 
+.simple-home,
+.project-wizard {
+  max-width: 1060px;
+  margin: 0 auto;
+}
+.home-intro {
+  max-width: 760px;
+  margin: 70px auto 48px;
+  text-align: center;
+}
+.home-intro h1 {
+  margin: 18px 0 12px;
+  font-size: clamp(30px, 4vw, 46px);
+  line-height: 1.15;
+}
+.home-intro > p {
+  color: var(--muted);
+  font-size: 16px;
+}
+.home-composer {
+  margin-top: 32px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  text-align: left;
+}
+.home-composer textarea {
+  width: 100%;
+  min-height: 95px;
+  border: 0;
+  background: transparent;
+  resize: vertical;
+}
+.home-composer > div,
+.wizard-toolbar,
+.home-shortcuts {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.home-composer span,
+.wizard-toolbar > span {
+  color: var(--muted);
+  font-size: 12px;
+}
+.home-shortcuts {
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+.home-grid,
+.wizard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.home-record {
+  display: flex;
+  align-items: center;
+  text-align: left;
+  width: 100%;
+  gap: 12px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  background: transparent;
+  padding: 16px 0;
+}
+.home-record > span:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.home-record strong,
+.home-record small {
+  display: block;
+}
+.home-record small,
+.project-stages small {
+  color: var(--muted);
+  font-size: 12px;
+}
+.advanced-toggle {
+  margin: 12px 0;
+}
+.advanced-toggle > span:last-child {
+  margin-left: auto;
+}
+.wizard-toolbar {
+  margin: 16px 0;
+}
+.wizard-steps {
+  display: flex;
+  gap: 12px;
+  margin: 24px 0;
+}
+.wizard-steps button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--muted);
+  padding: 16px;
+}
+.wizard-steps button.selected {
+  color: var(--ink);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.wizard-steps span {
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid currentColor;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+}
+.project-wizard .panel {
+  padding: 26px;
+}
+.project-wizard label {
+  display: grid;
+  gap: 8px;
+  margin: 16px 0;
+}
+.project-wizard textarea,
+.project-wizard select,
+.project-wizard input {
+  width: 100%;
+  min-width: 0;
+}
+.project-wizard .checkbox-label {
+  display: flex;
+  align-items: center;
+}
+.project-wizard .checkbox-label input {
+  width: auto;
+}
+.project-wizard fieldset {
+  margin: 22px 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+.project-wizard details {
+  margin-top: 22px;
+}
+.project-wizard summary {
+  cursor: pointer;
+  color: var(--accent);
+  padding: 8px 0;
+}
+.wizard-brief {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.project-stages {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin: 24px 0;
+}
+.project-stages button {
+  text-align: left;
+  padding: 16px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: var(--radius);
+}
+.project-stages strong,
+.project-stages small {
+  display: block;
+}
+.project-stages button[aria-current] {
+  border-color: var(--accent);
+}
+@media (max-width: 760px) {
+  .home-intro {
+    margin: 30px auto;
+  }
+  .home-grid,
+  .wizard-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .home-composer > div {
+    align-items: flex-end;
+  }
+  .home-composer span {
+    max-width: 75%;
+  }
+  .wizard-steps {
+    gap: 6px;
+  }
+  .wizard-steps button {
+    padding: 10px 7px;
+    gap: 5px;
+    font-size: 12px;
+  }
+  .wizard-steps span {
+    width: 20px;
+    height: 20px;
+  }
+  .project-wizard .panel {
+    padding: 16px;
+  }
+  .project-stages {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 * {
   box-sizing: border-box;
 }

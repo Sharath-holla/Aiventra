@@ -1,5 +1,11 @@
 # Aiventra OS architecture
 
+## Simple UI and Lead integration
+
+project_setup.py owns draft validation, immutable intake, explicit model-selection authority, strict LeadAnalysis and owner-authored proposals. routes/project_setup_operations.py owns owner/scoped HTTP controls and serialized version/request transactions. Drafts reuse BusinessRecord JSON and private Artifact content; no schema/backend cutover occurs. SQLite stays active with PostgreSQL-compatible JSON queries/migrations/CI preserved.
+
+gateway.execute and resume-free intersect saved choices with existing eligibility, finance and independent review. Wizard consulting uses bounded Lead → BA → CTO → optional specialists → PM → CFO → Lead steps; legacy consulting remains intact. Existing planning DAG, scheduler, memory, restricted runner and Phase 4/5 services are reused. Browser project-wizard serializes saves/surfaces conflicts; simple-home and six primary links sit above Advanced. Five project stages reuse existing controls. PROJECT_WIZARD.md and LEAD_AI_ORCHESTRATION.md document boundaries; fixtures do not establish live inference or delivery.
+
 ## Current Phase 5 release and client-delivery boundary
 
 Domain modules remain separate from routers: release.py/release_operations.py for exact owner decisions; client_access.py/client_operations.py for invitations, current grants and filtered released files; client_responses.py for immutable statements; delivery_cases.py/case_operations.py for bounded analysis/approved engineering; closure.py/closure_operations.py for current lifecycle and exact closure. Existing package, review, repository, gateway, worker, memory and finance engines remain authoritative. No parallel orchestration framework was added.

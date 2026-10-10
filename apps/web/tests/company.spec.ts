@@ -75,6 +75,18 @@ test("owner consults, approves and inspects a real persistent project", async ({
   await expect(
     page.getByRole("button", { name: /Write architecture assessment/ }),
   ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Open QA & review stage", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Independent QA & review", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText(
+      "No engineering task has produced independent QA evidence yet.",
+      { exact: true },
+    ),
+  ).toBeVisible();
   await page.getByRole("button", { name: "Dependencies", exact: true }).click();
   await expect(page.locator(".dependency-list > div")).toHaveCount(3);
   await page.getByRole("button", { name: "Engineering", exact: true }).click();

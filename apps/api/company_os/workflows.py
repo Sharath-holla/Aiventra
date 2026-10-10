@@ -118,15 +118,47 @@ async def consulting_step(session: Session, workflow: Workflow, token: str) -> N
         )
     ).all()
     context["source_evidence"] = [
-        {**row.data, "excerpt": str(row.data.get("excerpt", ""))[:4000]}
+        {**row.data, "excerpt": str(row.data.get("excerpt", ""))[:2000]}
         for row in evidence
         if row.data.get("requirement_id") == requirement.id
-    ][:4]
-    name = CONSULTING_STEPS[workflow.step]
-    if name == "intake":
-        agent = agent_for(session, workflow.org_id, "Business Analyst")
+    ][:6]
+    from .project_setup import LeadAnalysis, consulting_steps, for_requirement
+
+    setup = for_requirement(session, requirement.id, workflow.org_id)
+    if setup:
+        form = setup.data["form"]
+        context["owner_model_preferences"] = {
+            key: form[key] for key in ("worker_mode", "worker_model_ids", "overrides")
+        }
+        context["specialist_policy"] = (
+            "Choose only necessary optional specialist roles from Cloud Architect, Security Architect, FinOps Engineer. Business Analyst, CTO, Project Manager and CFO are mandatory. No model IDs, commands or approvals may be invented."
+        )
+        if form["source_project_id"]:
+            reference = session.get(Project, form["source_project_id"])
+            if (
+                not reference
+                or reference.org_id != workflow.org_id
+                or reference.client_id != requirement.client_id
+            ):
+                raise PermissionError("Reference project authorization changed")
+            context["reference_project"] = {
+                "id": reference.id,
+                "name": reference.name,
+                "selected_alternative": reference.selected_alternative,
+                "authorization": "Read-only reference; no code execution or inherited approval",
+            }
+    name = (consulting_steps(session, requirement) or CONSULTING_STEPS)[workflow.step]
+    if name in {"intake", "lead_intake"}:
+        agent = agent_for(session, workflow.org_id, "CEO" if name == "lead_intake" else "Business Analyst")
         result = await execute(
-            session, workflow, agent, name, Analysis, context, sensitivity=requirement.sensitivity
+            session,
+            workflow,
+            agent,
+            name,
+            LeadAnalysis if name == "lead_intake" else Analysis,
+            context,
+            sensitivity=requirement.sensitivity,
+            capabilities={"structured", "reasoning"} if name == "lead_intake" else {"structured"},
         )
         requirement.analysis = result.model_dump()
         requirement.status = "consulting"
@@ -204,7 +236,8 @@ async def consulting_step(session: Session, workflow: Workflow, token: str) -> N
             row.result
             for row in session.scalars(
                 select(WorkflowStep).where(
-                    WorkflowStep.workflow_id == workflow.id, WorkflowStep.name != "intake"
+                    WorkflowStep.workflow_id == workflow.id,
+                    WorkflowStep.name.not_in(["intake", "lead_intake"]),
                 )
             ).all()
         ]

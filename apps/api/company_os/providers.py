@@ -274,7 +274,7 @@ def fixture(schema_name: str, context: dict) -> Response:
             "answer": "**Local fixture · no live AI call**\n\nThis response verifies conversation persistence and workflow execution. Configure a real model for an advisory answer.\n\n| Evidence | Status |\n| --- | --- |\n| Conversation | Persisted |\n| External actions | None |\n\n```text\nExplicit fixture; no generated code executed.\n```",
             "questions": [],
         }
-    elif schema_name == "Analysis":
+    elif schema_name in {"Analysis", "LeadAnalysis"}:
         text = context.get("text", "")
         migration = any(word in text.lower() for word in ("migrat", "cloud", "lightning"))
         data = {
@@ -445,4 +445,8 @@ def fixture(schema_name: str, context: dict) -> Response:
         }
     else:
         raise ProviderError("No fixture exists for this schema")
+    if schema_name == "LeadAnalysis":
+        data["specialist_roles"] = (
+            ["Cloud Architect", "Security Architect", "FinOps Engineer"] if migration else []
+        )
     return Response(data, 0, 0)

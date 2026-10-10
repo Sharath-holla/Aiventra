@@ -1,5 +1,7 @@
 # Security
 
+Project drafts are owner/organization-bound and protected from generic record mutation. Writes serialize through the organization lock, require exact versions and bind idempotent request IDs to content; intake/knowledge creation is atomic. Uploads are bounded UTF-8, redacted, privately addressed and hash-checked before intake. Model preferences never confer entitlement; ZERO_COST_ONLY, capability/quality checks, independent review, budgets, permissions and exact Phase 4/5 approvals remain enforced. Owner model changes are allowed only before inference while paused/waiting. No mock model is accepted by the production wizard. See PROJECT_WIZARD.md for limits and TEST_REPORT.md for observed evidence.
+
 ## Current release/client boundary
 
 Separate owner release authority binds frozen version/hash and expiration; current evidence, recipients, grants, finance and newer versions are checked again at publication. Fixtures are never releasable. Invitation secrets are random, one-use, expiring and stored only as hashes; retries never return a saved raw token. Redemption cannot reset an existing account password. Clients require enabled identity, matching tenant/client/project, current invitation/grant and intended recipient access. Internal artifact and semantic-memory routes are owner-only; client summaries and repository references are allowlisted, and private manifests/prompts/finance never cross that boundary.

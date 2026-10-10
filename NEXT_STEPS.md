@@ -1,5 +1,15 @@
 # Next steps
 
+## Current Simple UI + Lead AI continuation
+
+Preserve the versioned wizard, unavailable favorite, explicit Lead/worker constraints and existing Phase 4/5 gates. Latest brief: docs/SIMPLE_UI_LEAD_AI_SPEC.md. TEST_REPORT.md records observed regression/restart/publication evidence.
+
+1. Extend bounded specialist selection to richer approved workstream/task allocation, with persisted rationale and measured model capability evidence. Preserve exact selection rather than silently reassigning the Lead.
+2. Add broader document parsing and owner-authorized repository import/branch selection through the restricted runner. Current references grant no checkout/execution authority.
+3. Only after explicit installation/download authorization, benchmark an appropriate local model and verify genuine Lead → specialists → BA/CTO/PM planning. No installation or paid fallback is authorized now.
+4. Verify real isolated engineering, independent QA/final review and separately approved generated PR publication; then genuine package release, invited client response and closure. Deterministic success remains contract evidence.
+5. Add authorized staging/binary export, operational backups/identity/load checks. Keep SQLite active; do not make PostgreSQL cutover a prerequisite.
+
 ## Current continuation after Phase 5 delivery gates
 
 Preserve immutable packages, the separate exact owner release gate, invitations/project grants, scoped client files/statements, bounded change/defect/support work and exact closure/reopen. Source **2e9ba43** passed [all six CI jobs](https://github.com/Sharath-holla/Aiventra/actions/runs/38062389394), including 300 backend/23 browser checks and actual database/runner/partial-package recovery. Continue live verification and remaining infrastructure below; older unfinished-release lists are historical.

@@ -4,7 +4,7 @@ A working Next.js + FastAPI application for supervising a configurable AI workfo
 
 **This is a tested local foundation, not a finished production enterprise platform.** Read [implementation status](IMPLEMENTATION_STATUS.md) and [test evidence](TEST_REPORT.md) before enabling live integrations. The full build target is preserved in [the master brief](docs/MASTER_BUILD_PROMPT.md).
 
-The current specification is [Phases 2–5](docs/PHASES_2_5_SPEC.md). Both earlier briefs and [the previous production roadmap](docs/PRODUCTION_UPGRADE_SPEC.md) are preserved. Current increment: Milestone A workforce/provider foundation; Phase 2 remains partial. See [source audit](AUDIT_REPORT.md) and [gap analysis](docs/PHASES_2_5_GAP_ANALYSIS.md). Repository: [Sharath-holla/Aiventra](https://github.com/Sharath-holla/Aiventra).
+Latest continuation: [Simple UI + Lead AI orchestration](docs/SIMPLE_UI_LEAD_AI_SPEC.md). Home leads into a [three-step persistent wizard](PROJECT_WIZARD.md), explicit [Lead/worker choices](LEAD_AI_ORCHESTRATION.md) and existing approval-controlled engineering/delivery services. Advanced retains all tools. SQLite and ZERO_COST_ONLY stay active; blocked models wait without paid fallback. Earlier briefs and the [production roadmap](docs/PRODUCTION_UPGRADE_SPEC.md) remain preserved. Read current status/test evidence for fixture versus live boundaries. Repository: [Sharath-holla/Aiventra](https://github.com/Sharath-holla/Aiventra).
 
 ## Start on Windows 11
 

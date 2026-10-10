@@ -1,5 +1,11 @@
 # Implementation ledger
 
+## Simple UI + Lead AI increment
+
+Starting actual HEAD f45fcde/master; baseline 300 backend and 23 total browser checks passed. Preserved docs/SIMPLE_UI_LEAD_AI_SPEC.md. Added owner/version/request-bound wizard, validated uploads, unavailable/alternate model choices, gateway-constrained Lead/worker routing, bounded dynamic specialists, honest manual proposal attribution, simple Home/Advanced navigation and five project stages reusing existing services. No migration, data reset, installation/download, paid inference or real generated PR/release occurred. PROJECT_WIZARD.md and LEAD_AI_ORCHESTRATION.md define remaining scope. TEST_REPORT.md records executed tests and exact-source publication/CI evidence.
+
+Final local evidence: 316 backend, 23 ordinary browser, four isolated delivery browser tests and one additional QA-stage journey passed. Build/types/format/lint/audits/schema/integrity passed; actual nine-draft/three-attachment restart hashes matched. Initial test-format/fixture-quality/accessibility/reload-race findings were repaired without weakening existing controls. Exact source push/CI evidence follows after observation.
+
 ## Phase 5 increments B–F — release, client response and closure
 
 Published source **2e9ba43**, ordinary origin/master push and exact remote SHA verified. [All six CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38062389394): 300 backend / 23 browser checks, frontend/security/dependency checks, actual restricted runner recovery, 56-table PostgreSQL transfer/restart/restore and actual partial-package checkpoint restart/resume. TEST_REPORT.md records exact timings/digests and repaired initial failures. A documentation-only evidence follow-up changes no tested application source.

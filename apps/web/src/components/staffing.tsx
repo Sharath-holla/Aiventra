@@ -54,9 +54,9 @@ type Plan = {
   history: unknown[];
 };
 
-export function Staffing() {
+export function Staffing({ initialId = "" }: { initialId?: string }) {
   const { state, run, busy, navigate } = useApp();
-  const [projectId, setProjectId] = useState("");
+  const [projectId, setProjectId] = useState(initialId);
   const [plan, setPlan] = useState<Plan | null>(null);
   const [draft, setDraft] = useState<Content | null>(null);
   const [error, setError] = useState("");

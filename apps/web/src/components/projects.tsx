@@ -14,6 +14,7 @@ import { PublicationControls } from "./publication-controls";
 import { DeliveryControls } from "./delivery-controls";
 import { PackageControls } from "./package-controls";
 import { DeliveryFollowups } from "./delivery-followups";
+import { Staffing } from "./staffing";
 
 export function Projects({
   engineering,
@@ -45,6 +46,12 @@ export function Projects({
   const artifacts = state.artifacts.filter((a) => a.project_id === selected);
   const dependencies = state.dependencies.filter((edge) =>
     tasks.some((task) => task.id === edge.task_id),
+  );
+  const proposal = state.proposals.find(
+    (item) => item.id === project?.proposal_id,
+  );
+  const requirement = state.requirements.find(
+    (item) => item.id === proposal?.requirement_id,
   );
   if (!project)
     return (
@@ -161,6 +168,91 @@ export function Projects({
         </Button>
       </div>
       {assigning && <SpecialistAssignment projectId={project.id} />}
+      <section className="project-stages" aria-label="Project stages">
+        {[
+          ["requirements", "Requirements", "Scope approved"],
+          ["planning", "Planning", "Review workforce plan and approvals"],
+          [
+            "engineering",
+            "Engineering",
+            `${tasks.filter((task) => task.status === "completed").length}/${tasks.length} tasks completed`,
+          ],
+          [
+            "qa",
+            "QA & review",
+            `${executions.filter((execution) => execution.status === "completed" && execution.exit_code === 0).length} successful executions`,
+          ],
+          ["delivery", "Delivery", "Review release and client acceptance"],
+        ].map(([target, label, status]) => (
+          <button
+            key={target}
+            aria-label={`Open ${label} stage`}
+            onClick={() => setTab(target)}
+            aria-current={tab === target ? "step" : undefined}
+          >
+            <strong>{label}</strong>
+            <small>{status}</small>
+          </button>
+        ))}
+      </section>
+      {tab === "requirements" && (
+        <Panel
+          title="Approved requirements"
+          subtitle="Versioned scope remains the authority for this project"
+        >
+          <h3>{requirement?.title}</h3>
+          <p className="wizard-brief">{requirement?.text}</p>
+          <p>Selected architecture: {project.selected_alternative}</p>
+          <p>
+            Acceptance criteria:{" "}
+            {proposal?.content.acceptance_criteria.join(" · ")}
+          </p>
+        </Panel>
+      )}
+      {tab === "planning" && (
+        <Staffing key={project.id} initialId={project.id} />
+      )}
+      {tab === "qa" && (
+        <Panel
+          title="Independent QA & review"
+          subtitle="Recorded task outcomes and sandbox execution evidence; successful commands alone do not prove acceptance."
+        >
+          {!tasks.some((task) => task.kind === "coding") && (
+            <p>No engineering task has produced independent QA evidence yet.</p>
+          )}
+          {tasks
+            .filter((task) => task.kind === "coding")
+            .map((task) => (
+              <details key={task.id}>
+                <summary>
+                  {task.objective} · {task.status.replaceAll("_", " ")}
+                </summary>
+                <p>Acceptance criteria: {task.acceptance.join(" · ")}</p>
+                <Pretty value={task.evidence} />
+                {executions
+                  .filter((execution) => execution.task_id === task.id)
+                  .map((execution) => (
+                    <div key={execution.id}>
+                      <Badge>{execution.status}</Badge>
+                      <p>
+                        Exit code: {execution.exit_code ?? "Not available"} ·{" "}
+                        {execution.command.join(" ")}
+                      </p>
+                      <Pretty value={execution.logs} />
+                    </div>
+                  ))}
+              </details>
+            ))}
+          <div className="heading-actions">
+            <Button secondary onClick={() => setTab("engineering")}>
+              Inspect engineering and review controls
+            </Button>
+            <Button secondary onClick={() => setTab("delivery")}>
+              Open final review and delivery gates
+            </Button>
+          </div>
+        </Panel>
+      )}
       <div className="tabs">
         {[
           "board",

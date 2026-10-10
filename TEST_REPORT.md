@@ -1,5 +1,23 @@
 # Aiventra verification report
 
+## Simple UI + Lead AI increment — October 10, 2026
+
+Starting actual HEAD f45fcde/master: unchanged baseline 300 backend tests passed in 523.09s; 19 actual-service browser journeys passed in 6.0m and four isolated delivery journeys passed in 46.1s. Strict types/format passed.
+
+Focused wizard checks: 13 backend tests passed in 10.49s after fixing a wrong generic-record test status, weaker fixture Lead choice and nonexistent ModelRun.mode test assertion. Four actual desktop/mobile journeys passed in 49.8s after fixing Advanced accessibility naming, adding the proxy-required origin header and scoping alerts away from Next's announcer. No production origin or quality control was weakened. Additional routing/integrity and final regression evidence follows only after execution.
+
+Positive Lead consultation/BA/CTO/PM DAG checks use explicitly labeled deterministic adapters in disposable SQLite. Production APIs reject mock selection; blocked/paid choices produce no model run or approved project. Browser tests exercise real persistence, worker waiting, optimistic conflicts, uploads and owner-authored proposals. Live AI/model quality, generated PR publication, real client delivery and deployment remain unverified. Active SQLite is preserved; no model download/install or paid invocation occurs.
+
+Final complete backend run: **316 passed in 636.57s**, one existing Starlette/httpx deprecation warning. Ruff check and format passed across 139 Python files. Strict frontend types/format and optimized build passed. npm production audit found zero vulnerabilities; pip-audit found no known vulnerabilities (the local unpublished ai-company-os package is not on PyPI). Initial complete browser run passed 22/23 and exposed a real step-navigation/reload race; step controls now wait for queued save/reload completion. The corrected full run is recorded after execution.
+
+Actual active SQLite wizard snapshot retained **nine drafts and three attachments** through managed service stop/new database connections: draft digest `9a53b5187ff6095dd89a85cb2880f2f16eed0c6d27c55d8bd61126fbd05c1643`, attachment digest `3ef8af2dbe70ccfe1db41218029e484b45bda0740d99f8fbdd3a6860e7e04d0e`. Alembic reported no new upgrade operations. scripts/verify_project_setup_recovery.py also extends optional PostgreSQL CI restart coverage without switching the workstation database.
+
+Final optimized frontend build passed; isolated delivery browser regression **4 passed in 48.5s**, with disposable SQLite and network-denied synthetic provenance. Actual active SQLite: REQUIRED_DATABASE_BACKEND=sqlite, ZERO_COST_ONLY, integrity ok, zero foreign-key violations, WAL, busy_timeout 30000 and unchanged revision d45f80a6ce12. Active client-response count remains zero; synthetic acceptance/release journeys stay isolated.
+
+Actual API/worker/web restart completed with readiness reporting both API and worker ready. The same nine-draft/three-attachment digests matched after restart, not only after closing a connection. No active database migration or reset occurred.
+
+Corrected complete ordinary browser run: **23 passed in 7.0m** against the restarted actual API/worker/web application. The final dedicated QA stage was additionally verified by the persistent consulting/approval/project browser journey: **1 passed in 43.2s**. QA shows actual task outcomes/runner logs and explicit engineering/final-review links, not an inferred acceptance indicator. Staged source plus publishable Git history secret scan: **971 blobs, zero findings**. No final backend/browser failures remain; exact pushed-source CI evidence follows after observation.
+
 ## Phase 5 increments B–F — October 10, 2026
 
 Published application source **2e9ba4372cb440b298137b29b36527a380e4c883** passed [all six Actions jobs](https://github.com/Sharath-holla/Aiventra/actions/runs/38062389394): **300 backend tests in 194.78s**, one existing warning; **19 actual Compose browser journeys in 1.6m** plus **four isolated delivery journeys in 46.7s**; strict types/format/build/audits and full-history secret scan. No final CI failures remain. Actual restricted Docker Python/Node builds/nonempty tests, UID/capabilities/filesystem/network/secrets/cgroup controls, invalid commands/paths, timeout/output/cancellation/duplicate cleanup and broker-restart result recovery passed (six results, digest a2d95fc6af7791f0995cef8441709096a4f739ac830c954f831e00f056533619).

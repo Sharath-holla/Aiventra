@@ -156,11 +156,23 @@ export function Governance({ view }: { view: string }) {
                   {state.workflows.map((w) => (
                     <tr key={w.id}>
                       <td>
-                        <strong>{w.kind}</strong>
+                        <strong>
+                          {state.requirements.find(
+                            (item) => item.id === w.requirement_id,
+                          )?.title ||
+                            state.tasks.find((item) => item.id === w.task_id)
+                              ?.objective ||
+                            w.kind.replaceAll("_", " ")}
+                        </strong>
+                        <small>
+                          {w.mode === "mock"
+                            ? "Deterministic fixture · no live AI"
+                            : "Live workflow · inference depends on provider eligibility"}
+                        </small>
                         <small className="mono">{w.id}</small>
                       </td>
                       <td>
-                        <Badge>{w.status}</Badge>
+                        <Badge>{w.status.replaceAll("_", " ")}</Badge>
                       </td>
                       <td>{w.step}</td>
                       <td>
@@ -408,6 +420,16 @@ function RunTable() {
                   </td>
                   <td>
                     {state.models.find((m) => m.id === r.model_id)?.identifier}
+                    <small>
+                      {state.providers.find(
+                        (provider) =>
+                          provider.id ===
+                          state.models.find((model) => model.id === r.model_id)
+                            ?.provider_id,
+                      )?.kind === "mock"
+                        ? "Deterministic fixture"
+                        : "Recorded provider call"}
+                    </small>
                   </td>
                   <td>
                     <Badge>{r.status}</Badge>
