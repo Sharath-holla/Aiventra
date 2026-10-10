@@ -20,6 +20,8 @@ The tool uses bounded lock/statement timeouts, an advisory transaction lock and 
 
 ## Verification boundary
 
+Published application source **af5b85c** passed [all five CI jobs](https://github.com/Sharath-holla/Aiventra/actions/runs/38018391046), including the real PostgreSQL transfer/rollback and full-table database restart/separate restore comparisons described below. Exact counts, corrected failures and local limitations are recorded in TEST_REPORT.md.
+
 Local tests verify snapshot consistency, writer exclusion/release, missing-source refusal, foreign-key corruption refusal, read-only access, schema/version checks, vector normalization, audit/vault checks, secret-safe CLI errors, owner authorization and backend fencing. The actual source snapshot passed checks with 52 tables and 14,257 rows at capture time. No live local PostgreSQL transfer/cutover is claimed.
 
 The CI integration runs an actual SQLite → pgvector PostgreSQL transfer in an isolated temporary database, including large monetary balances, encrypted synthetic vault content, conversations/free-provider waits, semantic vectors and audit chains. It checks dry-run DDL rollback, failure after all rows are copied, successful read-back equality, occupied-destination refusal and wrong-key refusal. A separate drill stops writers, compares all table digests across a real database-container restart, performs `pg_dump`/`pg_restore` into a different database and compares again. TEST_REPORT.md records whether those checks passed for the published source. This is not a crash-kill, PITR, encrypted offsite backup or production restore certification.
