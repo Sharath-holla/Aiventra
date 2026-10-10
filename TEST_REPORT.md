@@ -2,6 +2,12 @@
 
 ## Simple UI + Lead AI increment — October 10, 2026
 
+Published application source **eeb0e6d7976dd508c349372aea39a336aee5fe74**, ordinary origin/master push and exact remote SHA verified. [All six GitHub Actions jobs succeeded](https://github.com/Sharath-holla/Aiventra/actions/runs/38068123116): backend **316 passed in 231.60s**, one existing warning; actual Compose browser **23 passed in 2.3m**; isolated delivery **4 passed in 41.7s**; strict types/format/optimized build, dependency audits and full-history secret scanning. No final CI failures remain. Models/download verification remained intentionally skipped; no paid inference or real generated PR/release occurred.
+
+CI genuinely executed the restricted Docker runner's Python/Node build/nonempty tests and isolation controls, then matched six persisted results across broker restart: digest `92c4b0bc0452d95a1c7813a8d0069fb9e0a0cf871f121322a811959205fda7ca`. PostgreSQL/pgvector migration/transfer/rollback checks and all 56 application-table digests matched after actual database restart and separate pg_dump/restore. This is CI infrastructure evidence, not a workstation database cutover.
+
+CI wizard service restart preserved **three drafts / one attachment**, draft digest `3d4dc83ea4ea8988dc09833bcede0a334489c5f2874ea3a0e755aed818c69fe9`, attachment digest `9ebcb786d12aee924a1696957bfbf2c6e8c5fcfb7eab8fe69e095c6e7aa4f287`. ZERO_COST_ONLY remained active. The ordinary browser suite verified SQLite-backed behavior locally and actual PostgreSQL-backed behavior in Compose; isolated positive client-release contracts stayed disposable/network-denied. A documentation-only evidence follow-up changes no tested application source.
+
 Starting actual HEAD f45fcde/master: unchanged baseline 300 backend tests passed in 523.09s; 19 actual-service browser journeys passed in 6.0m and four isolated delivery journeys passed in 46.1s. Strict types/format passed.
 
 Focused wizard checks: 13 backend tests passed in 10.49s after fixing a wrong generic-record test status, weaker fixture Lead choice and nonexistent ModelRun.mode test assertion. Four actual desktop/mobile journeys passed in 49.8s after fixing Advanced accessibility naming, adding the proxy-required origin header and scoping alerts away from Next's announcer. No production origin or quality control was weakened. Additional routing/integrity and final regression evidence follows only after execution.

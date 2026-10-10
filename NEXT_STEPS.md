@@ -2,6 +2,8 @@
 
 ## Current Simple UI + Lead AI continuation
 
+Source **eeb0e6d** is published and [all six Actions jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38068123116), including 316 backend/27 browser checks, real Docker and PostgreSQL recovery and wizard restart persistence. Continue with the remaining adaptive allocation and authorized live verification below; do not rebuild the verified wizard/approval services.
+
 Preserve the versioned wizard, unavailable favorite, explicit Lead/worker constraints and existing Phase 4/5 gates. Latest brief: docs/SIMPLE_UI_LEAD_AI_SPEC.md. TEST_REPORT.md records observed regression/restart/publication evidence.
 
 1. Extend bounded specialist selection to richer approved workstream/task allocation, with persisted rationale and measured model capability evidence. Preserve exact selection rather than silently reassigning the Lead.
