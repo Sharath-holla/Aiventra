@@ -1,16 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { loginOwner } from "./support/login";
 import type { State } from "../src/lib/types";
 
-const env = readFileSync(resolve(process.cwd(), "../../.env"), "utf8");
-const setting = (name: string) =>
-  process.env[name] ||
-  env
-    .split(/\r?\n/)
-    .find((l) => l.startsWith(name + "="))
-    ?.slice(name.length + 1) ||
-  "";
 const headers = { Origin: "http://localhost:3000" };
 const state = async (page: Page): Promise<State> =>
   (await page.context().request.get("/api/state")).json();
@@ -19,14 +10,7 @@ test("native tools and benchmark UI queue scoped live work, wait without credent
   page,
 }) => {
   test.setTimeout(90000);
-  const login = await page.context().request.post("/api/auth/login", {
-    headers,
-    data: {
-      email: setting("OWNER_EMAIL"),
-      password: setting("OWNER_PASSWORD"),
-    },
-  });
-  expect(login.status()).toBe(200);
+  await loginOwner(page.context().request);
   let snapshot = await state(page);
   const title = `Native browser contracts ${Date.now()}`;
   const providerResponse = await page.context().request.post("/api/providers", {
