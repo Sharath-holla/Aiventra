@@ -1,5 +1,7 @@
 """Read-only provider catalogs; discovery never certifies inference or capabilities."""
 
+import re
+
 import httpx
 
 from .config import settings
@@ -10,8 +12,8 @@ from .security import validate_endpoint
 
 
 async def discover(provider: Provider, client: httpx.AsyncClient | None = None) -> list[dict]:
-    if provider.kind == "mock":
-        raise ProviderError("Fixture providers have no live catalog")
+    if provider.kind not in {"openai", "xai", "compatible", "gemini", "anthropic", "ollama"}:
+        raise ProviderError("catalog_unsupported")
     base = validate_endpoint(
         provider.base_url, settings().provider_allowed_hosts, local_allowed=provider.kind == "ollama"
     )
@@ -47,7 +49,10 @@ async def discover(provider: Provider, client: httpx.AsyncClient | None = None) 
                 import json
 
                 data = json.loads(b"".join(chunks))
-            rows = data.get("models", []) if provider.kind in {"gemini", "ollama"} else data.get("data", [])
+            field = "models" if provider.kind in {"gemini", "ollama"} else "data"
+            if not isinstance(data, dict) or field not in data:
+                raise ProviderError("catalog_invalid")
+            rows = data[field]
             if not isinstance(rows, list):
                 raise ProviderError("catalog_invalid")
             for row in rows:
@@ -55,6 +60,8 @@ async def discover(provider: Provider, client: httpx.AsyncClient | None = None) 
                 if provider.kind == "gemini":
                     identifier = str(row.get("name", "")).removeprefix("models/")
                 if not isinstance(identifier, str) or not identifier or len(identifier) > 200:
+                    raise ProviderError("catalog_invalid")
+                if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._:/-]{0,199}", identifier):
                     raise ProviderError("catalog_invalid")
                 if secret and secret in identifier:
                     raise ProviderError("catalog_invalid")
@@ -74,11 +81,15 @@ async def discover(provider: Provider, client: httpx.AsyncClient | None = None) 
             )
             if not cursor:
                 return sorted(models.values(), key=lambda row: row["identifier"])
+            if not isinstance(cursor, str) or len(cursor) > 500 or (secret and secret in cursor):
+                raise ProviderError("catalog_pagination_invalid")
             if cursor in seen:
                 raise ProviderError("catalog_pagination_invalid")
             seen.add(cursor)
             params = {"pageToken" if provider.kind == "gemini" else "after_id": cursor}
         raise ProviderError("catalog_page_limit")
+    except httpx.TimeoutException:
+        raise ProviderError("catalog_timeout") from None
     except httpx.HTTPError:
         raise ProviderError("catalog_network_failure") from None
     except (ValueError, KeyError, TypeError, AttributeError):

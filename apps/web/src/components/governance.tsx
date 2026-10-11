@@ -6,7 +6,7 @@ import { Badge, Button, Empty, Panel, Pretty, useApp } from "./common";
 import { ModelEvaluation } from "./model-evaluation";
 import { DatabaseStatus } from "./database-status";
 export function Governance({ view }: { view: string }) {
-  const { state, run, busy } = useApp();
+  const { state, run, busy, navigate } = useApp();
   const [integrity, setIntegrity] = useState<unknown>(null);
   const [budgetId, setBudgetId] = useState("");
   const [limit, setLimit] = useState("");
@@ -210,6 +210,12 @@ export function Governance({ view }: { view: string }) {
   if (view === "settings")
     return (
       <>
+        <Panel
+          title="AI models"
+          subtitle="View connected providers, discover models and save project preferences."
+        >
+          <Button onClick={() => navigate("models")}>Models & Providers</Button>
+        </Panel>
         <Panel
           title="Owner emergency controls"
           subtitle="Enforced in backend policy and worker dispatch"

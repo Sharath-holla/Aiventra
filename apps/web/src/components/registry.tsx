@@ -6,6 +6,7 @@ import { Badge, Button, Empty, Panel, useApp } from "./common";
 import { ModelPolicyForm, ProviderControls } from "./provider-controls";
 import { NativeExecution } from "./native-execution";
 import { FreeModels } from "./free-models";
+import { ModelCatalog } from "./model-catalog";
 export function Registry() {
   const { state, run, busy } = useApp();
   const [tab, setTab] = useState("models");
@@ -25,6 +26,32 @@ export function Registry() {
   const [sensitivity, setSensitivity] = useState("internal");
   return (
     <>
+      <ModelCatalog
+        connect={() => {
+          setTab("providers");
+          setShow(true);
+        }}
+        configure={(providerId, modelId) => {
+          setProvider(providerId);
+          setIdentifier(modelId);
+          setTab("models");
+          setShow(true);
+          const existing = state.models.find(
+            (m) => m.provider_id === providerId && m.identifier === modelId,
+          );
+          if (existing) {
+            setQuality(String(existing.quality));
+            setContext(String(existing.context_tokens || 32768));
+            setCapabilities(existing.capabilities.join(","));
+            setSource(existing.price_source);
+            setInput(String(existing.input_price_micro_per_million / 1000000));
+            setOutput(
+              String(existing.output_price_micro_per_million / 1000000),
+            );
+            setSensitivity(existing.sensitivity);
+          }
+        }}
+      />
       <FreeModels />
       <div className="tabs">
         <button
@@ -165,12 +192,6 @@ export function Registry() {
                     <h3>{p.name}</h3>
                     <Badge>{p.kind}</Badge>
                     <p className="mono">{p.base_url}</p>
-                    <p>
-                      Credential reference:{" "}
-                      <code>
-                        {p.credential_env || "Not required — local fixture"}
-                      </code>
-                    </p>
                     <ProviderControls
                       provider={p}
                       register={(id) => {
@@ -280,7 +301,7 @@ export function Registry() {
                     run(async () => {
                       await api("/providers", {
                         name,
-                        kind,
+                        kind: kind === "deepseek" ? "compatible" : kind,
                         base_url: url,
                         credential_env: credential,
                       });
@@ -318,6 +339,10 @@ export function Registry() {
                               "GEMINI_API_KEY",
                             ],
                             xai: ["https://api.x.ai/v1", "XAI_API_KEY"],
+                            deepseek: [
+                              "https://api.deepseek.com",
+                              "DEEPSEEK_API_KEY",
+                            ],
                             ollama: [
                               "http://localhost:11434",
                               "OLLAMA_API_KEY",
@@ -334,6 +359,7 @@ export function Registry() {
                           "anthropic",
                           "gemini",
                           "xai",
+                          "deepseek",
                           "ollama",
                           "compatible",
                         ].map((v) => (
@@ -369,23 +395,32 @@ export function Registry() {
                   onSubmit={(e) => {
                     e.preventDefault();
                     run(async () => {
-                      await api("/models", {
-                        provider_id: provider,
-                        identifier,
-                        quality: Number(quality),
-                        context_tokens: Number(context),
-                        capabilities: capabilities
-                          .split(",")
-                          .map((c) => c.trim()),
-                        input_price_micro_per_million: Math.round(
-                          Number(input) * 1000000,
-                        ),
-                        output_price_micro_per_million: Math.round(
-                          Number(output) * 1000000,
-                        ),
-                        price_source: source,
-                        sensitivity,
-                      });
+                      const existing = state.models.find(
+                        (m) =>
+                          m.provider_id === provider &&
+                          m.identifier === identifier,
+                      );
+                      await api(
+                        existing ? `/models/${existing.id}` : "/models",
+                        {
+                          provider_id: provider,
+                          identifier,
+                          quality: Number(quality),
+                          context_tokens: Number(context),
+                          capabilities: capabilities
+                            .split(",")
+                            .map((c) => c.trim()),
+                          input_price_micro_per_million: Math.round(
+                            Number(input) * 1000000,
+                          ),
+                          output_price_micro_per_million: Math.round(
+                            Number(output) * 1000000,
+                          ),
+                          price_source: source,
+                          sensitivity,
+                        },
+                        existing ? "PATCH" : "POST",
+                      );
                       setShow(false);
                     });
                   }}

@@ -1062,6 +1062,25 @@ button.stat-card:hover {
 .control-note > svg {
   flex-shrink: 0;
 }
+.catalog-model {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  margin-top: 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  overflow-wrap: anywhere;
+}
+.catalog-model > strong {
+  font-size: 15px;
+}
+.catalog-model p {
+  margin: 0;
+}
+.catalog-model small {
+  color: var(--muted);
+}
 .activity-row {
   display: flex;
   align-items: center;

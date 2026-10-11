@@ -117,6 +117,7 @@ jobs:
       - name: Verify durable conversations across actual service restarts
         run: |
           docker compose exec -T api python - < scripts/verify_conversation_recovery.py > /tmp/conversations-before.json
+          docker compose exec -T api python - < scripts/verify_model_catalog_recovery.py > /tmp/model-catalog-before.json
           if [ "$AIVENTRA_ALLOW_MODEL_DOWNLOADS" = true ]; then
             docker compose exec -T api python - < scripts/verify_semantic_memory.py > /tmp/memory-before.json
           fi
@@ -146,6 +147,8 @@ jobs:
           cmp /tmp/packages-before.json /tmp/packages-after.json
           cat /tmp/packages-after.json
           docker compose exec -T api python - < scripts/verify_conversation_recovery.py > /tmp/conversations-after.json
+          docker compose exec -T api python - < scripts/verify_model_catalog_recovery.py > /tmp/model-catalog-after.json
+          diff -u /tmp/model-catalog-before.json /tmp/model-catalog-after.json
           cmp /tmp/conversations-before.json /tmp/conversations-after.json
           cat /tmp/conversations-after.json
           if [ "$AIVENTRA_ALLOW_MODEL_DOWNLOADS" = true ]; then

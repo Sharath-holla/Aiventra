@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import type { Workflow } from "@/lib/types";
 import { Badge, Button, Loading, Panel, useApp } from "./common";
+import type { CatalogModel, Catalog } from "./model-catalog";
 
 type Form = {
   client_id: string;
@@ -24,15 +25,8 @@ type Form = {
 };
 type Eligibility = { allowed: boolean; state: string; reason: string };
 type Options = {
-  models: {
-    id: string;
-    identifier: string;
-    provider: string;
-    capabilities: string[];
-    context_tokens: number;
-    enabled: boolean;
-    eligibility: Eligibility;
-  }[];
+  models: CatalogModel[];
+  providers: Catalog["providers"];
   roles: string[];
   departments: { id: string; name: string }[];
 };
@@ -87,6 +81,8 @@ export function ProjectWizard({ initialId = "" }: { initialId?: string }) {
   const [architecture, setArchitecture] = useState("");
   const [milestones, setMilestones] = useState("");
   const [criteria, setCriteria] = useState("");
+  const [modelSearch, setModelSearch] = useState("");
+  const [modelProvider, setModelProvider] = useState("");
   const accept = useCallback((result: Draft) => {
     saved.current = result;
     setRow(result);
@@ -278,11 +274,20 @@ export function ProjectWizard({ initialId = "" }: { initialId?: string }) {
     );
   const submitted = row?.status === "submitted";
   const lead = options.models.find((model) => model.id === form.lead_model_id);
-  const eligible = options.models.filter(
+  const visibleModels = options.models.filter(
     (model) =>
-      model.enabled &&
-      model.eligibility.allowed &&
-      model.capabilities.includes("structured"),
+      (!modelProvider || model.provider_id === modelProvider) &&
+      `${model.identifier} ${model.provider}`
+        .toLowerCase()
+        .includes(modelSearch.toLowerCase()),
+  );
+  const selectedModels = new Set([
+    form.lead_model_id,
+    ...form.worker_model_ids,
+    ...Object.values(form.overrides),
+  ]);
+  const choices = options.models.filter(
+    (model) => visibleModels.includes(model) || selectedModels.has(model.id),
   );
   const override = (scope: string, model: string) => {
     const overrides = { ...form.overrides };
@@ -292,6 +297,48 @@ export function ProjectWizard({ initialId = "" }: { initialId?: string }) {
   };
   const modelControls = (
     <>
+      <div className="form-grid">
+        <label>
+          Search AI models
+          <input
+            type="search"
+            value={modelSearch}
+            onChange={(e) => setModelSearch(e.target.value)}
+          />
+        </label>
+        <label>
+          AI provider
+          <select
+            value={modelProvider}
+            onChange={(e) => setModelProvider(e.target.value)}
+          >
+            <option value="">All workspace providers</option>
+            {options.providers.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+                {p.configured ? "" : " · not configured"}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+      <Button
+        secondary
+        disabled={saving}
+        onClick={() =>
+          execute(async () => {
+            setOptions(await api<Options>("/project-creation-options"));
+          })
+        }
+      >
+        Refresh model choices
+      </Button>
+      {!options.models.length && (
+        <p>
+          Your providers have no registered models. Open Settings → Models &
+          Providers and choose Discover models. Discovery never invokes AI.
+        </p>
+      )}
       <label>
         Lead AI
         <select
@@ -302,20 +349,20 @@ export function ProjectWizard({ initialId = "" }: { initialId?: string }) {
           }
         >
           <option value="">GPT-6.1 Sol · preferred, unavailable</option>
-          {options.models
-            .filter(
-              (model) =>
-                model.capabilities.includes("structured") &&
-                model.capabilities.includes("reasoning"),
-            )
-            .map((model) => (
-              <option key={model.id} value={model.id}>
-                {model.identifier} · {model.provider} ·{" "}
-                {model.eligibility.allowed && model.enabled
-                  ? "verified local"
-                  : "blocked"}
-              </option>
-            ))}
+          {options.providers.map((provider) => (
+            <optgroup key={provider.id} label={provider.name}>
+              {choices
+                .filter((m) => m.provider_id === provider.id)
+                .map((model) => (
+                  <option key={model.id} value={model.id}>
+                    {model.identifier} · {model.provider} ·{" "}
+                    {model.eligibility.allowed && model.enabled
+                      ? "verified local"
+                      : "blocked"}
+                  </option>
+                ))}
+            </optgroup>
+          ))}
         </select>
       </label>
       <div className="control-note">
@@ -348,11 +395,12 @@ export function ProjectWizard({ initialId = "" }: { initialId?: string }) {
       <fieldset>
         <legend>Optional worker pool</legend>
         <p className="muted">
-          Leave empty to let the gateway rank verified local candidates. Every
-          call still checks capabilities, budget and independent review.
+          Registered models can be saved as preferences, including blocked
+          models. Automatic execution uses only eligible models; every call
+          still checks capabilities, budget and independent review.
         </p>
-        {eligible.length ? (
-          eligible.map((model) => (
+        {visibleModels.length ? (
+          visibleModels.map((model) => (
             <label className="checkbox-label" key={model.id}>
               <input
                 type="checkbox"
@@ -367,11 +415,18 @@ export function ProjectWizard({ initialId = "" }: { initialId?: string }) {
                 }
               />
               {model.identifier} · {model.provider} ·{" "}
-              {model.context_tokens.toLocaleString()} context tokens
+              {model.eligibility.allowed
+                ? "Ready to use"
+                : "Blocked preference"}{" "}
+              · {model.capabilities.join(", ") || "Capabilities unknown"}
+              <small>{model.eligibility.reason}</small>
             </label>
           ))
         ) : (
-          <p>No currently verified zero-cost worker models. Work will wait.</p>
+          <p>
+            No models match. Registered blocked preferences remain available
+            when filters are cleared; work waits for eligible models.
+          </p>
         )}
       </fieldset>
       {form.worker_mode !== "automatic" && (
@@ -400,7 +455,7 @@ export function ProjectWizard({ initialId = "" }: { initialId?: string }) {
                       ? "Unassigned · this role will wait"
                       : "Automatic"}
                   </option>
-                  {eligible
+                  {choices
                     .filter(
                       (model) =>
                         !form.worker_model_ids.length ||

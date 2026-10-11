@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { api, money } from "@/lib/api";
 import type { Task, Workflow } from "@/lib/types";
 import { Badge, Button, Empty, Panel, Pretty, useApp } from "./common";
+import type { Catalog } from "./model-catalog";
 
 type PlannedTask = {
   key: string;
@@ -21,6 +22,7 @@ type PlannedTask = {
   required_tools?: string[];
   qa_requirements?: string[];
   model_override?: string | null;
+  preferred_model_id?: string | null;
   model_rationale?: string;
 };
 type Content = {
@@ -83,6 +85,7 @@ export function Staffing({ initialId = "" }: { initialId?: string }) {
   const { state, run, busy, navigate } = useApp();
   const [projectId, setProjectId] = useState(initialId);
   const [plan, setPlan] = useState<Plan | null>(null);
+  const [catalog, setCatalog] = useState<Catalog | null>(null);
   const [draft, setDraft] = useState<Content | null>(null);
   const [draftVersion, setDraftVersion] = useState(0);
   const [planningId, setPlanningId] = useState("");
@@ -93,6 +96,19 @@ export function Staffing({ initialId = "" }: { initialId?: string }) {
   const [repository, setRepository] = useState("");
   const [suite, setSuite] = useState("python-unittest");
   const selected = projectId || state.projects[0]?.id || "";
+  useEffect(() => {
+    let live = true;
+    api<Catalog>("/model-catalog")
+      .then((value) => {
+        if (live) setCatalog(value);
+      })
+      .catch((e) => {
+        if (live) setError(String(e));
+      });
+    return () => {
+      live = false;
+    };
+  }, [state.models, state.providers, state.provider_probes]);
   const role = (id: string) =>
     state.agents.find((a) => a.id === id)?.role || id;
   const load = async () => {
@@ -477,14 +493,23 @@ export function Staffing({ initialId = "" }: { initialId?: string }) {
                       Task model
                       <select
                         aria-label={`Model ${item.key}`}
-                        value={item.model_override || ""}
+                        value={
+                          item.model_override || item.preferred_model_id || ""
+                        }
                         disabled={
                           plan.status !== "draft" ||
                           (draft.routing_mode || "automatic") === "automatic"
                         }
                         onChange={(e) =>
                           updateTask(item.key, {
-                            model_override: e.target.value || null,
+                            preferred_model_id:
+                              draft.mode === "mock"
+                                ? null
+                                : e.target.value || null,
+                            model_override:
+                              draft.mode === "mock"
+                                ? e.target.value || null
+                                : null,
                           })
                         }
                       >
@@ -493,20 +518,47 @@ export function Staffing({ initialId = "" }: { initialId?: string }) {
                             ? "Await exact assignment"
                             : "Automatic eligible model"}
                         </option>
-                        {item.model_override &&
-                          !quote?.selection.model_options.some(
-                            (m) => m.id === item.model_override,
+                        {(item.model_override || item.preferred_model_id) &&
+                          !(
+                            draft.mode === "mock"
+                              ? quote?.selection.model_options
+                              : catalog?.models
+                          )?.some(
+                            (m) =>
+                              m.id ===
+                              (item.model_override || item.preferred_model_id),
                           ) && (
-                            <option value={item.model_override}>
+                            <option
+                              value={
+                                item.model_override ||
+                                item.preferred_model_id ||
+                                ""
+                              }
+                            >
                               Saved model currently unavailable
                             </option>
                           )}
-                        {quote?.selection.model_options.map((m) => (
+                        {(draft.mode === "mock"
+                          ? quote?.selection.model_options
+                          : catalog?.models
+                        )?.map((m) => (
                           <option key={m.id} value={m.id}>
                             {m.identifier} · {m.provider}
+                            {draft.mode === "mock"
+                              ? " · Deterministic test adapter"
+                              : quote?.selection.model_options.some(
+                                    (option) => option.id === m.id,
+                                  )
+                                ? " · Eligible for task"
+                                : " · Preference only; task currently blocked"}
                           </option>
                         ))}
                       </select>
+                      <small className="muted">
+                        Saving a registered preference does not authorize
+                        inference. Task, approval and free-only checks apply at
+                        execution.
+                      </small>
                     </label>
                     <label>
                       Objective
@@ -569,6 +621,9 @@ export function Staffing({ initialId = "" }: { initialId?: string }) {
                     </label>
                   </div>
                   <p>{quote?.selection.reason}</p>
+                  {quote?.selection.state && (
+                    <Badge>{quote.selection.state}</Badge>
+                  )}
                   <p className="muted">
                     {item.workstream || "delivery"} ·{" "}
                     {item.difficulty || "standard"} difficulty ·{" "}

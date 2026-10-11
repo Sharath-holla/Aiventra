@@ -1,5 +1,11 @@
 # Aiventra OS architecture
 
+## Connected provider catalogs — October 11, 2026
+
+model_catalog.py synchronizes the existing ModelConfig registry and persists bounded discovery provenance in protected provider_catalog BusinessRecords. Owner GET-only discovery commits before HTTP and rechecks generation, configuration, credential revision and owner authority under organization-first locking before accepting results. Failures retain stale last-good catalogs; removed identifiers persist unavailable. No DDL or database cutover occurs. Details and limits: [docs/CONNECTED_MODEL_CATALOG.md](docs/CONNECTED_MODEL_CATALOG.md).
+
+The authorized /model-catalog view separates configuration, registration, execution eligibility and recorded live inference. Settings, wizard and live staffing selectors consume this registry; project defaults retain existing scoped policies. Blocked real model identities can be saved as preferences. New preferred_model_id lives in existing staffing revision/task JSON and is bound to exact approval. Legacy model_override stays eligibility-strict. Gateway and transport enforce current catalog availability and ZERO_COST_ONLY, preserving waiting/checkpoints, independent review and finance gates. Test fixtures confer no production entitlement.
+
 ## Checkout, PDF and bounded history increment — October 11, 2026
 
 Current design is documented in [docs/CHECKOUT_PDF_HISTORY.md](docs/CHECKOUT_PDF_HISTORY.md); the owner brief is preserved separately. runner_checkout.py materializes commit-pinned, hash-verified GitHub text snapshots exclusively in the trusted dedicated runner volume. repository_checkouts.py persists owner commands/receipts using existing BusinessRecord and Approval models; checkout_operations.py exposes scoped, separately approved test execution/recovery. No Git checkout, hook or generated code runs in the API/worker host. Existing isolated suites/daemon policies and independent engineering/publication/delivery gates remain authoritative.

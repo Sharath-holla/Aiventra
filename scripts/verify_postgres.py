@@ -128,6 +128,7 @@ def verify():
         session.commit()
         owner_id, client_id = owner.id, client.id
     verify_chat_contention(SessionLocal, owner_id, client_id)
+    verify_catalog_sync(SessionLocal, org_id)
 
     def attempt(_):
         with SessionLocal() as session:
@@ -202,8 +203,43 @@ def verify():
                 raise AssertionError("Database allowed audit mutation")
         assert verify_audit(session, org_id)["valid"]
     print(
-        "PostgreSQL verified: 13 BIGINT money columns, large atomic caps, concurrent login counters/probe creation, chat admission/cancellation, append-only audit"
+        "PostgreSQL verified: 13 BIGINT money columns, large atomic caps, concurrent login counters/probe creation, chat admission/cancellation, catalog synchronization, append-only audit"
     )
+
+
+def verify_catalog_sync(factory, org_id):
+    """Real storage compatibility; explicit metadata fixture, never a provider call."""
+    from company_os import model_catalog, spending
+    from company_os.models import ModelConfig
+
+    with factory() as session:
+        lock_org(session, org_id)
+        provider = Provider(
+            org_id=org_id,
+            name="CI catalog storage fixture",
+            kind="openai",
+            base_url="https://api.openai.com/v1",
+        )
+        session.add(provider)
+        session.flush()
+        state = model_catalog.record(session, provider, create=True)
+        catalog = [{"identifier": "ci-storage-contract-model"}]
+        model_catalog.synchronize(session, provider, state, catalog)
+        model_catalog.synchronize(session, provider, state, catalog)
+        model = session.scalar(select(ModelConfig).where(ModelConfig.provider_id == provider.id))
+        assert model.capabilities == [] and model.quality == 0 and model.context_tokens == 0
+        identity = model.id
+        model.capabilities, model.quality, model.enabled = ["structured", "reasoning"], 90, False
+        session.commit()
+        model_catalog.synchronize(session, provider, state, [])
+        session.commit()
+        assert not model_catalog.available(model) and not spending.assess(provider, model).allowed
+        model_catalog.synchronize(session, provider, state, catalog)
+        session.commit()
+        rows = session.scalars(select(ModelConfig).where(ModelConfig.provider_id == provider.id)).all()
+        assert len(rows) == 1 and rows[0].id == identity
+        assert model.capabilities == ["structured", "reasoning"] and model.quality == 90 and not model.enabled
+        assert model_catalog.available(model)
 
 
 if __name__ == "__main__":

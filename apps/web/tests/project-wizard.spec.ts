@@ -1,24 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
-
-const env = readFileSync(resolve(process.cwd(), "../../.env"), "utf8");
-const setting = (name: string) =>
-  process.env[name] ||
-  env
-    .split(/\r?\n/)
-    .find((line) => line.startsWith(name + "="))
-    ?.slice(name.length + 1) ||
-  "";
+import { loginOwner } from "./support/login";
 async function login(page: Page) {
-  const result = await page.context().request.post("/api/auth/login", {
-    data: {
-      email: setting("OWNER_EMAIL"),
-      password: setting("OWNER_PASSWORD"),
-    },
-    headers: { Origin: "http://localhost:3000" },
-  });
-  expect(result.status()).toBe(200);
+  await loginOwner(page.context().request);
 }
 async function describe(page: Page, suffix: string) {
   await page.goto("/?view=new-project");

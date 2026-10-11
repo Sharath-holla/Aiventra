@@ -1,5 +1,11 @@
 # Next steps
 
+## Current connected catalog continuation
+
+The owner authorized docs/CONNECTED_MODEL_CATALOG_SPEC.md after the checkout/PDF/history increment; the older stop instruction below is historical. Preserve the connected catalog implementation in docs/CONNECTED_MODEL_CATALOG.md and the existing SQLite records/approval gates. Finish observed full regression/restart checks, commit/push normally and verify exact-source CI; TEST_REPORT.md records results only after execution.
+
+After verification, genuine provider catalog/account access remains an external configuration step: the active workstation vault currently contains zero credentials. Do not reuse chat-disclosed keys or request keys now. Registered remote preferences stay visible and saved while ZERO_COST_ONLY refuses unverified billing. A real local inference/benchmark journey still requires explicit Ollama/model installation authorization. Generated PR publication and client release retain their own exact owner approval and real evidence gates. No PostgreSQL cutover is authorized.
+
 ## Stop after checkout/PDF/history increment
 
 Preserve the implemented bounded increment in docs/CHECKOUT_PDF_HISTORY.md and the existing SQLite records/Phase 4/5 gates. Do not start a new major feature until the owner approves it. TEST_REPORT.md records final verification/publication evidence after observation; historical lists below are not the current implementation checklist.

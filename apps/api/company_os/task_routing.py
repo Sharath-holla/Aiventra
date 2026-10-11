@@ -21,6 +21,8 @@ class TaskRequirements(Strict):
     recommended_model_id: str | None = Field(default=None, max_length=36)
     model_rationale: str = Field(default="", max_length=1000)
     model_override: str | None = Field(default=None, max_length=36)
+    # A saved identity preference confers no execution entitlement or capability proof.
+    preferred_model_id: str | None = Field(default=None, max_length=36)
     # Recomputed by the server on every draft revision. Never trusted as input.
     model_selection: dict = Field(default_factory=dict)
 
@@ -69,7 +71,7 @@ def choices(session, project, content, row, *, verified=True, preferences=True):
     requirement = session.get(m.Requirement, proposal.requirement_id)
     form = setup_form(session, project)
     mode = content.get("routing_mode", form["worker_mode"] if form else "automatic")
-    selected = profile.model_override if preferences else None
+    selected = (profile.model_override or profile.preferred_model_id) if preferences else None
     if preferences and not selected and form:
         selected = form["overrides"].get("role:" + agent.role) or form["overrides"].get(
             "department:" + agent.department_id
@@ -183,8 +185,21 @@ def prepare(session, plan, content):
     content["routing_mode"] = content.get("routing_mode", form["worker_mode"] if form else "automatic")
     for row in content["tasks"]:
         profile, _, _ = requirements(row)
-        if profile.model_override and content["routing_mode"] == "automatic":
+        if (profile.model_override or profile.preferred_model_id) and content["routing_mode"] == "automatic":
             raise ValueError("Choose hybrid or manual routing for per-task overrides")
+        if profile.preferred_model_id:
+            model = session.get(m.ModelConfig, profile.preferred_model_id)
+            provider = session.get(m.Provider, model.provider_id) if model else None
+            if (
+                not model
+                or model.org_id != plan.org_id
+                or not provider
+                or provider.org_id != plan.org_id
+                or provider.kind == "mock"
+            ):
+                raise ValueError("Unknown or foreign registered task preference")
+            if profile.model_override and profile.model_override != profile.preferred_model_id:
+                raise ValueError("Conflicting task model selections")
         agent = session.get(m.Agent, row["agent_id"])
         if not agent or agent.org_id != plan.org_id:
             raise ValueError("Foreign task assignment")

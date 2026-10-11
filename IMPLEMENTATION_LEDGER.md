@@ -1,5 +1,11 @@
 # Implementation ledger
 
+## Connected catalog continuation — October 11, 2026
+
+Actual starting source 9711fee/master. Preserved docs/CONNECTED_MODEL_CATALOG_SPEC.md and prior checkout/PDF/history/Phase 4/5 work. Fixed the probe-to-registry gap, executable-only picker filters and official DeepSeek allowlist omission. Added protected persistent discovery facts, stable non-destructive registry synchronization, owner/configuration/concurrent-response rechecks, stale/error recovery and shared safe catalog/UI. Saved real blocked Lead/worker/task/project preferences remain distinct from execution authority; exact task approval and independent review are preserved.
+
+No active database migration/reset, credential disclosure/use, paid inference, model installation, generated PR or client release occurred. Active vault has zero saved credentials. TEST_REPORT.md records actual focused/full/browser/recovery/CI results and previous failures; no positive provider fixture is counted as live model access. Architecture and operational limits are in docs/CONNECTED_MODEL_CATALOG.md. Source publication is recorded after execution.
+
 ## Restricted checkout/PDF/history increment — October 11, 2026
 
 Source fcc147ec890e18c32242d32c52206fd7b7c79805 pushed normally; remote SHA verified. Final local suite 377 backend/33 browser checks passed. Five CI jobs passed; PostgreSQL browser cancellation exposed organization/workflow lock inversion. Corrected organization-first send/cancel ordering and added shared real database contention checks (SQLite test and PostgreSQL probe). Local corrected focused set passed 19; exact repair-source CI evidence follows after execution.

@@ -6,6 +6,7 @@ helpers. It is not imported by the application or included in production routes.
 
 import argparse
 import asyncio
+import base64
 import json
 import logging
 import os
@@ -46,9 +47,10 @@ async def main():
     from alembic import command
     from alembic.config import Config
     from company_os import models as m
-    from company_os import repository_checkouts
+    from company_os import provider_catalog, repository_checkouts
     from company_os.api import app
     from company_os.config import settings
+    from company_os.credentials import save_secret
     from company_os.db import SessionLocal, engine
     from company_os.health import heartbeat
     from company_os.organization import seed
@@ -139,6 +141,40 @@ async def main():
             },
         ).json()
         saved["unredeemed_invitation"] = invitation["token"]
+        # Isolated encrypted-vault -> GET-only discovery -> real registry/UI contract.
+        # Never uses an owner key, live provider account, or real network transport.
+        settings().provider_secret_key = base64.urlsafe_b64encode(b"c" * 32).decode()
+        settings().provider_allowed_hosts += ",api.deepseek.com"
+        saved["catalog_providers"] = []
+        with SessionLocal() as session:
+            for label, kind, endpoint in [
+                ("OpenAI", "openai", "https://api.openai.com/v1"),
+                ("Grok", "xai", "https://api.x.ai/v1"),
+                ("DeepSeek", "compatible", "https://api.deepseek.com"),
+            ]:
+                provider = m.Provider(
+                    org_id=org.id, name=f"Catalog contract fixture · {label}", kind=kind, base_url=endpoint
+                )
+                session.add(provider)
+                session.flush()
+                save_secret(session, provider, "opaque-catalog-browser-fixture")
+                saved["catalog_providers"].append({"id": provider.id, "name": provider.name})
+            session.commit()
+
+        async def catalog_fixture(provider):
+            assert provider.id in {p["id"] for p in saved["catalog_providers"]}
+
+            def response(request):
+                assert request.method == "GET" and request.url.path.endswith("/models")
+                assert request.headers["authorization"] == "Bearer opaque-catalog-browser-fixture"
+                return httpx.Response(200, json={"data": [{"id": "browser-contract-" + provider.kind}]})
+
+            async with httpx.AsyncClient(transport=httpx.MockTransport(response)) as transport:
+                return await provider_catalog.discover(provider, transport)
+
+        from company_os.routes import provider_operations
+
+        provider_operations.discover = catalog_fixture
         # Private checkout UI contract. Neither GitHub nor Docker is contacted.
         with SessionLocal() as session:
             repository = m.Repository(

@@ -10,7 +10,6 @@ from sqlalchemy.orm import Session
 
 from .. import models as m
 from .. import project_setup as setup
-from .. import spending
 from ..db import session_dependency
 from ..document_imports import MAX_UPLOAD, parse_document
 from ..draft_documents import attach, pdf_source, retire
@@ -78,31 +77,13 @@ def change(session, user, record_id, data, action, operation):
 
 @router.get("/project-creation-options")
 def options(user: m.User = Depends(owner), session: Session = Depends(session_dependency)):
-    models = []
-    for model, provider in session.execute(
-        select(m.ModelConfig, m.Provider)
-        .join(m.Provider)
-        .where(
-            m.ModelConfig.org_id == user.org_id, m.Provider.org_id == user.org_id, m.Provider.kind != "mock"
-        )
-    ):
-        models.append(
-            {
-                "id": model.id,
-                "identifier": model.identifier,
-                "provider": provider.name,
-                "kind": provider.kind,
-                "capabilities": model.capabilities,
-                "context_tokens": model.context_tokens,
-                "configured_quality": model.quality,
-                "enabled": model.enabled and provider.enabled,
-                "eligibility": spending.status(session, provider, model),
-            }
-        )
+    from ..model_catalog import view
+
+    catalog = view(session, user.org_id)
     return {
         "favorite": setup.FAVORITE,
         "spending_mode": "ZERO_COST_ONLY",
-        "models": models,
+        **catalog,
         "roles": sorted(
             set(
                 session.scalars(

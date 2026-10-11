@@ -1,5 +1,11 @@
 # Aiventra existing-project audit
 
+## Connected model catalog audit — October 11, 2026
+
+Continued from actual 9711fee after the checkout/PDF/history increment and PostgreSQL chat lock-order repair. The owner explicitly authorized this next catalog milestone, superseding the previous stop instruction. Source inspection found discovery only populated probes, capability/execution filters hid registered choices, and DeepSeek's official host was missing from the endpoint allowlist. Active SQLite had zero encrypted provider credentials and no genuine configured OpenAI/xAI/DeepSeek connection; retained test registrations are not owner account verification. Credentials were not disclosed, changed or requested.
+
+Added durable synchronization, a safe shared catalog, connected model controls and saved blocked preferences while preserving strict execution authorization. Tenant/owner, concurrent stale response, credential changes, disappeared models, error redaction, approval tampering and no-call/no-reservation checks are covered by executed tests recorded in TEST_REPORT.md. Fixture metadata, actual application/storage verification and CI infrastructure evidence are reported separately. No paid inference, installation, real generated PR publication or client delivery was performed.
+
 ## Checkout/PDF/history continuation — October 11, 2026
 
 Inspected actual clean f240412/master, latest owner brief, current implementation/ledger/architecture/security/test reports, SQLite schema, source and Git history. Preserved the verified task allocation/DOCX/read-only import/Phase 4/5 modules. Added restricted broker-only text snapshot acquisition and separately approved verification; bounded PDF extraction/versioned reprocessing/private source recovery; project/task/chat pagination. No schema migration or active data replacement occurred. Current limits and deliberately unsupported binary/OCR/live paths are explicit in docs/CHECKOUT_PDF_HISTORY.md. TEST_REPORT.md records observed failures, repairs, local evidence and exact-source CI after execution; older completion statements below describe earlier increments.

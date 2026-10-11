@@ -6,6 +6,7 @@ from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from .. import model_catalog
 from .. import models as m
 from ..api_common import serialize
 from ..credentials import (
@@ -21,7 +22,8 @@ from ..provider_catalog import discover
 from ..provider_state import probe_for
 from ..providers import ProviderError
 from ..schemas import Strict
-from ..security import audit, owner, scoped
+from ..security import audit, digest, owner, scoped
+from ..staffing import lock_org
 
 router = APIRouter()
 
@@ -37,6 +39,8 @@ def store_credentials(
     user: m.User = Depends(owner),
     session: Session = Depends(session_dependency),
 ):
+    lock_org(session, user.org_id)
+    session.expire_all()
     provider = scoped(session, m.Provider, record_id, user)
     secret = data.secret.get_secret_value()
     if (
@@ -52,6 +56,7 @@ def store_credentials(
     except VaultUnavailable as exc:
         raise HTTPException(409, str(exc)) from None
     probe = probe_for(session, provider)
+    model_catalog.invalidate(session, provider)
     probe.status, probe.checked_at, probe.error_code = "unverified", None, ""
     probe.models, probe.inference_at, probe.inference_model_id = [], None, None
     audit(session, user.org_id, user.id, "provider.credential_stored", provider.id)
@@ -63,10 +68,13 @@ def store_credentials(
 def revoke_credentials(
     record_id: str, user: m.User = Depends(owner), session: Session = Depends(session_dependency)
 ):
+    lock_org(session, user.org_id)
+    session.expire_all()
     provider = scoped(session, m.Provider, record_id, user)
     credential = stored_credential(provider, session)
     if credential:
         session.delete(credential)
+    model_catalog.invalidate(session, provider)
     probe = probe_for(session, provider)
     probe.status, probe.models, probe.inference_at = "unverified", [], None
     probe.checked_at, probe.error_code, probe.inference_model_id = None, "", None
@@ -80,10 +88,18 @@ def revoke_credentials(
 async def test_provider(
     record_id: str, user: m.User = Depends(owner), session: Session = Depends(session_dependency)
 ):
+    lock_org(session, user.org_id)
+    session.expire_all()
     provider = scoped(session, m.Provider, record_id, user)
     if not provider.enabled:
         raise HTTPException(409, "Enable the provider before testing its catalog")
     revision = credential_revision(provider, session)
+    configuration = digest([provider.kind, provider.base_url, provider.enabled])
+    state = model_catalog.record(session, provider, create=True)
+    state.version += 1
+    operation = state.version
+    state.data = {**state.data, "status": "discovering", "checked_at": now(), "error_code": ""}
+    session.commit()  # Never hold the organization writer lock across provider I/O.
     try:
         catalog = await asyncio.wait_for(discover(provider), timeout=20)
         status, error = "catalog_verified", ""
@@ -91,6 +107,51 @@ async def test_provider(
         status, error, catalog = "catalog_failed", str(exc), []
     except TimeoutError:
         status, error, catalog = "catalog_failed", "catalog_timeout", []
+    except ValueError:
+        status, error, catalog = "catalog_failed", "catalog_endpoint_invalid", []
+    # Only fixed error codes leave the credential boundary; never relay provider bodies.
+    allowed_errors = {
+        "missing_credentials",
+        "vault_unavailable",
+        "catalog_timeout",
+        "catalog_invalid",
+        "catalog_too_large",
+        "catalog_network_failure",
+        "catalog_endpoint_invalid",
+        "catalog_pagination_invalid",
+        "catalog_page_limit",
+        "catalog_unsupported",
+    }
+    if (
+        error
+        and error not in allowed_errors
+        and not (error.startswith("catalog_http_") and error[13:].isdigit() and len(error) == 16)
+    ):
+        error = "catalog_failed"
+    session.rollback()
+    lock_org(session, user.org_id)
+    session.expire_all()
+    provider = scoped(session, m.Provider, record_id, user)
+    state = model_catalog.record(session, provider)
+    actor = session.get(m.User, user.id)
+    if not actor or not actor.enabled or actor.role != "owner" or actor.org_id != provider.org_id:
+        session.rollback()
+        raise HTTPException(403, "Owner authority revoked during discovery")
+    if (
+        state.version != operation
+        or credential_revision(provider, session) != revision
+        or digest([provider.kind, provider.base_url, provider.enabled]) != configuration
+    ):
+        session.rollback()
+        raise HTTPException(
+            409, "Provider configuration changed during discovery; refresh the current configuration"
+        )
+    if status == "catalog_verified":
+        try:
+            model_catalog.synchronize(session, provider, state, catalog)
+        except ValueError:
+            status, error, catalog = "catalog_failed", "catalog_retention_limit", []
+    state.data = {**state.data, "status": status, "error_code": error, "checked_at": now()}
     audit(
         session,
         user.org_id,
@@ -99,13 +160,17 @@ async def test_provider(
         provider.id,
         {"status": status, "error_code": error, "model_count": len(catalog)},
     )
-    if credential_revision(provider, session) != revision:
-        session.rollback()
-        raise HTTPException(409, "Credential changed during catalog check; test the current credential")
     probe = probe_for(session, provider)
-    probe.status, probe.error_code, probe.models, probe.checked_at = status, error, catalog, now()
+    probe.status, probe.error_code, probe.checked_at = status, error, now()
+    if status == "catalog_verified":
+        probe.models = catalog  # Failures retain the last successful catalog, visibly stale.
     session.commit()
     return serialize(probe)
+
+
+@router.get("/model-catalog")
+def catalog(user: m.User = Depends(owner), session: Session = Depends(session_dependency)):
+    return model_catalog.view(session, user.org_id)
 
 
 class PolicyInput(Strict):

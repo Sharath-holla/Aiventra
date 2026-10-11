@@ -195,9 +195,9 @@ export function ProviderControls({
               />
             </label>
             <p className="muted">
-              This action may make a paid API call. Quality, permission,
-              sensitivity, pricing freshness and all overlapping caps still
-              apply.
+              ZERO_COST_ONLY blocks unverified remote billing. This probe can
+              run only after free eligibility, capability, permission,
+              sensitivity and budget checks pass.
             </p>
             <Button type="submit" disabled={busy || !probeModel}>
               Run bounded inference test
@@ -267,6 +267,7 @@ export function ModelPolicyForm({
       <label>
         Preferred model
         <select
+          aria-label="Preferred model"
           value={preferred}
           onChange={(e) => setPreferred(e.target.value)}
         >
@@ -304,6 +305,8 @@ export function ModelPolicyForm({
         <p className="muted">
           An empty selection allows all eligible models. Project, employee and
           provider restrictions intersect; preferences cannot bypass them.
+          Registered models can be saved while blocked; execution still waits
+          for verified free eligibility and required capabilities.
         </p>
       </details>
       <Button type="submit" disabled={busy}>

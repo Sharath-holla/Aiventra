@@ -1,5 +1,15 @@
 # Implementation status
 
+## Connected model discovery and selection — October 11, 2026
+
+Implemented the owner-authorized continuation [docs/CONNECTED_MODEL_CATALOG.md](docs/CONNECTED_MODEL_CATALOG.md): GET-only vault-backed discovery upserts stable registry identities, retains owner configuration/preferences, records discovery/error/stale/interruption provenance, and marks disappeared models unavailable without deleting them. The shared safe catalog powers Settings and wizard/staffing selection. Search, filters, refresh, enable/configure and saved blocked Lead/worker/task/project defaults use actual backend state. Unverified GPT-6.1 Sol stays a labeled preference without an invented model ID.
+
+Task preferences are distinct from strict eligible assignments and are copied into exact approved task payloads. Routing/transport still enforce ZERO_COST_ONLY and current capabilities, scopes, finance and independent review; blocked choices wait without inference or reservations. SQLite and existing data remain active; PostgreSQL compatibility and all previous checkout/PDF/history/Phase 4/5 modules are preserved. No schema migration, model installation or paid call occurred.
+
+Actual credential inspection found zero saved vault records and no genuine configured OpenAI/xAI/DeepSeek connection in this workstation database. Discovery/account entitlement/live inference remain unverified; positive discovery uses labeled HTTP fixtures. TEST_REPORT.md records executed regression/recovery/publication evidence. This is an engineering increment, not production readiness or genuine client delivery.
+
+Local verification: complete backend suite 404 passed; final fresh-catalog guard set 134 passed; 28 ordinary and seven isolated browser journeys passed. Build/types/format/lint, dependency audits, no-drift and actual SQLite/process restart checks passed. Exact published-source CI is recorded after observation; no provider fixture counts as a live account connection.
+
 ## Restricted checkout, PDF and history — October 11, 2026
 
 Source fcc147e is pushed with matching remote SHA. Local complete suite passed 377 backend, 28 ordinary browser and five isolated delivery checks. First-source CI passed five jobs including actual Docker checkout build/test/restart, but PostgreSQL integration found a chat cancellation/admission lock inversion. Send/cancel now use organization-first locking with fresh state; controlled contention coverage runs in SQLite and the disposable PostgreSQL probe. Corrected focused set passed 19. Repair-source CI remains pending until observed; no PostgreSQL recovery success is claimed for the failed run.

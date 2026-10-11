@@ -23,6 +23,7 @@ from ..security import (
     scoped,
     validate_endpoint,
 )
+from ..staffing import lock_org
 
 router = APIRouter()
 
@@ -87,6 +88,8 @@ def add_provider(
 def add_model(
     data: ModelInput, user: m.User = Depends(owner), session: Session = Depends(session_dependency)
 ):
+    lock_org(session, user.org_id)
+    session.expire_all()
     scoped(session, m.Provider, data.provider_id, user)
     model = m.ModelConfig(id=uid(), org_id=user.org_id, **data.model_dump())
     session.add(model)
@@ -99,8 +102,46 @@ def add_model(
     return serialize(model)
 
 
+@router.patch("/models/{record_id}")
+def configure_model(
+    record_id: str,
+    data: ModelInput,
+    user: m.User = Depends(owner),
+    session: Session = Depends(session_dependency),
+):
+    lock_org(session, user.org_id)
+    session.expire_all()
+    model = scoped(session, m.ModelConfig, record_id, user)
+    if model.provider_id != data.provider_id or model.identifier != data.identifier:
+        raise HTTPException(409, "Model identity is immutable; register a different identifier separately")
+    for key, value in data.model_dump().items():
+        setattr(model, key, value)
+    from ..db import now
+
+    model.price_checked_at = now()
+    audit(session, user.org_id, user.id, "model.configured", model.id)
+    session.commit()
+    return serialize(model)
+
+
 class Toggle(Strict):
     enabled: bool
+
+
+@router.patch("/models/{record_id}/enabled")
+def toggle_model(
+    record_id: str,
+    data: Toggle,
+    user: m.User = Depends(owner),
+    session: Session = Depends(session_dependency),
+):
+    lock_org(session, user.org_id)
+    session.expire_all()
+    model = scoped(session, m.ModelConfig, record_id, user)
+    model.enabled = data.enabled
+    audit(session, user.org_id, user.id, "model.toggled", model.id, {"enabled": data.enabled})
+    session.commit()
+    return serialize(model)
 
 
 @router.patch("/providers/{record_id}")
@@ -110,6 +151,8 @@ def toggle_provider(
     user: m.User = Depends(owner),
     session: Session = Depends(session_dependency),
 ):
+    lock_org(session, user.org_id)
+    session.expire_all()
     provider = scoped(session, m.Provider, record_id, user)
     provider.enabled = data.enabled
     audit(session, user.org_id, user.id, "provider.toggled", provider.id, {"enabled": data.enabled})

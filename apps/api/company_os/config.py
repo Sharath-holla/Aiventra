@@ -32,9 +32,7 @@ class Settings(BaseSettings):
     client_invitation_ttl_seconds: int = Field(default=172800, ge=60, le=604800)
     artifact_root: Path = Path("artifacts")
     repository_root: Path = Path("data/repositories")
-    provider_allowed_hosts: str = (
-        "api.openai.com,api.anthropic.com,generativelanguage.googleapis.com,api.x.ai,localhost,127.0.0.1"
-    )
+    provider_allowed_hosts: str = "api.openai.com,api.anthropic.com,generativelanguage.googleapis.com,api.x.ai,api.deepseek.com,localhost,127.0.0.1"
     research_allowed_hosts: str = "cloud.google.com,lightning.ai,aws.amazon.com,azure.microsoft.com"
     oidc_issuer: str = ""
     oidc_audience: str = ""

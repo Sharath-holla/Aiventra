@@ -218,3 +218,63 @@ async def test_task_benchmark_case_filters_weak_model(http, company, requirement
     assert selected["model_id"] == strong
     assert weak not in [row["id"] for row in selected["model_options"]]
     assert selected["candidates"][0]["quality_basis"] == "current fingerprint-bound microbenchmark"
+
+
+async def test_blocked_registered_task_preference_persists_without_execution(http, company, requirement):
+    _, plan = await project_plan(http, company, requirement)
+    for _ in range(4):
+        await tick(company["factory"])
+    model_id = alternate(company, kind="openai")
+    content = deepcopy(plan["content"])
+    content.update(mode="live", routing_mode="hybrid")
+    content["tasks"] = [content["tasks"][0]]
+    content["tasks"][0]["preferred_model_id"] = model_id
+    revised = revise(http, plan, **content)
+    choice = revised["content"]["tasks"][0]
+    assert choice["preferred_model_id"] == model_id
+    assert choice["model_selection"]["state"] == "WAITING_FOR_FREE_PROVIDER"
+    assert choice["model_selection"]["model_id"] is None
+    active = approve(http, revised)
+    task_id = active["tasks"][0]["id"]
+    company["factory"].kw["bind"].dispose()
+    await tick(company["factory"])
+    recovered = http.get(f"/projects/{plan['project_id']}/staffing").json()
+    assert recovered["content"]["tasks"][0]["preferred_model_id"] == model_id
+    assert recovered["budget"]["spent_micro"] == recovered["budget"]["reserved_micro"] == 0
+    with company["factory"]() as session:
+        task = session.get(m.Task, task_id)
+        assert task.status == "waiting_for_free_provider" and task_ready(session, task)
+        assert not session.scalar(select(m.ModelRun).where(m.ModelRun.task_id == task_id))
+        workflow = m.Workflow(org_id=task.org_id, task_id=task.id, mode="live")
+        agent = session.get(m.Agent, task.assigned_agent_id)
+        assert (
+            routing(session, workflow, agent, "document", session.get(m.Project, task.project_id), None)[0]
+            == model_id
+        )
+        task.payload = {
+            **task.payload,
+            "task_requirements": {**task.payload["task_requirements"], "preferred_model_id": "tampered"},
+        }
+        assert not task_ready(session, task)
+
+
+@pytest.mark.parametrize("invalid", ["unknown", "foreign", "mock", "automatic", "conflict"])
+async def test_task_preferences_never_cross_identity_or_routing_authority(
+    http, company, requirement, invalid
+):
+    _, plan = await project_plan(http, company, requirement)
+    model_id = alternate(company, kind="mock" if invalid == "mock" else "openai")
+    if invalid == "foreign":
+        with company["factory"]() as session:
+            other = m.Organization(name="Foreign catalog contract")
+            session.add(other)
+            session.flush()
+            session.get(m.ModelConfig, model_id).org_id = other.id
+            session.commit()
+    content = deepcopy(plan["content"])
+    content.update(mode="live", routing_mode="automatic" if invalid == "automatic" else "hybrid")
+    content["tasks"][0]["preferred_model_id"] = "unknown" if invalid == "unknown" else model_id
+    if invalid == "conflict":
+        content["tasks"][0]["model_override"] = alternate(company)
+    response = http.patch(f"/staffing/{plan['id']}", json={"version": plan["version"], "content": content})
+    assert response.status_code == 422, response.text

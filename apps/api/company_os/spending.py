@@ -54,6 +54,12 @@ def fingerprint(provider, model):
 
 
 def assess(provider, model):
+    from .model_catalog import available
+
+    if not available(model):
+        return Decision(
+            False, "PROVIDER_UNAVAILABLE", "Model disappeared from the last successful provider catalog"
+        )
     if settings().ai_spending_mode != "ZERO_COST_ONLY":
         return Decision(False, "UNKNOWN_COST_BLOCKED", "Unsupported spending policy")
     if provider.enabled is False or model.enabled is False:

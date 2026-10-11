@@ -73,9 +73,8 @@ def validate_form(session, user, form):
             or not provider
             or provider.org_id != user.org_id
             or provider.kind == "mock"
-            or not {"structured", "reasoning"}.issubset(model.capabilities)
         ):
-            raise PermissionError("Lead AI must be a real registered reasoning/structured model")
+            raise PermissionError("Lead AI preference must reference a real registered workspace model")
     if len(set(form.worker_model_ids)) != len(form.worker_model_ids):
         raise ValueError("Worker pool must contain unique model IDs")
     for model_id in set(form.worker_model_ids) | set(form.overrides.values()):
@@ -87,14 +86,8 @@ def validate_form(session, user, form):
             or not provider
             or provider.org_id != user.org_id
             or provider.kind == "mock"
-            or not model.enabled
-            or not provider.enabled
-            or "structured" not in model.capabilities
-            or not spending.status(session, provider, model)["allowed"]
         ):
-            raise PermissionError(
-                "Worker choice lacks current registered capability and zero-cost eligibility"
-            )
+            raise PermissionError("Worker preference must reference a real registered workspace model")
     for scope, model_id in form.overrides.items():
         if scope.startswith("role:"):
             valid = session.scalar(
@@ -150,6 +143,12 @@ def lead_status(session, form):
             "state": "PROVIDER_UNAVAILABLE",
             "reason": "Selected model or provider is disabled",
         }
+    if not {"structured", "reasoning"}.issubset(model.capabilities):
+        return {
+            "allowed": False,
+            "state": "UNSUPPORTED_CAPABILITY",
+            "reason": "Saved preference; reasoning and structured-output capabilities are not configured",
+        }
     return {
         **spending.status(session, provider, model),
         "identifier": model.identifier,
@@ -195,7 +194,7 @@ def routing(session, workflow, agent, step, project, override):
     from .task_routing import runtime
 
     binding = runtime(session, workflow, agent)
-    task_choice = binding[1].model_override if binding else None
+    task_choice = (binding[1].model_override or binding[1].preferred_model_id) if binding else None
     task_mode = binding[0].payload["routing_mode"] if binding else None
     if task_choice and override and task_choice != override:
         raise PermissionError("Invocation override conflicts with the approved task model")
