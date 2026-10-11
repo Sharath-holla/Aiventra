@@ -44,6 +44,7 @@ jobs:
       - name: Controlled intake, approved coding, bounded repair and delivery gate with real Docker
         run: |
           docker compose -f compose.yaml -f compose.runner.yaml -f compose.phase6-ci.yaml up -d --wait --wait-timeout 120 runner
+          mkdir -p data/pytest-temp
           .venv/bin/python -m pytest tests/test_phase6_engineering.py -q -s --basetemp=data/pytest-temp/p6-docker
         env:
           PHASE6_REAL_RUNNER: 'true'
