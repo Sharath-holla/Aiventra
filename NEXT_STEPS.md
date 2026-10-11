@@ -2,7 +2,9 @@
 
 ## Model selector isolation — October 11, 2026
 
-Complete the final isolation regression, actual running UI inspection, source push and exact-source CI verification recorded in TEST_REPORT.md. Then reconnect genuine providers only through secure Settings if desired. This active database has no genuine saved provider credentials or installed local model; do not reconstruct chat-disclosed secrets. Local model installation/download and any paid inference remain unauthorized. Preserve quarantine history and existing SQLite records; PostgreSQL cutover stays deferred.
+Preserve the implemented isolation/selector repair and non-destructive quarantine; source 53c4f8a is pushed and exact-source CI evidence is recorded in TEST_REPORT.md. Normal-owner visual inspection remains pending a reload of the running http://localhost:3000 tab; automation rejected its old internal error page and no workaround was used. Fixture browser verification and actual-service API/storage verification are reported separately.
+
+Next, reconnect genuine providers only through secure Settings if desired, run non-inference catalog discovery and verify stable account model IDs without duplicates. This active database has no genuine saved provider credentials or verified installed local model; do not reconstruct chat-disclosed secrets. Remote inference remains blocked unless zero-cost usage can be verified and enforced. Local model installation/download and paid inference remain unauthorized. After explicit local-model authorization, verify real benchmarks and the saved Lead-to-specialists workflow; generated PR publication/client release still require their own exact approvals. Preserve quarantine history and existing SQLite records; PostgreSQL cutover stays deferred.
 
 
 ## Current connected catalog continuation

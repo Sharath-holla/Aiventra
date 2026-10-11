@@ -16,6 +16,8 @@ Managed API/worker/web services were stopped. SQLite's supported online backup c
 
 **115 providers / 53 models** were classified as test fixtures. No provider/model/project/credential/preference/history record was deleted, disabled or rewritten. Protected registry_provenance BusinessRecords and append-only audit events were added. Comparison against the backup confirmed **49,399 original rows in 57 tables (including Alembic)** remained identical, excluding only organization audit_head/version advanced by the new audit events. All original foreign keys and JSON references survive. Historical preferences are retained but quarantined entries cannot authorize live execution or new normal-workspace choices.
 
+Retained affected references include 53 model-to-provider foreign keys and 62 provider probes. No saved project draft referenced the quarantined models at inspection. The active registry still contains 116 providers (including the explicit mock adapter), 55 models and zero vault records; these retained historical counts do not represent connected genuine models. Final read-only registry digests match the ordinary browser suite's pre-run snapshot.
+
 Recovery: keep the private backup and receipt. Do not overwrite a running database. An explicitly reviewed full restore must stop writers and account for all subsequent changes; selective reversal should append a new provenance/audit decision after owner review rather than deleting history. No ambiguous record is destructively cleaned automatically.
 
 ## Credential investigation
@@ -23,6 +25,15 @@ Recovery: keep the private backup and receipt. Do not overwrite a running databa
 The active database, both older root-level SQLite snapshots and all six project-owned backup databases inspected contain **zero provider vault records**. There is one organization and one owner. All 31 credential-store audits refer to the exact browser-test credential reference, with 62 corresponding revoke audits; no store audit for another provider was found. The configured SQLite path matches the managed launcher/default configuration. The encrypted vault is empty, rather than populated but failing decryption. There is no evidence in these inspected records of a saved genuine OpenAI, xAI or DeepSeek key, a cross-organization vault, or a key-loss event. This does not prove credentials never existed elsewhere.
 
 OpenAI, Grok/xAI and DeepSeek have no genuine connected configuration/model in this active workspace. All non-mock registry entries were confirmed fixtures. Ollama has no verified genuine installed model here; failed port-9 catalog checks were browser fixtures. No genuine account discovery/inference was attempted. Reconnect through Settings → Models & Providers → Provider connections using the password input; never paste secrets in chat. Existing AES-GCM encrypted persistence and safe reconnect-required errors remain in use.
+
+| Provider | Genuine configured connection | Genuine discovered models | Live discovery in this repair |
+| --- | --- | --- | --- |
+| OpenAI | None found | 0 | Not attempted |
+| Grok/xAI | None found | 0 | Not attempted |
+| DeepSeek | None found | 0 | Not attempted |
+| Ollama | None verified | 0 | Not attempted; historical port-9 error was a test fixture |
+
+The authenticated running catalog and project options each return zero normal choices, with ZERO_COST_ONLY enforced. There is no live provider error to report because no genuine discovery was attempted. Successful listing alone would not authorize remote inference when zero-cost entitlement cannot be enforced.
 
 ## Boundaries and UI
 

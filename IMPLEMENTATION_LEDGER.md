@@ -4,6 +4,10 @@
 
 Starting 822de8b (source ce1a647). Implemented protected registry provenance, audit-evidenced quarantine with verified SQLite online backup, normal catalog/state/preference/execution boundaries, disposable ordinary browser services and before/after registry digests, real-process synthetic-vault restart verification, and grouped accessible Lead/worker selection. No schema migration/deletion, paid call, installation, real generated PR or client delivery. See MODEL_CATALOG_ISOLATION.md and TEST_REPORT.md for exact evidence.
 
+Published increments: **06d913d** isolation/selector repair; **0190c60** mobile wrapping repair; **53c4f8a** bounded persistent-login-throttle recovery and complete-history test correction. Each normal source push matched origin/master exactly. The final follow-up changes verification helpers/tests only; it retains exact persisted state/sequence assertions, application throttling and history bounds. TEST_REPORT.md retains earlier CI failures and final observed outcomes. This evidence follow-up changes documentation only.
+
+Final source 53c4f8a passed [all six CI jobs](https://github.com/Sharath-holla/Aiventra/actions/runs/38161867121), **418 backend / 65 browser checks** and retained actual Docker/PostgreSQL restart/restore/isolation checks. Final workstation read-only integrity/FK and registry-preservation checks passed. Genuine account connections/inference remain unverified and normal-owner visual inspection remains pending reload; positive provider/UI catalogs are explicitly fixtures.
+
 
 ## Connected catalog continuation — October 11, 2026
 
