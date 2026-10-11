@@ -455,12 +455,14 @@ export function ProjectWizard({ initialId = "" }: { initialId?: string }) {
                     })
                   }
                 />
-                {model.identifier} · {model.provider} ·{" "}
-                {model.eligibility.allowed
-                  ? "Ready to use"
-                  : "Blocked preference"}{" "}
-                · {model.capabilities.join(", ") || "Capabilities unknown"}
-                <small>{model.eligibility.reason}</small>
+                <span>
+                  {model.identifier} · {model.provider} ·{" "}
+                  {model.eligibility.allowed
+                    ? "Ready to use"
+                    : "Blocked preference"}{" "}
+                  · {model.capabilities.join(", ") || "Capabilities unknown"}
+                  <small>{model.eligibility.reason}</small>
+                </span>
               </label>
             ))
           ) : (

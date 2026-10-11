@@ -186,11 +186,22 @@ test("fixture vault catalogs feed Settings and saved blocked Lead and worker pre
     }),
   ).toBeChecked();
   await page.screenshot({ path: "../../data/catalog-fixture-mobile.png" });
-  expect(
-    await page.evaluate(
-      () => document.documentElement.scrollWidth <= window.innerWidth,
-    ),
-  ).toBe(true);
+  const layout = await page.evaluate(() => ({
+    width: document.documentElement.scrollWidth,
+    viewport: window.innerWidth,
+    overflow: [...document.querySelectorAll(".project-wizard *")]
+      .filter(
+        (element) => element.getBoundingClientRect().right > window.innerWidth,
+      )
+      .map((element) => ({
+        tag: element.tagName,
+        class: element.className,
+        width: element.getBoundingClientRect().width,
+      })),
+  }));
+  expect(layout.width, JSON.stringify(layout)).toBeLessThanOrEqual(
+    layout.viewport,
+  );
   const state = await (await request.get("/api/state")).json();
   expect(
     state.runs.filter((r: { model_id: string }) =>

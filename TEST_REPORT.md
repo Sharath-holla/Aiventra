@@ -2,6 +2,10 @@
 
 ## Model selector isolation repair — October 11, 2026
 
+Mobile repair local verification: complete isolated suite **seven passed, 1.8 minutes**, strict types/format and production build passed. First-source CI full backend completed **418 passed, 271.53s**; separate ordinary SQLite and PostgreSQL browser stages both succeeded. The mobile-only follow-up changes no backend/schema/approval/inference behavior and retains the original overflow assertion with useful diagnostics. Final repaired-source CI is recorded below after observation.
+
+First published source **06d913d1bb836d8a3ce7c44ff79f248e4a2df96d**, normal push and exact remote SHA equality. [CI run 38112440712](https://github.com/Sharath-holla/Aiventra/actions/runs/38112440712) passed backend, frontend/security and actual Docker runner jobs; ordinary private SQLite browser checks and PostgreSQL startup/schema/storage/transfer probes passed before the separate PostgreSQL browser/recovery stages. Isolated delivery browser had **six passed / one failed**: its existing mobile overflow assertion caught worker checkbox text laid out as separate flex items. Follow-up groups details into a wrapping text container, fixes selector specificity/button class and constrains form tracks; the assertion is retained with element geometry diagnostics. Final repaired source/CI evidence follows after observation.
+
 Starting HEAD **822de8b** (application source ce1a647). MODEL_CATALOG_ISOLATION.md records the confirmed cause, exact protected data/quarantine evidence and credential investigation. No destructive cleanup, database cutover, paid inference, model installation or generated PR occurred.
 
 - Full local backend/security/integration suite: **414 passed, 690.32s**; one existing Starlette/httpx deprecation warning. After adding the dedicated PostgreSQL CI startup fence, final affected registry/transfer/catalog set: **45 passed, 27.15s**, including four new CI guard cases. Final-source full CI evidence follows after observation.

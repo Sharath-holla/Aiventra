@@ -2761,7 +2761,7 @@ legend {
 .project-wizard .control-note {
   flex-wrap: wrap;
 }
-.project-wizard .control-note .btn {
+.project-wizard .control-note .button {
   white-space: normal;
 }
 .model-picker-list {
@@ -2770,7 +2770,7 @@ legend {
   padding: 0.6rem;
   overscroll-behavior: contain;
 }
-.model-picker-row {
+.project-wizard .model-picker-row {
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
@@ -2800,4 +2800,31 @@ legend {
 }
 .model-picker-row:focus-within {
   outline: 2px solid #8499ff;
+}
+.project-wizard label {
+  min-width: 0;
+}
+.project-wizard .checkbox-label {
+  align-items: flex-start;
+}
+.project-wizard .checkbox-label span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.project-wizard .checkbox-label small {
+  display: block;
+}
+.project-wizard .checkbox-label input {
+  flex-shrink: 0;
+}
+.model-picker h4 {
+  overflow-wrap: anywhere;
+}
+.project-wizard .form-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (max-width: 760px) {
+  .project-wizard .form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
