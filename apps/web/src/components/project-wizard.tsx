@@ -5,6 +5,7 @@ import type { Workflow } from "@/lib/types";
 import { Badge, Button, Loading, Panel, useApp } from "./common";
 import type { CatalogModel, Catalog } from "./model-catalog";
 import { ModelPicker } from "./model-picker";
+import { ExecutionEvidence } from "./ai-readiness";
 
 type Form = {
   client_id: string;
@@ -1012,6 +1013,7 @@ export function ProjectWizard({ initialId = "" }: { initialId?: string }) {
         </>
       ) : (
         <>
+          <ExecutionEvidence key={row.id} draftId={row.id} />
           <Panel
             title={
               row.approved_project_id

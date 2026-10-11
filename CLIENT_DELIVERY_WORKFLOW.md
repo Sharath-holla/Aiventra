@@ -1,5 +1,7 @@
 # Client-to-delivery workflow
 
+Phase 6 controlled engineering coverage reaches a prepared, unpublished candidate after one repair and independent fixture review. Mock-only nonproduction packaging additionally requires real dedicated Docker QA, exact task approval and an unchanged candidate. It accepts explicit deterministic models solely for immutable `fixture_nonproduction` packages. Live readiness/publication still reject fixture reviews, and release refuses fixture classification. Local runner adapters cannot satisfy this packaging prerequisite. Existing document-package, immutable release-manifest and exact owner/client acceptance tests remain separate. Docker unit tests alone do not establish genuine AI review, production readiness, published PR or client delivery.
+
 ## Current implemented workflow
 
 Approved requirement/proposal → exact approved staffing → authorized task execution/restricted engineering/independent QA → five-role final review → immutable package validation/freeze → separate exact owner release approval → explicit release → intended invited client files/response → approved follow-up work or acceptance → separate owner closure approval/close. These are enforced backend gates with connected UI; no stage establishes live AI quality by itself.

@@ -5,6 +5,7 @@ import { api, date, money } from "@/lib/api";
 import { Badge, Button, Empty, Panel, Pretty, useApp } from "./common";
 import { ModelEvaluation } from "./model-evaluation";
 import { DatabaseStatus } from "./database-status";
+import { AiReadiness } from "./ai-readiness";
 export function Governance({ view }: { view: string }) {
   const { state, run, busy, navigate } = useApp();
   const [integrity, setIntegrity] = useState<unknown>(null);
@@ -210,6 +211,7 @@ export function Governance({ view }: { view: string }) {
   if (view === "settings")
     return (
       <>
+        <AiReadiness />
         <Panel
           title="AI models"
           subtitle="View connected providers, discover models and save project preferences."

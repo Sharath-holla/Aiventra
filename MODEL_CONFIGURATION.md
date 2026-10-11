@@ -1,5 +1,7 @@
 # Model configuration
 
+October 12 Phase 6 hardware/runtime assessment: see LOCAL_MODEL_READINESS.md. No installed local model was verified; no runtime or weights were installed. Home/Settings now expose read-only registered, eligible and trusted-live-result counts. Secure provider configuration remains a human operation and remote catalog discovery never establishes zero-cost inference permission. Follow LIVE_AI_VERIFICATION_PLAN.md only after the required authorization/configuration.
+
 ## Model selector isolation — October 11, 2026
 
 Normal model choices now exclude audit-confirmed browser fixtures using protected provenance, not names. Genuine legacy and owner registrations remain preserved. Configured credentials, discovered IDs, owner-configured capabilities, pricing eligibility and live inference evidence are separate facts. Secure Settings reconnection persists encrypted vault content without readback; missing/corrupt credentials require reconnection. Actual workstation vault is empty; no genuine provider discovery/inference is claimed. See MODEL_CATALOG_ISOLATION.md.

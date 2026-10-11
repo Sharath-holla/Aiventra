@@ -121,21 +121,9 @@ def view(session, org_id):
         probe.provider_id: probe
         for probe in session.scalars(select(m.ProviderProbe).where(m.ProviderProbe.org_id == org_id))
     }
-    from sqlalchemy import func
+    from .execution_evidence import live_results
 
-    live_runs = dict(
-        session.execute(
-            select(m.ModelRun.model_id, func.max(m.ModelRun.created_at))
-            .join(m.Workflow, m.Workflow.id == m.ModelRun.workflow_id)
-            .where(
-                m.ModelRun.org_id == org_id,
-                m.ModelRun.status == "succeeded",
-                m.ModelRun.cost_basis == "local_no_provider_charge",
-                m.Workflow.mode == "live",
-            )
-            .group_by(m.ModelRun.model_id)
-        ).all()
-    )
+    live_runs = live_results(session, org_id)
     provider_rows, model_rows = [], []
     for provider in providers:
         state = states[provider.id]

@@ -17,6 +17,7 @@ import { DeliveryFollowups } from "./delivery-followups";
 import { Staffing } from "./staffing";
 import { RepositoryImport } from "./repository-import";
 import { ProjectHistory } from "./project-history";
+import { ExecutionEvidence } from "./ai-readiness";
 
 export function Projects({
   engineering,
@@ -170,6 +171,7 @@ export function Projects({
         </Button>
       </div>
       {assigning && <SpecialistAssignment projectId={project.id} />}
+      <ExecutionEvidence key={project.id} projectId={project.id} />
       <section className="project-stages" aria-label="Project stages">
         {[
           ["requirements", "Requirements", "Scope approved"],

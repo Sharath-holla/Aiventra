@@ -46,6 +46,11 @@ for key in list(env):
     if key.endswith("_API_KEY") or key in {"AIVENTRA_GITHUB_TOKEN", "GITHUB_TOKEN", "GH_TOKEN"}:
         env[key] = ""
 snapshots = []
+memory_id = None
+memory_content = (
+    "Phase six Task API architecture decision: retain SQLite task records across service restarts."
+)
+memory_snapshots = []
 for iteration in range(2):
     with (root / "data/catalog-process-recovery.log").open("ab") as logs:
         process = subprocess.Popen(
@@ -133,6 +138,44 @@ for iteration in range(2):
                 assert len(tasks) == 1 and tasks[0]["content"]["tasks"][0]["preferred_model_id"] in {
                     m["id"] for m in models
                 }
+                project = next(p for p in state["projects"] if p["name"] == "Catalog task contract")
+                agent = next(a for a in state["agents"] if a["role"] == "CTO")
+                if iteration == 0:
+                    response = client.post(
+                        "/semantic-memory",
+                        json={
+                            "title": "Phase 6 persisted architecture decision",
+                            "content": memory_content,
+                            "kind": "architecture_decision",
+                            "project_id": project["id"],
+                            "visibility": "selected",
+                            "grant_ids": [agent["id"]],
+                        },
+                    )
+                    response.raise_for_status()
+                    memory_id = response.json()["id"]
+                    for _ in range(30):
+                        response = client.post("/semantic-memory/index")
+                        response.raise_for_status()
+                        if response.json()["indexed"] == 0:
+                            break
+                response = client.get(
+                    "/semantic-memory",
+                    params={"project_id": project["id"], "agent_id": agent["id"], "query": memory_content},
+                )
+                response.raise_for_status()
+                result = next(item for item in response.json()["results"] if item["id"] == memory_id)
+                assert result["retrieval"] == "deterministic_test"
+                memory_snapshots.append(
+                    hashlib.sha256(json.dumps(result, sort_keys=True).encode()).hexdigest()
+                )
+                peer = next(a for a in state["agents"] if a["role"] == "CFO")
+                denied = client.get(
+                    "/semantic-memory",
+                    params={"project_id": project["id"], "agent_id": peer["id"], "query": memory_content},
+                )
+                denied.raise_for_status()
+                assert memory_id not in {item["id"] for item in denied.json()["results"]}
                 task_preferences = [
                     {"content_hash": p["content_hash"], "content": p["content"], "tasks": p["tasks"]}
                     for p in tasks
@@ -148,6 +191,7 @@ for iteration in range(2):
                 process.kill()
                 process.wait(timeout=5)
 assert snapshots[0] == snapshots[1]
+assert memory_snapshots[0] == memory_snapshots[1]
 print(
     json.dumps(
         {
@@ -155,6 +199,8 @@ print(
             "models": 3,
             "auth_throttle_exercised": args.exercise_throttle,
             "sha256": snapshots[0],
+            "memory_retrieval": "deterministic_test vectors and selected-agent ACL across actual API restart",
+            "memory_sha256": memory_snapshots[0],
         },
         sort_keys=True,
     )

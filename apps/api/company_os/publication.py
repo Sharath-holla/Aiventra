@@ -68,7 +68,12 @@ class GitHub:
                 await client.aclose()
 
 
-def candidate(session, task):
+def candidate(session, task, *, nonproduction=False):
+    """Default is strict publication. Only mock delivery uses the nonproduction path.
+
+    That path accepts explicit fixture models but retains exact authority, Git
+    integrity and dedicated Docker QA. Its package can never pass release.
+    """
     from .engineering import passed_tests
 
     project = session.get(m.Project, task.project_id)
@@ -83,11 +88,12 @@ def candidate(session, task):
         )
     )
     evidence, draft = task.evidence, task.evidence.get("pull_request", {})
-    execution = session.get(m.Execution, evidence.get("execution_id"))
+    execution_id = evidence.get("execution_id")
+    execution = session.get(m.Execution, execution_id) if execution_id else None
     if (
         task.kind != "coding"
         or task.status != "completed"
-        or task.payload.get("mode") != "live"
+        or task.payload.get("mode") != ("mock" if nonproduction else "live")
         or not approval
         or approval.expires_at <= now()
         or approval.subject_hash != digest(task.payload)
@@ -112,7 +118,8 @@ def candidate(session, task):
         )
     ):
         raise PublicationError(
-            "Completed live coding, exact scope, independent review and successful QA/build are required"
+            ("Completed nonproduction coding" if nonproduction else "Completed live coding")
+            + ", exact scope, independent review and successful dedicated Docker QA/build are required"
         )
     for review in evidence["reviews"]:
         run = session.get(m.ModelRun, review["review_run_id"])
@@ -135,8 +142,12 @@ def candidate(session, task):
         for model_run in (run, author):
             model = session.get(m.ModelConfig, model_run.model_id)
             provider = session.get(m.Provider, model.provider_id) if model else None
-            if not provider or provider.kind == "mock":
+            if not provider or (provider.kind == "mock" and not nonproduction):
                 raise PublicationError("Deterministic reviews cannot authorize live publication")
+            if nonproduction and provider.kind != "mock":
+                raise PublicationError(
+                    "Nonproduction fixture packaging requires explicit deterministic models"
+                )
     root = settings().repository_root.resolve()
     requested = root / ".worktrees" / project.id / task.id
     if any(

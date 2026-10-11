@@ -20,6 +20,28 @@ KIND = "project_setup"
 SPECIALISTS = ("Cloud Architect", "Security Architect", "FinOps Engineer")
 
 
+def selection(form):
+    return {key: form.get(key) for key in ("lead_model_id", "worker_mode", "worker_model_ids", "overrides")}
+
+
+def record_selection(session, row, user):
+    choices = selection(row.data["form"])
+    row.data = {
+        **row.data,
+        "selection_history": [
+            *row.data.get("selection_history", []),
+            {
+                "version": row.version,
+                "selected_at": now(),
+                "selected_by": user.id,
+                "choices": choices,
+                "selection_hash": digest(choices),
+                "lead_eligibility_at_selection": lead_status(session, row.data["form"]),
+            },
+        ],
+    }
+
+
 class DraftForm(Strict):
     client_id: str
     title: str = Field(default="", max_length=200)

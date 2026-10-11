@@ -152,6 +152,34 @@ test("unavailable favorite submits a real waiting workflow without model calls",
     ),
   ).toHaveLength(0);
   expect(record.approved_project_id).toBeNull();
+  await expect(
+    page.getByRole("heading", {
+      name: "Model assignments & execution evidence",
+      exact: true,
+    }),
+  ).toBeVisible();
+  const evidence = await (
+    await page
+      .context()
+      .request.get(`/api/project-drafts/${id}/execution-evidence`)
+  ).json();
+  expect(evidence.selection_history).toHaveLength(1);
+  expect(evidence.workflows[0].runs).toHaveLength(0);
+  expect(evidence.workflows[0].status).toBe("waiting_for_free_provider");
+  await page
+    .getByRole("button", { name: "Refresh execution evidence", exact: true })
+    .click();
+  await page
+    .locator("summary")
+    .filter({ hasText: "waiting for free provider" })
+    .first()
+    .click();
+  await expect(
+    page.getByText(
+      "An eligible AI model is required to continue. Configure an approved model and resume.",
+      { exact: true },
+    ),
+  ).toBeVisible();
   await page
     .getByRole("button", { name: "Verify and resume", exact: true })
     .click();

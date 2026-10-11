@@ -287,6 +287,9 @@ async def execute[T: BaseModel](
         "selection_reason": selection_reason,
     }
     wait_context["spending_mode"] = settings().ai_spending_mode
+    wait_context["requested_model_id"] = override
+    wait_context["worker_pool"] = pool
+    wait_context["task_id"] = workflow.task_id
     wait_context["eligibility"] = [
         spending.status(session, provider, model)
         for model, provider in session.execute(
@@ -450,6 +453,9 @@ async def execute[T: BaseModel](
             run.routing_reason += f"; task_key={binding[0].payload['plan_key']}; task_routing={binding[0].payload['routing_mode']}; difficulty={binding[1].difficulty}; risk={binding[1].risk}; required_context={required_context}; fallback_attempt={attempt}"
         session.add(run)
         session.flush()
+        from .execution_evidence import begin, finish
+
+        begin(session, run, workflow, model, provider, decision, override, pool, wait_context, schema)
         credential_before = credential_revision(provider, session)
         transition(session, workflow, agent, "RUNNING", step, run.id, {"model_id": model.id})
         session.commit()  # Durable reservation and call marker precede the external request.
@@ -571,6 +577,7 @@ async def execute[T: BaseModel](
             if provider.kind != "mock" and credential_revision(provider, session) == credential_before:
                 probe = probe_for(session, provider)
                 probe.inference_at, probe.inference_model_id = now(), model.id
+            finish(session, run, accepted=state == "COMPLETED")
             session.commit()
             session.refresh(agent)
             if project:
@@ -581,6 +588,7 @@ async def execute[T: BaseModel](
             settle(session, run, 0, "zero_cost_policy_blocked_before_inference")
             run.status, run.error = "failed", exc.decision.reason
             transition(session, workflow, agent, "FAILED", step, run.id)
+            finish(session, run)
             session.commit()
             wait_context["eligibility"] = [{"model_id": model.id, **exc.decision.public()}]
             raise FreeProviderUnavailable(wait_context) from None
@@ -606,6 +614,7 @@ async def execute[T: BaseModel](
                 run.id,
                 {"error": error},
             )
+            finish(session, run)
             session.commit()
             if exc.uncertain:
                 raise
@@ -615,6 +624,7 @@ async def execute[T: BaseModel](
             if trace:
                 trace.state, trace.preview = "invalid_output", ""
             transition(session, workflow, agent, "FAILED", step, run.id, {"error": error})
+            finish(session, run)
             session.commit()
         previous.append(run)
     if budget_error and not previous:

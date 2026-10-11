@@ -1,5 +1,7 @@
 # Model catalog isolation and selector repair
 
+Phase 6 follow-up: actual signed-in owner catalog and provider-configuration navigation succeeded before the managed-service restart, with no genuine connected provider choices. The new readiness/waiting screens passed private browser tests; after restarting local services the user tab returned to a cached connection-error page which browser URL policy refused. Manual tab reload is pending for final owner-tab screen inspection; API/web health checks return 200. Fixture catalog, credential and live-inference boundaries remain unchanged. New protected invocation receipts prevent historical local cost labels from counting as live verification.
+
 Continuation starts at **822de8b** (application source ce1a647). SQLite remains authoritative; PostgreSQL cutover, model installation, paid inference and generated PR publication are not authorized.
 
 ## Confirmed cause

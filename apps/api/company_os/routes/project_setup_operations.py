@@ -68,7 +68,10 @@ def change(session, user, record_id, data, action, operation):
         raise HTTPException(409, "Draft changed; reload before saving. Your edits have not overwritten it.")
     if len(requests) >= 1000:
         raise HTTPException(409, "Draft edit limit reached; create a new draft")
+    previous_selection = setup.selection(row.data["form"])
     operation(row)
+    if setup.selection(row.data["form"]) != previous_selection:
+        setup.record_selection(session, row, user)
     row.data = {**row.data, "requests": {**requests, key: fingerprint}}
     audit(session, user.org_id, user.id, "project_setup." + action, row.id, {"version": row.version})
     session.flush()
@@ -145,6 +148,7 @@ def create(data: Create, user: m.User = Depends(owner), session: Session = Depen
         )
         session.add(row)
         session.flush()
+        setup.record_selection(session, row, user)
         audit(session, user.org_id, user.id, "project_setup.created", row.id, {})
         return setup.view(session, row)
 

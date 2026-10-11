@@ -1,5 +1,13 @@
 # Aiventra OS architecture
 
+## Phase 6 execution evidence
+
+`readiness.py` and its owner-only router expose read-only eligibility and project/draft execution facts from the shared model catalog and persisted workflows. Home, Settings, wizard and project panels consume these endpoints. Readiness never probes inference, installs models or grants authority. Project model-selection history is stored on its existing versioned wizard record; exact approval hashes remain unchanged.
+
+`execution_evidence.py` creates protected `invocation_receipt` BusinessRecords atomically with gateway admission/reservations before transport, and updates status/result metadata after validation. It records requested/pool/attempted model, provider, eligibility evidence, context policy, routing reason, timestamps, tokens and cost. Only an accepted successful live local invocation outside isolated test storage, with installed-model evidence and unchanged configuration/credential revision, can establish LOCAL_LIVE_VERIFIED. Legacy rows stay UNVERIFIED; fixtures stay FIXTURE_TESTED. No EXTERNAL_LIVE_VERIFIED shortcut exists. Receipts use existing SQLite/JSON and PostgreSQL-compatible structures; no DDL change. They are excluded from semantic backfill and the bounded generic dashboard, with scoped evidence endpoints for inspection.
+
+The controlled Task API integration uses existing intake/planning/staffing/engineering/QA/publication preparation services. Models remain explicit test adapters; generated sample code runs only in the restricted broker. CI-only loopback broker access in compose.phase6-ci.yaml does not expose the daemon. Mock-only nonproduction packaging uses `candidate(nonproduction=True)` with explicit mock models, exact scope, independent review, unchanged candidate and real dedicated Docker QA. Publication callers retain the strict default, and immutable fixture classification prohibits release. Persistent selected-agent vector retrieval is checked across two real API processes on disposable SQLite, with deterministic embeddings labeled as such.
+
 ## Model selector isolation — October 11, 2026
 
 Registry origin is stored in protected registry_provenance BusinessRecords, keyed deterministically by tenant/provider. Backend catalog/state/preferences/discovery enforce provenance; the spending guard independently blocks fixture live inference. Names never confer authority. Browser applications use UUID-private SQLite, independent synthetic identities/vaults, loopback ports and denied outbound transports; engine startup fences fixture paths and environment. Shared accessible Lead/worker pickers read the existing normalized catalog. Details: MODEL_CATALOG_ISOLATION.md.

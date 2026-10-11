@@ -4,6 +4,7 @@ import { api } from "@/lib/api";
 import type { BusinessRecord } from "@/lib/types";
 import { ArrowUp, FolderOpen, Plus, ShieldCheck } from "lucide-react";
 import { Badge, Button, Panel, useApp } from "./common";
+import { AiReadiness } from "./ai-readiness";
 
 export function SimpleHome() {
   const { state, navigate } = useApp();
@@ -69,6 +70,7 @@ export function SimpleHome() {
           </Button>
         </div>
       </section>
+      <AiReadiness />
       <div className="home-grid">
         <Panel
           title="Pick up where you left off"

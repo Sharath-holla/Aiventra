@@ -1,5 +1,11 @@
 # Next steps
 
+## Phase 6 continuation — October 12, 2026
+
+Preserve readiness/evidence, protected receipts and the controlled engineering test; do not rebuild Phase 4/5 services. See docs/PHASE6_READINESS_SPEC.md, LOCAL_MODEL_READINESS.md and LIVE_AI_VERIFICATION_PLAN.md. Live execution waits for an eligible authorized model. The owner-tab inspection blocker is resolved; the genuine catalog remains empty. Preserve existing rows, quarantine and SQLite; PostgreSQL cutover is deferred.
+
+Next external step: explicit authorization for a local runtime and exact model download, or secure owner configuration of an already available eligible local endpoint. No installation or key request is authorized now. Remote inference requires enforceable zero-cost entitlement. Then run the bounded schema smoke test, saved benchmarks and real Lead → BA/CTO/PM handoffs before approved restricted coding and genuinely independent review. Small-model quality and this machine's memory limits need measurement. Fixture reviews cannot certify engineering delivery. Generated PR publication, release, deployment and client acceptance retain separate exact approval/evidence gates.
+
 ## Model selector isolation — October 11, 2026
 
 Preserve the implemented isolation/selector repair and non-destructive quarantine; source 53c4f8a is pushed and exact-source CI evidence is recorded in TEST_REPORT.md. Normal-owner visual inspection remains pending a reload of the running http://localhost:3000 tab; automation rejected its old internal error page and no workaround was used. Fixture browser verification and actual-service API/storage verification are reported separately.

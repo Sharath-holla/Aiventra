@@ -1,5 +1,15 @@
 # Implementation status
 
+## Phase 6 readiness and invocation evidence — October 12, 2026
+
+Continued actual starting HEAD `abf91124e0479a530baf707aadb9b426769d891f`; master preserved in docs/PHASE6_READINESS_SPEC.md. Owner-only readiness and project/draft evidence APIs drive Home, Settings, submitted wizard and project panels. Timestamped Lead/worker selection history and protected gateway receipts persist requested/attempted model, provider, eligibility, context policy, selection reason, status, accepted result hash, tokens, duration and cost. Historical cost-basis rows no longer establish live verification. Test databases/adapters remain FIXTURE_TESTED; missing receipts remain UNVERIFIED. External inference is still blocked.
+
+Actual authenticated owner catalog/configuration navigation succeeded, superseding the older tab-error limitation below. Zero genuine connected providers were visible. Hardware assessment and the authorization-gated smoke-test plan are in LOCAL_MODEL_READINESS.md and LIVE_AI_VERIFICATION_PLAN.md. No keys were reconstructed, runtime/model installed, paid inference performed or genuine AI result observed.
+
+The controlled Task API test exercises persisted intake, analysis/planning fixtures, exact workforce/coding approvals, a failed build, one bounded repair, independent fixture review, QA result and unpublished Git candidate. Sample code never executes on the host. Local runner outcomes are labeled contracts; CI runs the same journey in restricted Docker. A new explicit mock-only nonproduction package path requires real dedicated Docker QA and unchanged candidate/exact authority; local runner contracts are insufficient. Fixture packages can never be released or authorize generated PR publication. Existing document-package tests remain retained. No genuine engineering/client delivery is claimed.
+
+SQLite remains active; PostgreSQL/pgvector compatibility is retained without DDL changes. Verified pre-activation backup: 49,640 rows / 57 tables, integrity OK and zero FK violations. Baseline 418 backend tests and 30 updated ordinary browser checks passed. Final regression, restart, publication and exact-source CI evidence follow in TEST_REPORT.md after observation.
+
 ## Model selector isolation — October 11, 2026
 
 Model selector isolation repair: traced actual owner-database browser contamination; backed up SQLite and non-destructively quarantined 115 providers / 53 models with audit-backed provenance. All 49,399 original rows remain preserved. Normal selectors and execution exclude fixtures; browser suites now use private databases/accounts/vaults and server-side guards. Grouped searchable Lead/worker pickers, honest GPT-6.1 Sol preference, non-inference refresh and secure provider navigation are implemented. Positive catalogs remain deterministic fixtures. Source **53c4f8ae4b2ae7519e1bd41316ff8e2f3aa1faf2** is pushed normally with matching remote SHA; exact-source CI evidence is recorded in TEST_REPORT.md.

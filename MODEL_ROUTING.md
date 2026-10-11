@@ -1,5 +1,7 @@
 # Model routing and provider evidence
 
+Phase 6 exposes gateway-created invocation receipts through owner-scoped execution evidence. Requested Lead/worker pool and attempted actual model are persisted before transport with eligibility/context/routing facts; result acceptance and verification are separate. Failed/blocked/started receipts are not successful model execution. Historical local cost-basis records without trusted receipts remain UNVERIFIED. Current LOCAL_LIVE_VERIFIED requires accepted live local inference outside test storage and unchanged configuration/credential provenance; fixtures remain FIXTURE_TESTED. No external zero-cost verifier or paid fallback was added.
+
 ## Model selector isolation — October 11, 2026
 
 Fixture provenance is checked independently before local or remote live inference, including transport authorization. A quarantined preference is preserved historically but cannot authorize execution or new normal-workspace selections. Existing ZERO_COST_ONLY, exact task approval, capabilities, worker pool, budget, concurrency and independent review remain authoritative. Isolated fixture visibility never grants live execution. No paid fallback is enabled.

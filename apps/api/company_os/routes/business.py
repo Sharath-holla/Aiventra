@@ -80,7 +80,14 @@ def update_record(
 ):
     record = scoped(session, m.BusinessRecord, record_id, user)
     if record.kind.startswith(
-        ("github_", "delivery_", "project_setup", "provider_catalog", "registry_provenance")
+        (
+            "github_",
+            "delivery_",
+            "project_setup",
+            "provider_catalog",
+            "registry_provenance",
+            "invocation_receipt",
+        )
     ):
         raise HTTPException(409, "Publication and final-review records use their dedicated workflow controls")
     session.execute(

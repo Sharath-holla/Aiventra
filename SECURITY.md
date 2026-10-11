@@ -1,5 +1,7 @@
 # Security
 
+Phase 6 invocation receipts are gateway-owned records: generic create/patch cannot forge or revise them, dashboard history excludes them, and project/draft evidence requires owner and tenant scope. They are operational provenance, not retrievable client knowledge or permission to act. A local cost label, successful legacy row, discovery fixture or configured credential cannot create live verification. Accepted live local receipts bind current provider/model fingerprint, installed metadata, credential revision and result hash; fixture databases never certify live execution. External inference remains denied without enforceable zero-cost entitlement. CI-only authenticated loopback access to the restricted broker exposes no host Docker socket or unrestricted daemon API.
+
 ## Model selector isolation — October 11, 2026
 
 Ordinary Playwright tests must never attach to the owner application or read its login credentials. Both browser harnesses use private test databases, synthetic accounts/vaults, denied outbound transports and server-side startup fencing; fixture catalog visibility requires a fenced isolated environment. Normal catalogs/state/selectors/preferences reject protected fixture provenance, and fixture models cannot authorize live inference even if metadata is changed to local. Generic record routes cannot forge or alter provenance. Quarantine is non-destructive and audit-backed. See MODEL_CATALOG_ISOLATION.md.

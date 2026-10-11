@@ -1,5 +1,7 @@
 # Aiventra OS
 
+Phase 6 adds backend-derived AI readiness and protected per-invocation evidence to Home, Settings and project workflows. SQLite remains active and ZERO_COST_ONLY mandatory. No genuine model inference is currently verified. See [local hardware/model assessment](LOCAL_MODEL_READINESS.md), [bounded live verification plan](LIVE_AI_VERIFICATION_PLAN.md), [implementation status](IMPLEMENTATION_STATUS.md) and [test evidence](TEST_REPORT.md). Deterministic workflows and actual restricted-runner tests are reported separately; generated PR publication and delivery retain exact approval gates.
+
 A working Next.js + FastAPI application for supervising a configurable AI workforce. Its implemented core takes a client requirement through persisted analysis, specialist consultation, deterministic cost comparison, a versioned proposal, explicit owner approval, assigned project planning tasks and saved artifacts.
 
 **This is a tested local foundation, not a finished production enterprise platform.** Read [implementation status](IMPLEMENTATION_STATUS.md) and [test evidence](TEST_REPORT.md) before enabling live integrations. The full build target is preserved in [the master brief](docs/MASTER_BUILD_PROMPT.md).

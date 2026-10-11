@@ -40,6 +40,13 @@ jobs:
           docker compose -f compose.yaml -f compose.runner.yaml exec -T runner python - --snapshot < scripts/verify_checkout_isolation.py > /tmp/checkout-after.json
           cmp /tmp/checkout-before.json /tmp/checkout-after.json
           cat /tmp/checkout-after.json
+      - run: pip install uv && uv sync --extra dev --locked
+      - name: Controlled intake, approved coding, bounded repair and delivery gate with real Docker
+        run: |
+          docker compose -f compose.yaml -f compose.runner.yaml -f compose.phase6-ci.yaml up -d --wait --wait-timeout 120 runner
+          .venv/bin/python -m pytest tests/test_phase6_engineering.py -q -s --basetemp=data/pytest-temp/p6-docker
+        env:
+          PHASE6_REAL_RUNNER: 'true'
       - run: docker compose -f compose.yaml -f compose.runner.yaml logs && docker compose -f compose.yaml -f compose.runner.yaml down -v
         if: always()
   secrets:

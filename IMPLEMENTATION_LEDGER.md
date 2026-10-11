@@ -1,5 +1,9 @@
 # Implementation ledger
 
+## October 12, 2026 — Phase 6 readiness increment
+
+Starting HEAD abf9112. Added authoritative read-only readiness, scoped invocation receipts, historical live-verification correction, timestamped Lead/worker choice history and connected Home/Settings/wizard/project UI. Preserved all existing planning, exact approval, finance, independent QA, SQLite, PostgreSQL compatibility and restricted execution services. Added a controlled intake-to-candidate repair journey, actual Docker CI coverage and selected-agent memory search across real process restart. No installation, paid inference, generated PR publication or client delivery. Local hardware/model recommendations and bounded live-verification plan document missing external prerequisites. TEST_REPORT.md separates observed results from pending CI/live work.
+
 ## Model selector isolation — October 11, 2026
 
 Starting 822de8b (source ce1a647). Implemented protected registry provenance, audit-evidenced quarantine with verified SQLite online backup, normal catalog/state/preference/execution boundaries, disposable ordinary browser services and before/after registry digests, real-process synthetic-vault restart verification, and grouped accessible Lead/worker selection. No schema migration/deletion, paid call, installation, real generated PR or client delivery. See MODEL_CATALOG_ISOLATION.md and TEST_REPORT.md for exact evidence.

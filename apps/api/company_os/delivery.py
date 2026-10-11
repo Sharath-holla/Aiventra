@@ -144,24 +144,30 @@ def readiness(session, project, mode):
                     paragraphs.append(block_hash)
                 sources.append({"task_id": task.id, "artifact_id": artifact.id, "paragraphs": paragraphs})
         elif task.kind == "coding":
-            if mode == "live":
-                from .publication import candidate
+            from .publication import candidate
 
-                try:
-                    _, _, _, _, diff = candidate(session, task)
-                    execution = session.get(m.Execution, task.evidence["execution_id"])
-                    sources.append(
-                        {
-                            "task_id": task.id,
-                            "diff": diff,
-                            "qa": {"execution_id": execution.id, "logs": execution.logs},
-                            "review": task.evidence["reviews"],
-                        }
-                    )
-                except (ValueError, PermissionError) as exc:
-                    blockers.append(f"{label}: {exc}")
-            else:
-                blockers.append(f"{label}: fixture review cannot certify engineering execution")
+            try:
+                # Mock review is never live certification. A test-only package still
+                # requires exact scope, unchanged Git/QA evidence and real Docker.
+                _, _, _, _, diff = candidate(session, task, nonproduction=mode == "mock")
+                execution = session.get(m.Execution, task.evidence["execution_id"])
+                sources.append(
+                    {
+                        "task_id": task.id,
+                        "diff": diff,
+                        "qa": {"execution_id": execution.id, "logs": execution.logs},
+                        "review": task.evidence["reviews"],
+                        "classification": "fixture_nonproduction" if mode == "mock" else "live_reviewed",
+                        "review_mode": mode,
+                    }
+                )
+            except (ValueError, PermissionError) as exc:
+                reason = (
+                    "Fixture review cannot certify engineering execution without verified nonproduction evidence: "
+                    if mode == "mock"
+                    else ""
+                )
+                blockers.append(f"{label}: {reason}{exc}")
         else:
             blockers.append(f"{label} has unsupported task kind")
         task_evidence.append(
