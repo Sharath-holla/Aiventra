@@ -2,6 +2,8 @@
 
 ## October 12, 2026 — Phase 6 readiness increment
 
+Publication: source 908edfa followed by clean-checkout CI directory repair **40af17935a98adba7faf0baff707c58e49990a3b**, normal pushes to origin/master with exact SHA equality. [Final source CI 38168012616](https://github.com/Sharath-holla/Aiventra/actions/runs/38168012616) passed all six jobs: 426 backend, 67 browser, build/types/audits, actual restricted Docker engineering/package/isolation/recovery and PostgreSQL transfer/restart/restore. Actual Task API package remains fixture_nonproduction; no live AI, external generated PR or client release. Documentation-only evidence follow-up retains source unchanged and records all failures/repairs separately.
+
 Starting HEAD abf9112. Added authoritative read-only readiness, scoped invocation receipts, historical live-verification correction, timestamped Lead/worker choice history and connected Home/Settings/wizard/project UI. Preserved all existing planning, exact approval, finance, independent QA, SQLite, PostgreSQL compatibility and restricted execution services. Added a controlled intake-to-candidate repair journey, actual Docker CI coverage and selected-agent memory search across real process restart. No installation, paid inference, generated PR publication or client delivery. Local hardware/model recommendations and bounded live-verification plan document missing external prerequisites. TEST_REPORT.md separates observed results from pending CI/live work.
 
 ## Model selector isolation — October 11, 2026
