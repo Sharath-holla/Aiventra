@@ -222,7 +222,9 @@ async def test_message_is_durable_idempotent_acknowledged_only_after_execution(h
     )
     assert http.post(f"/messages/{work['subject_id']}/ack").status_code == 409
     assert await tick(company["factory"])
-    state = http.get("/state").json()
+    # The dashboard defaults to the latest 30 events across all workflows.
+    # Requirement/project setup can exceed that window, including same-second events.
+    state = http.get("/state", params={"history_limit": 300}).json()
     workflow = next(w for w in state["workflows"] if w["id"] == work["workflow_id"])
     assert workflow["status"] == "completed" and workflow["step"] == 1
     message = next(row for row in state["messages"] if row["id"] == work["subject_id"])
@@ -239,6 +241,15 @@ async def test_message_is_durable_idempotent_acknowledged_only_after_execution(h
         == next(e["id"] for e in state["agent_executions"] if e["workflow_id"] == workflow["id"])
     ]
     assert events == ["REGISTERED", "ASSIGNED", "RUNNING", "COMPLETED"]
+    with company["factory"]() as session:
+        execution_id = next(e["id"] for e in state["agent_executions"] if e["workflow_id"] == workflow["id"])
+        persisted = session.scalars(
+            select(m.AgentStateEvent)
+            .where(m.AgentStateEvent.execution_id == execution_id)
+            .order_by(m.AgentStateEvent.sequence)
+        ).all()
+        assert [row.state for row in persisted] == events
+        assert [row.sequence for row in persisted] == [1, 2, 3, 4]
     assert not await tick(company["factory"])  # Completion messages do not recursively spawn work.
 
 

@@ -1,5 +1,6 @@
-"""Fixed read-only API process restart check on the disposable browser SQLite fixture."""
+"""Actual API process restart check on the disposable browser SQLite fixture."""
 
+import argparse
 import base64
 import hashlib
 import json
@@ -14,6 +15,9 @@ import httpx
 from dotenv import load_dotenv
 
 root = Path(__file__).resolve().parents[1]
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("--exercise-throttle", action="store_true")
+args = parser.parse_args()
 load_dotenv(root / ".env")
 db = max((root / "data/pytest-temp").glob("phase5-browser-*/fixture.db"), key=lambda p: p.stat().st_mtime)
 assert db.resolve().is_relative_to((root / "data/pytest-temp").resolve())
@@ -24,6 +28,8 @@ env = {
     "AI_SPENDING_MODE": "ZERO_COST_ONLY",
     "PROVIDER_SECRET_KEY": base64.urlsafe_b64encode(b"c" * 32).decode(),
     "JWT_SECRET": "phase5-browser-fixture-only-auth-secret-32chars",
+    "OWNER_EMAIL": "phase5-owner@fixture.test",
+    "OWNER_PASSWORD": "phase5-fixture-owner-password",
     "WEB_ORIGIN": "http://localhost:3001",
     "APP_ENV": "test",
     "OIDC_ISSUER": "",
@@ -40,7 +46,7 @@ for key in list(env):
     if key.endswith("_API_KEY") or key in {"AIVENTRA_GITHUB_TOKEN", "GITHUB_TOKEN", "GH_TOKEN"}:
         env[key] = ""
 snapshots = []
-for _ in range(2):
+for iteration in range(2):
     with (root / "data/catalog-process-recovery.log").open("ab") as logs:
         process = subprocess.Popen(
             [
@@ -71,11 +77,34 @@ for _ in range(2):
                     if time.monotonic() > deadline or process.poll() is not None:
                         raise RuntimeError("Disposable API startup failed; inspect private recovery log")
                     time.sleep(0.25)
-                response = client.post(
-                    "/auth/login",
-                    headers={"Origin": "http://localhost:3001"},
-                    json={"email": "phase5-owner@fixture.test", "password": "phase5-fixture-owner-password"},
-                )
+
+                def login():
+                    return client.post(
+                        "/auth/login",
+                        headers={"Origin": "http://localhost:3001"},
+                        json={
+                            "email": "phase5-owner@fixture.test",
+                            "password": "phase5-fixture-owner-password",
+                        },
+                    )
+
+                if args.exercise_throttle and iteration == 0:
+                    for _attempt in range(12):
+                        response = login()
+                        if response.status_code == 429:
+                            break
+                        response.raise_for_status()
+                    assert response.status_code == 429, "Persistent login throttle was not exercised"
+                # Browser contracts can end inside the real persistent rate window.
+                # Wait for it; never reset counters, weaken limits or accept 429 as success.
+                deadline = time.monotonic() + 65
+                while True:
+                    response = login()
+                    if response.status_code != 429:
+                        break
+                    if time.monotonic() >= deadline:
+                        raise RuntimeError("Isolated owner login throttle did not clear within 65 seconds")
+                    time.sleep(5)
                 response.raise_for_status()
                 client.headers["Authorization"] = "Bearer " + response.json()["access_token"]
                 catalog = client.get("/model-catalog").json()
@@ -124,6 +153,7 @@ print(
         {
             "verification": "actual API process restart, disposable SQLite, synthetic credentials only; no inference",
             "models": 3,
+            "auth_throttle_exercised": args.exercise_throttle,
             "sha256": snapshots[0],
         },
         sort_keys=True,
