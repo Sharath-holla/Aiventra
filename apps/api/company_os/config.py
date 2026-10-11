@@ -12,6 +12,9 @@ load_dotenv(override=False)
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
     app_env: str = "development"
+    isolated_test_environment: bool = False
+    isolated_postgres_ci: bool = False
+    fixture_catalog_enabled: bool = False
     ai_spending_mode: Literal["ZERO_COST_ONLY"] = "ZERO_COST_ONLY"
     database_url: str = "sqlite:///./data/company.db"
     required_database_backend: Literal["sqlite", "postgresql"] | None = None

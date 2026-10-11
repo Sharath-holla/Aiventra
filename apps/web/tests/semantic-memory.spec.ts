@@ -1,6 +1,7 @@
+import { testOrigin } from "./support/environment";
 import { test, expect } from "@playwright/test";
 import { loginOwner } from "./support/login";
-const headers = { Origin: "http://localhost:3000" };
+const headers = { Origin: testOrigin };
 
 test("memory UI saves real versions, searches stored evidence, reloads and purges its own fixture", async ({
   page,

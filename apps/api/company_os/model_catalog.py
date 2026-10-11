@@ -8,6 +8,8 @@ from sqlalchemy.orm import object_session
 from . import models as m
 from .credentials import credential_facts
 from .db import now
+from .registry_provenance import facts as origin_facts
+from .registry_provenance import visible
 
 KIND = "provider_catalog"
 
@@ -114,6 +116,7 @@ def view(session, org_id):
         )
     )
     states = {provider.id: record(session, provider) for provider in providers}
+    providers = [provider for provider in providers if visible(session, provider)]
     probes = {
         probe.provider_id: probe
         for probe in session.scalars(select(m.ProviderProbe).where(m.ProviderProbe.org_id == org_id))
@@ -149,9 +152,17 @@ def view(session, org_id):
                 "id": provider.id,
                 "name": provider.name,
                 "kind": provider.kind,
+                "provenance": origin_facts(session, provider)["source"],
                 "enabled": provider.enabled,
                 "configured": facts["credential_configured"],
                 "credential_error": facts["credential_error"],
+                "connection_state": "disabled"
+                if not provider.enabled
+                else "credential_unavailable"
+                if facts["credential_error"]
+                else "configured"
+                if facts["credential_configured"]
+                else "not_configured",
                 "status": data.get("status", probe.status if probe else "not_discovered"),
                 "error_code": data.get("error_code", probe.error_code if probe else ""),
                 "last_checked_at": data.get("checked_at", probe.checked_at if probe else None),
@@ -205,6 +216,11 @@ def view(session, org_id):
                 "context_tokens": model.context_tokens,
                 "configured_quality": model.quality,
                 "registration": "discovered" if metadata else "owner_registered",
+                "provenance": origin_facts(session, provider)["source"]
+                if origin_facts(session, provider)["source"] in {"test_fixture", "system_example"}
+                else "provider_discovery"
+                if metadata
+                else origin_facts(session, provider)["source"],
                 "discovered_at": metadata.get("last_seen_at"),
                 "present": metadata.get("present", True),
                 "stale": public[provider.id]["stale"],
@@ -219,4 +235,11 @@ def view(session, org_id):
                 "supports_structured": True if "structured" in model.capabilities else None,
             }
         )
-    return {"providers": provider_rows, "models": model_rows, "spending_mode": "ZERO_COST_ONLY"}
+    from .config import settings
+
+    return {
+        "providers": provider_rows,
+        "models": model_rows,
+        "spending_mode": "ZERO_COST_ONLY",
+        "isolated_test_environment": settings().isolated_test_environment,
+    }

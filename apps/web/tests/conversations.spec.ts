@@ -1,22 +1,14 @@
+import { testOrigin } from "./support/environment";
+import { fixtureSetting as setting } from "./support/environment";
 import { test, expect } from "@playwright/test";
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 
-const env = readFileSync(resolve(process.cwd(), "../../.env"), "utf8");
-const setting = (name: string) =>
-  process.env[name] ||
-  env
-    .split(/\r?\n/)
-    .find((line) => line.startsWith(name + "="))
-    ?.slice(name.length + 1) ||
-  "";
 async function signIn(page: import("@playwright/test").Page) {
   const response = await page.context().request.post("/api/auth/login", {
     data: {
       email: setting("OWNER_EMAIL"),
       password: setting("OWNER_PASSWORD"),
     },
-    headers: { Origin: "http://localhost:3000" },
+    headers: { Origin: testOrigin },
   });
   expect(response.status()).toBe(200);
 }

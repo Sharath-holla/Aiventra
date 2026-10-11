@@ -1,15 +1,6 @@
+import { testOrigin } from "./environment";
+import { fixtureSetting as setting } from "./environment";
 import { expect, test, type APIRequestContext } from "@playwright/test";
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
-
-const env = readFileSync(resolve(process.cwd(), "../../.env"), "utf8");
-const setting = (name: string) =>
-  process.env[name] ||
-  env
-    .split(/\r?\n/)
-    .find((line) => line.startsWith(name + "="))
-    ?.slice(name.length + 1) ||
-  "";
 
 export async function loginOwner(request: APIRequestContext) {
   // Exercise the real persistent account throttle. Never raise production
@@ -18,7 +9,7 @@ export async function loginOwner(request: APIRequestContext) {
   let waiting = false;
   while (true) {
     const response = await request.post("/api/auth/login", {
-      headers: { Origin: "http://localhost:3000" },
+      headers: { Origin: testOrigin },
       data: {
         email: setting("OWNER_EMAIL"),
         password: setting("OWNER_PASSWORD"),

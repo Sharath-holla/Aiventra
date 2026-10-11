@@ -79,7 +79,9 @@ def update_record(
     session: Session = Depends(session_dependency),
 ):
     record = scoped(session, m.BusinessRecord, record_id, user)
-    if record.kind.startswith(("github_", "delivery_", "project_setup", "provider_catalog")):
+    if record.kind.startswith(
+        ("github_", "delivery_", "project_setup", "provider_catalog", "registry_provenance")
+    ):
         raise HTTPException(409, "Publication and final-review records use their dedicated workflow controls")
     session.execute(
         update(m.Organization).where(m.Organization.id == user.org_id).values(paused=m.Organization.paused)

@@ -1,3 +1,4 @@
+import { testOrigin } from "./support/environment";
 import { expect, test } from "@playwright/test";
 import { loginOwner } from "./support/login";
 
@@ -108,7 +109,7 @@ test("project history loads older saved events without duplicates during new act
   const project = state.projects[0];
   for (let index = 0; index < 24; index++) {
     const result = await request.post("/api/records", {
-      headers: { Origin: "http://localhost:3000" },
+      headers: { Origin: testOrigin },
       data: {
         kind: "knowledge",
         title: `History browser fixture ${index}`,
@@ -128,7 +129,7 @@ test("project history loads older saved events without duplicates during new act
     rows.map((row) => row.getAttribute("data-event-id")),
   );
   const added = await request.post("/api/records", {
-    headers: { Origin: "http://localhost:3000" },
+    headers: { Origin: testOrigin },
     data: {
       kind: "knowledge",
       title: "Concurrent history browser fixture",
@@ -164,7 +165,7 @@ test("chat loads older persisted cancelled turns and preserves them when new act
   expect(
     (
       await request.post("/api/conversations", {
-        headers: { Origin: "http://localhost:3000" },
+        headers: { Origin: testOrigin },
         data: { id, client_id: state.clients[0].id, mode: "live" },
       })
     ).status(),
@@ -174,7 +175,7 @@ test("chat loads older persisted cancelled turns and preserves them when new act
       await request.get(`/api/conversations/${id}`)
     ).json();
     const response = await request.post(`/api/conversations/${id}/turns`, {
-      headers: { Origin: "http://localhost:3000" },
+      headers: { Origin: testOrigin },
       data: {
         request_id: crypto.randomUUID(),
         version: current.conversation.version,
@@ -187,7 +188,7 @@ test("chat loads older persisted cancelled turns and preserves them when new act
     expect(
       (
         await request.post(`/api/conversations/${id}/turns/${turn.id}/cancel`, {
-          headers: { Origin: "http://localhost:3000" },
+          headers: { Origin: testOrigin },
           data: {},
         })
       ).status(),

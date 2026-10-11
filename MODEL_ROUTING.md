@@ -1,5 +1,10 @@
 # Model routing and provider evidence
 
+## Model selector isolation — October 11, 2026
+
+Fixture provenance is checked independently before local or remote live inference, including transport authorization. A quarantined preference is preserved historically but cannot authorize execution or new normal-workspace selections. Existing ZERO_COST_ONLY, exact task approval, capabilities, worker pool, budget, concurrency and independent review remain authoritative. Isolated fixture visibility never grants live execution. No paid fallback is enabled.
+
+
 Task-specific routing is now implemented for versioned workforce drafts and approved tasks. Task profiles add complexity/risk, context and authorized tool requirements, model recommendations, exact owner overrides and saved backend explanations. Current business/architecture/coding/testing/review benchmark case scores filter/rank candidates when available; absence is explicitly labeled configured registry evidence. Automatic/manual/hybrid selection intersects existing project/agent/provider policy and the wizard worker pool. Manual assignments remain exact; automatic fallback records up to three distinct eligible attempts. Independent reviewers remain separately routed. Actual prompt context, spending authorization, project sensitivity and atomic finance are rechecked for every invocation and free-provider resumption.
 
 Wizard project_setup choices constrain the gateway and resume-free route. Selected Lead is exact for lead_intake/proposal/planning_2; worker pools and role/department overrides intersect policies and approved task choices. Missing manual assignments wait; conflicting job overrides/revoked owners/changed requirement versions are denied. Preferences never establish zero-cost entitlement or bypass capability/quality/context, independent review or budgets. GPT-6.1 Sol remains an unavailable preference label without an invented API identifier. See LEAD_AI_ORCHESTRATION.md and PROJECT_WIZARD.md; live model quality verification remains pending.

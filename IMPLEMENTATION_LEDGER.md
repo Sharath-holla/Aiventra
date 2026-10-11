@@ -1,5 +1,10 @@
 # Implementation ledger
 
+## Model selector isolation — October 11, 2026
+
+Starting 822de8b (source ce1a647). Implemented protected registry provenance, audit-evidenced quarantine with verified SQLite online backup, normal catalog/state/preference/execution boundaries, disposable ordinary browser services and before/after registry digests, real-process synthetic-vault restart verification, and grouped accessible Lead/worker selection. No schema migration/deletion, paid call, installation, real generated PR or client delivery. See MODEL_CATALOG_ISOLATION.md and TEST_REPORT.md for exact evidence.
+
+
 ## Connected catalog continuation — October 11, 2026
 
 Published source **ce1a64789b64a9df30ae936b732dafb1ae2f4536**, normal origin/master push and exact remote SHA equality. [All six CI jobs succeeded](https://github.com/Sharath-holla/Aiventra/actions/runs/38107578728): **405 backend / 35 browser checks**, actual Docker isolation/checkout test execution/result recovery, PostgreSQL-compatible 56-table transfer/rollback, actual catalog/preferences/application/database restart and separate restore. Local full suite 404 passed before the final availability freshness regression; corrected focused 134 and all 35 browser checks passed. TEST_REPORT.md records the distinction and real SQLite digests. This evidence-only follow-up modifies documentation, not the tested source.

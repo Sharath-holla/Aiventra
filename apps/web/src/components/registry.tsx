@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Cpu, Plus, Server } from "lucide-react";
 import { api, money } from "@/lib/api";
 import { Badge, Button, Empty, Panel, useApp } from "./common";
@@ -11,6 +11,13 @@ export function Registry() {
   const { state, run, busy } = useApp();
   const [tab, setTab] = useState("models");
   const [show, setShow] = useState(false);
+  const [focusProvider, setFocusProvider] = useState("");
+  useEffect(() => {
+    if (tab === "providers" && focusProvider)
+      document
+        .getElementById(`provider-config-${focusProvider}`)
+        ?.scrollIntoView({ block: "start" });
+  }, [tab, focusProvider]);
   const [name, setName] = useState("");
   const [kind, setKind] = useState("openai");
   const [url, setUrl] = useState("https://api.openai.com/v1");
@@ -27,9 +34,10 @@ export function Registry() {
   return (
     <>
       <ModelCatalog
-        connect={() => {
+        connect={(providerId) => {
           setTab("providers");
-          setShow(true);
+          setShow(!providerId);
+          setFocusProvider(providerId || "");
         }}
         configure={(providerId, modelId) => {
           setProvider(providerId);
@@ -187,7 +195,11 @@ export function Registry() {
             {tab === "providers" ? (
               <div className="provider-grid">
                 {state.providers.map((p) => (
-                  <div className="provider-card" key={p.id}>
+                  <div
+                    className="provider-card"
+                    key={p.id}
+                    id={`provider-config-${p.id}`}
+                  >
                     <Server size={24} />
                     <h3>{p.name}</h3>
                     <Badge>{p.kind}</Badge>
@@ -292,7 +304,7 @@ export function Registry() {
                   ? "Register provider adapter"
                   : "Register model configuration"
               }
-              subtitle="Secrets stay in server environment variables"
+              subtitle="Credentials are saved through the encrypted vault in Provider connections after registration. Model listing never proves free inference entitlement."
             >
               {tab === "providers" ? (
                 <form

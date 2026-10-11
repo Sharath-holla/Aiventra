@@ -1,3 +1,4 @@
+import { testOrigin } from "./support/environment";
 import { test, expect } from "@playwright/test";
 import { loginOwner } from "./support/login";
 import type { State } from "../src/lib/types";
@@ -73,7 +74,7 @@ test("approved requirement and workforce reach five persisted fixture reviews th
 }) => {
   test.setTimeout(240000);
   const request = page.context().request;
-  const headers = { Origin: "http://localhost:3000" };
+  const headers = { Origin: testOrigin };
   await loginOwner(request);
   const state: State = await (await request.get("/api/state")).json();
   const created = await request.post("/api/requirements", {

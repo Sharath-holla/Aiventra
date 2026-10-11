@@ -45,6 +45,40 @@ def make_application_engine(config):
         raise ValueError(
             "Configured database backend does not match REQUIRED_DATABASE_BACKEND; startup refused"
         )
+    if getattr(config, "isolated_postgres_ci", False):
+        import os
+        import re
+
+        url = make_url(config.database_url)
+        name = os.environ.get("BROWSER_CI_DATABASE", "")
+        if not (
+            config.isolated_test_environment
+            and config.app_env == "test"
+            and os.environ.get("CI") == "true"
+            and re.fullmatch(r"browser_ci_\d+_\d+", name)
+            and url.get_backend_name() == "postgresql"
+            and url.host == "database"
+            and url.database == name
+        ):
+            raise ValueError("PostgreSQL browser tests require the dedicated disposable CI database")
+        return make_engine(config.database_url)
+    if getattr(config, "isolated_test_environment", False) or getattr(
+        config, "fixture_catalog_enabled", False
+    ):
+        from pathlib import Path
+
+        url = make_url(config.database_url)
+        root = Path(__file__).resolve().parents[3] / "data" / "pytest-temp"
+        path = Path(url.database or "").resolve()
+        if (
+            not config.isolated_test_environment
+            or config.app_env != "test"
+            or url.get_backend_name() != "sqlite"
+            or not path.is_relative_to(root.resolve())
+            or path.name != "fixture.db"
+            or path.parent == root.resolve()
+        ):
+            raise ValueError("Isolated tests require a private fixture.db under data/pytest-temp")
     return make_engine(config.database_url)
 
 

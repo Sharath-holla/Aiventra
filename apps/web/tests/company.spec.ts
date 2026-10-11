@@ -1,15 +1,7 @@
+import { testOrigin } from "./support/environment";
+import { fixtureSetting as setting } from "./support/environment";
 import { test, expect } from "@playwright/test";
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 
-const env = readFileSync(resolve(process.cwd(), "../../.env"), "utf8");
-const setting = (name: string) =>
-  process.env[name] ||
-  env
-    .split(/\r?\n/)
-    .find((line) => line.startsWith(name + "="))
-    ?.slice(name.length + 1) ||
-  "";
 test("owner consults, approves and inspects a real persistent project", async ({
   page,
 }) => {
@@ -18,7 +10,7 @@ test("owner consults, approves and inspects a real persistent project", async ({
       email: setting("OWNER_EMAIL"),
       password: setting("OWNER_PASSWORD"),
     },
-    headers: { Origin: "http://localhost:3000" },
+    headers: { Origin: testOrigin },
   });
   expect(login.status()).toBe(200);
   await page.goto("/?view=overview");
@@ -163,7 +155,7 @@ test("mobile owner dashboard fits the viewport", async ({ page }) => {
       email: setting("OWNER_EMAIL"),
       password: setting("OWNER_PASSWORD"),
     },
-    headers: { Origin: "http://localhost:3000" },
+    headers: { Origin: testOrigin },
   });
   expect(login.status()).toBe(200);
   await page.setViewportSize({ width: 390, height: 844 });

@@ -222,6 +222,9 @@ def verify_catalog_sync(factory, org_id):
         )
         session.add(provider)
         session.flush()
+        from company_os.registry_provenance import classify
+
+        classify(session, provider, "test_fixture", {"contract": "postgresql_catalog_storage"})
         state = model_catalog.record(session, provider, create=True)
         catalog = [{"identifier": "ci-storage-contract-model"}]
         model_catalog.synchronize(session, provider, state, catalog)

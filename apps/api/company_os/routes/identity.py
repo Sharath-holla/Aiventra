@@ -175,6 +175,16 @@ def state(
         for name, model in names.items()
     }
     task_ids = [row["id"] for row in result["tasks"]]
+    from ..registry_provenance import visible
+
+    visible_providers = {
+        row.id for row in tenant_rows(session, m.Provider, user, 300) if visible(session, row)
+    }
+    result["providers"] = [row for row in result["providers"] if row["id"] in visible_providers]
+    result["models"] = [row for row in result["models"] if row["provider_id"] in visible_providers]
+    result["provider_probes"] = [
+        row for row in result["provider_probes"] if row["provider_id"] in visible_providers
+    ]
     result["dependencies"] = [
         serialize(row, secrets)
         for row in session.scalars(
@@ -191,6 +201,7 @@ def state(
         "execution_enabled": settings().execution_enabled,
         "live_credentials_required": True,
         "database": session.get_bind().dialect.name,
+        "isolated_test_environment": settings().isolated_test_environment,
         "worker": workers(session),
     }
     from ..agent_runtime import snapshot
@@ -203,6 +214,7 @@ def state(
     result["runtime"]["inference_eligibility"] = [
         status(session, session.get(m.Provider, model.provider_id), model)
         for model in tenant_rows(session, m.ModelConfig, user, 300)
+        if model.provider_id in visible_providers
     ]
 
     result["runtime"]["providers"] = [
@@ -218,6 +230,7 @@ def state(
             **credential_facts(row, session),
         }
         for row in tenant_rows(session, m.Provider, user, 300)
+        if row.id in visible_providers
     ]
     return result
 

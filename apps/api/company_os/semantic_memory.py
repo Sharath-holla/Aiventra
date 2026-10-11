@@ -115,7 +115,7 @@ def put(
 
 
 def sync_source(session, row):
-    if isinstance(row, m.BusinessRecord) and row.kind == "provider_catalog":
+    if isinstance(row, m.BusinessRecord) and row.kind in {"provider_catalog", "registry_provenance"}:
         return  # Operational catalog metadata is not project knowledge.
     if isinstance(row, m.Artifact) and row.kind == "retired_requirement_attachment":
         return

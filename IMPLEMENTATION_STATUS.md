@@ -1,5 +1,10 @@
 # Implementation status
 
+## Model selector isolation — October 11, 2026
+
+Model selector isolation repair: traced actual owner-database browser contamination; backed up SQLite and non-destructively quarantined 115 providers / 53 models with audit-backed provenance. All 49,399 original rows remain preserved. Normal selectors and execution exclude fixtures; browser suites now use private databases/accounts/vaults and server-side guards. Grouped searchable Lead/worker pickers, honest GPT-6.1 Sol preference, non-inference refresh and secure provider navigation are implemented. Positive catalogs remain deterministic fixtures. Final regression/publication evidence follows in TEST_REPORT.md.
+
+
 ## Connected model discovery and selection — October 11, 2026
 
 Source **ce1a64789b64a9df30ae936b732dafb1ae2f4536** is pushed normally with matching remote SHA. [All six CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38107578728): final-source **405 backend / 35 browser checks**, actual restricted Docker execution/restart, PostgreSQL compatibility/transfer/restart/restore and catalog/preference service recovery. The previous chat lock-order and browser throttle failures are repaired and covered by this green complete run. TEST_REPORT.md preserves failed attempts and exact evidence; the documentation-only follow-up changes no tested source.

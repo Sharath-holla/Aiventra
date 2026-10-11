@@ -1,5 +1,10 @@
 # Model configuration
 
+## Model selector isolation — October 11, 2026
+
+Normal model choices now exclude audit-confirmed browser fixtures using protected provenance, not names. Genuine legacy and owner registrations remain preserved. Configured credentials, discovered IDs, owner-configured capabilities, pricing eligibility and live inference evidence are separate facts. Secure Settings reconnection persists encrypted vault content without readback; missing/corrupt credentials require reconnection. Actual workstation vault is empty; no genuine provider discovery/inference is claimed. See MODEL_CATALOG_ISOLATION.md.
+
+
 ## Milestone 3 hardware recheck — October 10, 2026
 
 Read-only Windows inventory: Ryzen 5 5600H, 6 physical/12 logical cores; 7.34 GiB RAM, 1.01 GiB free at measurement; RX 6500M reporting 4 GiB and integrated AMD graphics reporting 512 MiB; C: 338.01 GiB free. No `ollama` command/service or standard executable was found; HTTP loopback metadata was unavailable. No installation/download or live benchmark was performed. GPU acceleration is unverified.

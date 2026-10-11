@@ -21,6 +21,7 @@ from ..model_routing import task_class_for
 from ..provider_catalog import discover
 from ..provider_state import probe_for
 from ..providers import ProviderError
+from ..registry_provenance import visible
 from ..schemas import Strict
 from ..security import audit, digest, owner, scoped
 from ..staffing import lock_org
@@ -42,6 +43,8 @@ def store_credentials(
     lock_org(session, user.org_id)
     session.expire_all()
     provider = scoped(session, m.Provider, record_id, user)
+    if not visible(session, provider):
+        raise HTTPException(409, "Quarantined test provider; register a genuine provider connection")
     secret = data.secret.get_secret_value()
     if (
         provider.kind in {"mock", "ollama"}
@@ -91,6 +94,8 @@ async def test_provider(
     lock_org(session, user.org_id)
     session.expire_all()
     provider = scoped(session, m.Provider, record_id, user)
+    if not visible(session, provider):
+        raise HTTPException(409, "Quarantined test provider cannot discover workspace models")
     if not provider.enabled:
         raise HTTPException(409, "Enable the provider before testing its catalog")
     revision = credential_revision(provider, session)
@@ -194,6 +199,8 @@ def set_policy(
     ids = set(data.allowed_model_ids + ([data.preferred_model_id] if data.preferred_model_id else []))
     for model_id in ids:
         model = scoped(session, m.ModelConfig, model_id, user)
+        if not visible(session, scoped(session, m.Provider, model.provider_id, user)):
+            raise HTTPException(422, "Quarantined models cannot be saved as workspace preferences")
         if scope_type == "provider" and model.provider_id != target.id:
             raise HTTPException(422, "Provider defaults must reference this provider's models")
     scope = f"{scope_type}:{record_id}"

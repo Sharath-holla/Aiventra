@@ -79,6 +79,15 @@ def add_provider(
         raise HTTPException(422, "Use a dedicated *_API_KEY environment reference")
     provider = m.Provider(id=uid(), org_id=user.org_id, **data.model_dump())
     session.add(provider)
+    session.flush()
+    from ..registry_provenance import classify
+
+    classify(
+        session,
+        provider,
+        "test_fixture" if settings().isolated_test_environment else "owner_registered",
+        {"created_by": user.id, "path": "authenticated_provider_registration"},
+    )
     audit(session, user.org_id, user.id, "provider.registered", provider.id)
     session.commit()
     return {**serialize(provider), "credential_configured": bool(os.environ.get(provider.credential_env))}

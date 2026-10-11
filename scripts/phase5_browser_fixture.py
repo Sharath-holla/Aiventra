@@ -24,6 +24,12 @@ async def main():
     os.chdir(root)
     private = root / "data" / "pytest-temp" / ("phase5-browser-" + str(uuid4()))
     private.mkdir(parents=True, exist_ok=False)
+    from dotenv import load_dotenv
+
+    load_dotenv(root / ".env")
+    for key in list(os.environ):
+        if key.endswith("_API_KEY") or key in {"AIVENTRA_GITHUB_TOKEN", "GITHUB_TOKEN", "GH_TOKEN"}:
+            os.environ[key] = ""
     os.environ.update(
         {
             "DATABASE_URL": "sqlite:///" + (private / "fixture.db").as_posix(),
@@ -37,7 +43,11 @@ async def main():
             "MOCK_ENABLED": "true",
             "OIDC_ISSUER": "",
             "WEB_ORIGIN": "http://localhost:3001",
-            "APP_ENV": "development",
+            "APP_ENV": "test",
+            "ISOLATED_TEST_ENVIRONMENT": "true",
+            "FIXTURE_CATALOG_ENABLED": "true",
+            "GITHUB_PUBLICATION_TOKEN_ENV": "BROWSER_DISABLED_GITHUB_TOKEN",
+            "GITHUB_PUBLICATION_REPOSITORIES": "",
         }
     )
     sys.path.insert(0, str(root / "tests"))
@@ -237,6 +247,12 @@ async def main():
 
         sandbox.stored_result = fixture_result
     (root / "data" / "phase5-browser-state.json").write_text(json.dumps(saved), encoding="utf-8")
+    from company_os.registry_provenance import classify
+
+    with SessionLocal() as session:
+        for provider in session.scalars(select(m.Provider).where(m.Provider.kind != "mock")):
+            classify(session, provider, "test_fixture", {"contract": "isolated_phase5_browser"})
+        session.commit()
 
     worker_id = str(uuid4())
 

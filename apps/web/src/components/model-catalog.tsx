@@ -28,6 +28,7 @@ export type Catalog = {
     id: string;
     name: string;
     kind: string;
+    connection_state: string;
     configured: boolean;
     enabled: boolean;
     status: string;
@@ -69,7 +70,7 @@ export function ModelCatalog({
   connect,
 }: {
   configure: (provider: string, identifier: string) => void;
-  connect: () => void;
+  connect: (providerId?: string) => void;
 }) {
   const { state, run, busy } = useApp();
   const [catalog, setCatalog] = useState<Catalog | null>(null);
@@ -172,7 +173,7 @@ export function ModelCatalog({
             No AI providers are connected yet. Open Provider connections to
             configure an authorized endpoint or inspect existing configurations.
           </p>
-          <Button secondary onClick={connect}>
+          <Button secondary onClick={() => connect()}>
             Configure provider
           </Button>
         </div>
@@ -192,6 +193,7 @@ export function ModelCatalog({
               <Badge>
                 {p.configured ? "Provider configured" : "Not configured"}
               </Badge>
+              {!p.enabled && <Badge>Disabled</Badge>}
               <Badge>{p.registered_count} registered models</Badge>
               {p.stale && <Badge>Stale catalog</Badge>}
             </div>
@@ -215,6 +217,9 @@ export function ModelCatalog({
                 Last successful discovery: {date(p.last_success_at)}
               </small>
             )}
+            <Button secondary onClick={() => connect(p.id)}>
+              Configure / reconnect
+            </Button>
             <Button
               secondary
               disabled={busy || !p.enabled}

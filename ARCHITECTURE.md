@@ -1,5 +1,10 @@
 # Aiventra OS architecture
 
+## Model selector isolation — October 11, 2026
+
+Registry origin is stored in protected registry_provenance BusinessRecords, keyed deterministically by tenant/provider. Backend catalog/state/preferences/discovery enforce provenance; the spending guard independently blocks fixture live inference. Names never confer authority. Browser applications use UUID-private SQLite, independent synthetic identities/vaults, loopback ports and denied outbound transports; engine startup fences fixture paths and environment. Shared accessible Lead/worker pickers read the existing normalized catalog. Details: MODEL_CATALOG_ISOLATION.md.
+
+
 ## Connected provider catalogs — October 11, 2026
 
 model_catalog.py synchronizes the existing ModelConfig registry and persists bounded discovery provenance in protected provider_catalog BusinessRecords. Owner GET-only discovery commits before HTTP and rechecks generation, configuration, credential revision and owner authority under organization-first locking before accepting results. Failures retain stale last-good catalogs; removed identifiers persist unavailable. No DDL or database cutover occurs. Details and limits: [docs/CONNECTED_MODEL_CATALOG.md](docs/CONNECTED_MODEL_CATALOG.md).

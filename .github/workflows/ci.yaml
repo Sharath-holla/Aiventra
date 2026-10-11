@@ -91,8 +91,13 @@ jobs:
         working-directory: apps/web
         env:
           PHASE5_FIXTURE_PYTHON: ../../.venv/bin/python
+      - name: Restart isolated catalog API and verify synthetic vault/preferences recovery
+        run: .venv/bin/python scripts/verify_registry_restart.py
   integration:
     runs-on: ubuntu-latest
+    env:
+      COMPOSE_FILE: compose.yaml:compose.browser-ci.yaml
+      BROWSER_CI_DATABASE: browser_ci_${{ github.run_id }}_${{ github.run_attempt }}
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
@@ -112,7 +117,13 @@ jobs:
         run: |
           docker compose exec -T api python -m company_os.embeddings --download
           docker compose exec -T api python - --prepare < scripts/verify_semantic_memory.py
+      - run: pip install uv && uv sync --extra dev --locked
       - run: npm ci && npx playwright install --with-deps chromium && npm run test:e2e
+        working-directory: apps/web
+        env:
+          BROWSER_FIXTURE_PYTHON: ../../.venv/bin/python
+      - name: Browser regressions against separately fenced PostgreSQL CI workspace
+        run: npx playwright test --config playwright.postgres.config.ts --reporter=line
         working-directory: apps/web
       - name: Verify durable conversations across actual service restarts
         run: |
@@ -180,7 +191,7 @@ jobs:
           docker compose up -d --wait --wait-timeout 90 database
           docker compose run --rm -T --no-deps api python - < scripts/verify_database_snapshot.py > /tmp/database-after.json
           cmp /tmp/database-before.json /tmp/database-after.json
-          docker compose exec -T database pg_dump -U company -d company --format=custom --file=/tmp/recovery.dump
+          docker compose exec -T database pg_dump -U company -d "$BROWSER_CI_DATABASE" --format=custom --file=/tmp/recovery.dump
           docker compose exec -T database createdb -U company recovery_fixture
           docker compose exec -T database pg_restore -U company -d recovery_fixture --exit-on-error /tmp/recovery.dump
           docker compose run --rm -T --no-deps -e CI=true api python - --restored-database recovery_fixture < scripts/verify_database_snapshot.py > /tmp/database-restored.json

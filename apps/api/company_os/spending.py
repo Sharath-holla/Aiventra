@@ -55,6 +55,12 @@ def fingerprint(provider, model):
 
 def assess(provider, model):
     from .model_catalog import available
+    from .registry_provenance import inference_fixture
+
+    if provider.kind != "mock" and inference_fixture(model):
+        return Decision(
+            False, "UNKNOWN_COST_BLOCKED", "Test fixture registry entries cannot authorize live inference"
+        )
 
     if not available(model):
         return Decision(

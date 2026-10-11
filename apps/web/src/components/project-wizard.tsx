@@ -4,6 +4,7 @@ import { api } from "@/lib/api";
 import type { Workflow } from "@/lib/types";
 import { Badge, Button, Loading, Panel, useApp } from "./common";
 import type { CatalogModel, Catalog } from "./model-catalog";
+import { ModelPicker } from "./model-picker";
 
 type Form = {
   client_id: string;
@@ -83,6 +84,10 @@ export function ProjectWizard({ initialId = "" }: { initialId?: string }) {
   const [criteria, setCriteria] = useState("");
   const [modelSearch, setModelSearch] = useState("");
   const [modelProvider, setModelProvider] = useState("");
+  const [modelAvailability, setModelAvailability] = useState("all");
+  const [refreshStatus, setRefreshStatus] = useState("");
+  const [extraRoles, setExtraRoles] = useState<string[]>([]);
+  const [extraDepartments, setExtraDepartments] = useState<string[]>([]);
   const accept = useCallback((result: Draft) => {
     saved.current = result;
     setRow(result);
@@ -277,17 +282,11 @@ export function ProjectWizard({ initialId = "" }: { initialId?: string }) {
   const visibleModels = options.models.filter(
     (model) =>
       (!modelProvider || model.provider_id === modelProvider) &&
+      (modelAvailability === "all" ||
+        model.eligibility.allowed === (modelAvailability === "ready")) &&
       `${model.identifier} ${model.provider}`
         .toLowerCase()
         .includes(modelSearch.toLowerCase()),
-  );
-  const selectedModels = new Set([
-    form.lead_model_id,
-    ...form.worker_model_ids,
-    ...Object.values(form.overrides),
-  ]);
-  const choices = options.models.filter(
-    (model) => visibleModels.includes(model) || selectedModels.has(model.id),
   );
   const override = (scope: string, model: string) => {
     const overrides = { ...form.overrides };
@@ -309,6 +308,7 @@ export function ProjectWizard({ initialId = "" }: { initialId?: string }) {
         <label>
           AI provider
           <select
+            aria-label="AI provider"
             value={modelProvider}
             onChange={(e) => setModelProvider(e.target.value)}
           >
@@ -322,49 +322,89 @@ export function ProjectWizard({ initialId = "" }: { initialId?: string }) {
           </select>
         </label>
       </div>
+      <label>
+        Model availability
+        <select
+          aria-label="Model availability"
+          value={modelAvailability}
+          onChange={(e) => setModelAvailability(e.target.value)}
+        >
+          <option value="all">All registered / discovered</option>
+          <option value="ready">Ready to use</option>
+          <option value="blocked">Unavailable</option>
+        </select>
+      </label>
       <Button
         secondary
         disabled={saving}
         onClick={() =>
           execute(async () => {
-            setOptions(await api<Options>("/project-creation-options"));
+            setRefreshStatus("Refreshing connected provider catalogs…");
+            const failures: string[] = [];
+            for (const provider of options.providers.filter(
+              (p) => p.configured && p.enabled,
+            )) {
+              try {
+                const result = await api<{ error_code: string }>(
+                  `/providers/${provider.id}/discover`,
+                  {},
+                );
+                if (result.error_code)
+                  failures.push(`${provider.name}: ${result.error_code}`);
+              } catch {
+                failures.push(
+                  `${provider.name}: discovery unavailable; retry in Settings`,
+                );
+              }
+            }
+            const updated = await api<Options>("/project-creation-options");
+            setOptions(updated);
+            setRefreshStatus(
+              `${updated.models.length} registered models. ${failures.join(" · ") || "Catalog refresh finished."}`,
+            );
           })
         }
       >
         Refresh model choices
       </Button>
+      {refreshStatus && <p role="status">{refreshStatus}</p>}
+      {!!options.models.length &&
+        !options.models.some((model) => model.eligibility.allowed) && (
+          <p>
+            Models are available in your catalog, but none can currently run
+            under ZERO_COST_ONLY.
+          </p>
+        )}
       {!options.models.length && (
         <p>
-          Your providers have no registered models. Open Settings → Models &
-          Providers and choose Discover models. Discovery never invokes AI.
+          {options.providers.some((p) => p.configured)
+            ? "A provider is configured, but no models have been discovered. Refresh model choices or open Settings."
+            : "No providers are connected yet. Open Settings to connect OpenAI, Grok or DeepSeek."}
+          <Button secondary onClick={() => navigate("models")}>
+            Connect AI Provider
+          </Button>
         </p>
       )}
-      <label>
-        Lead AI
-        <select
-          aria-label="Lead AI"
-          value={form.lead_model_id || ""}
-          onChange={(event) =>
-            update({ lead_model_id: event.target.value || null })
-          }
-        >
-          <option value="">GPT-6.1 Sol · preferred, unavailable</option>
-          {options.providers.map((provider) => (
-            <optgroup key={provider.id} label={provider.name}>
-              {choices
-                .filter((m) => m.provider_id === provider.id)
-                .map((model) => (
-                  <option key={model.id} value={model.id}>
-                    {model.identifier} · {model.provider} ·{" "}
-                    {model.eligibility.allowed && model.enabled
-                      ? "verified local"
-                      : "blocked"}
-                  </option>
-                ))}
-            </optgroup>
-          ))}
-        </select>
-      </label>
+      <div className="control-note">
+        <p>Preferred Lead AI: GPT-6.1 Sol — Not currently available.</p>
+        {form.lead_model_id && (
+          <Button secondary onClick={() => update({ lead_model_id: null })}>
+            Keep preferred Lead AI without an alternate
+          </Button>
+        )}
+      </div>
+      {form.lead_model_id && !lead && (
+        <p role="status">
+          Saved unavailable registry reference: {form.lead_model_id}. It is
+          preserved, but cannot authorize execution.
+        </p>
+      )}
+      <ModelPicker
+        label="Lead AI"
+        models={visibleModels}
+        value={form.lead_model_id || ""}
+        onChange={(id) => update({ lead_model_id: id })}
+      />
       <div className="control-note">
         <p>
           {lead
@@ -399,77 +439,144 @@ export function ProjectWizard({ initialId = "" }: { initialId?: string }) {
           models. Automatic execution uses only eligible models; every call
           still checks capabilities, budget and independent review.
         </p>
-        {visibleModels.length ? (
-          visibleModels.map((model) => (
-            <label className="checkbox-label" key={model.id}>
-              <input
-                type="checkbox"
-                checked={form.worker_model_ids.includes(model.id)}
-                onChange={(event) =>
-                  update({
-                    worker_model_ids: event.target.checked
-                      ? [...form.worker_model_ids, model.id]
-                      : form.worker_model_ids.filter((id) => id !== model.id),
-                    overrides: {},
-                  })
-                }
-              />
-              {model.identifier} · {model.provider} ·{" "}
-              {model.eligibility.allowed
-                ? "Ready to use"
-                : "Blocked preference"}{" "}
-              · {model.capabilities.join(", ") || "Capabilities unknown"}
-              <small>{model.eligibility.reason}</small>
-            </label>
-          ))
-        ) : (
-          <p>
-            No models match. Registered blocked preferences remain available
-            when filters are cleared; work waits for eligible models.
-          </p>
-        )}
+        <div className="model-picker-list">
+          {visibleModels.length ? (
+            visibleModels.map((model) => (
+              <label className="checkbox-label" key={model.id}>
+                <input
+                  type="checkbox"
+                  checked={form.worker_model_ids.includes(model.id)}
+                  onChange={(event) =>
+                    update({
+                      worker_model_ids: event.target.checked
+                        ? [...form.worker_model_ids, model.id]
+                        : form.worker_model_ids.filter((id) => id !== model.id),
+                      overrides: {},
+                    })
+                  }
+                />
+                {model.identifier} · {model.provider} ·{" "}
+                {model.eligibility.allowed
+                  ? "Ready to use"
+                  : "Blocked preference"}{" "}
+                · {model.capabilities.join(", ") || "Capabilities unknown"}
+                <small>{model.eligibility.reason}</small>
+              </label>
+            ))
+          ) : (
+            <p>
+              No models match. Registered blocked preferences remain available
+              when filters are cleared; work waits for eligible models.
+            </p>
+          )}
+        </div>
       </fieldset>
       {form.worker_mode !== "automatic" && (
         <details open>
           <summary>Role and department assignments</summary>
           <div className="wizard-grid">
             {[
-              ...options.roles.map((role) => ({
-                key: `role:${role}`,
-                label: role,
-              })),
-              ...options.departments.map((department) => ({
-                key: `department:${department.id}`,
-                label: `${department.name} department`,
-              })),
+              ...options.roles
+                .filter(
+                  (role) =>
+                    [
+                      "Business Analyst",
+                      "CTO",
+                      "Project Manager",
+                      ...extraRoles,
+                    ].includes(role) || !!form.overrides[`role:${role}`],
+                )
+                .map((role) => ({
+                  key: `role:${role}`,
+                  label: role,
+                })),
+              ...options.departments
+                .filter(
+                  (department) =>
+                    extraDepartments.includes(department.id) ||
+                    !!form.overrides[`department:${department.id}`],
+                )
+                .map((department) => ({
+                  key: `department:${department.id}`,
+                  label: `${department.name} department`,
+                })),
             ].map((scope) => (
-              <label key={scope.key}>
-                {scope.label}
-                <select
-                  aria-label={`${scope.label} model`}
+              <div key={scope.key}>
+                <p>
+                  {scope.label}:{" "}
+                  {options.models.find(
+                    (model) => model.id === form.overrides[scope.key],
+                  )?.identifier ||
+                    (form.overrides[scope.key]
+                      ? "Saved unavailable reference"
+                      : form.worker_mode === "manual"
+                        ? "Unassigned · this role will wait"
+                        : "Automatic")}
+                </p>
+                <ModelPicker
+                  label={`${scope.label} model`}
                   value={form.overrides[scope.key] || ""}
-                  onChange={(event) => override(scope.key, event.target.value)}
-                >
-                  <option value="">
-                    {form.worker_mode === "manual"
-                      ? "Unassigned · this role will wait"
-                      : "Automatic"}
-                  </option>
-                  {choices
-                    .filter(
-                      (model) =>
-                        !form.worker_model_ids.length ||
-                        form.worker_model_ids.includes(model.id),
-                    )
-                    .map((model) => (
-                      <option key={model.id} value={model.id}>
-                        {model.identifier}
-                      </option>
-                    ))}
-                </select>
-              </label>
+                  onChange={(id) => override(scope.key, id)}
+                  models={visibleModels.filter(
+                    (model) =>
+                      !form.worker_model_ids.length ||
+                      form.worker_model_ids.includes(model.id),
+                  )}
+                />
+                {form.overrides[scope.key] && (
+                  <Button secondary onClick={() => override(scope.key, "")}>
+                    Clear {scope.label} assignment
+                  </Button>
+                )}
+              </div>
             ))}
           </div>
+          <label>
+            Add a participating role
+            <select
+              aria-label="Add a participating role"
+              value=""
+              onChange={(e) => setExtraRoles([...extraRoles, e.target.value])}
+            >
+              <option value="">Choose a role when required</option>
+              {options.roles
+                .filter(
+                  (role) =>
+                    ![
+                      "Business Analyst",
+                      "CTO",
+                      "Project Manager",
+                      ...extraRoles,
+                    ].includes(role),
+                )
+                .map((role) => (
+                  <option key={role}>{role}</option>
+                ))}
+            </select>
+          </label>
+          <label>
+            Add a participating department
+            <select
+              aria-label="Add a participating department"
+              value=""
+              onChange={(event) =>
+                setExtraDepartments([...extraDepartments, event.target.value])
+              }
+            >
+              <option value="">Choose a department when required</option>
+              {options.departments
+                .filter(
+                  (department) =>
+                    !extraDepartments.includes(department.id) &&
+                    !form.overrides[`department:${department.id}`],
+                )
+                .map((department) => (
+                  <option key={department.id} value={department.id}>
+                    {department.name}
+                  </option>
+                ))}
+            </select>
+          </label>
         </details>
       )}
     </>

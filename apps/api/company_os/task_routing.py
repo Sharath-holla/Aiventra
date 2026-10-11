@@ -5,6 +5,7 @@ from typing import Annotated, Literal
 from pydantic import Field
 
 from . import models as m
+from .registry_provenance import visible
 from .schemas import Strict
 
 ShortText = Annotated[str, Field(min_length=1, max_length=200)]
@@ -196,6 +197,7 @@ def prepare(session, plan, content):
                 or not provider
                 or provider.org_id != plan.org_id
                 or provider.kind == "mock"
+                or not visible(session, provider)
             ):
                 raise ValueError("Unknown or foreign registered task preference")
             if profile.model_override and profile.model_override != profile.preferred_model_id:

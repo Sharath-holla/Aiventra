@@ -11,6 +11,7 @@ from . import models as m
 from . import spending
 from .api_common import serialize
 from .db import now, uid
+from .registry_provenance import visible
 from .schemas import Analysis, Strict
 from .security import audit, digest
 
@@ -73,6 +74,7 @@ def validate_form(session, user, form):
             or not provider
             or provider.org_id != user.org_id
             or provider.kind == "mock"
+            or not visible(session, provider)
         ):
             raise PermissionError("Lead AI preference must reference a real registered workspace model")
     if len(set(form.worker_model_ids)) != len(form.worker_model_ids):
@@ -86,6 +88,7 @@ def validate_form(session, user, form):
             or not provider
             or provider.org_id != user.org_id
             or provider.kind == "mock"
+            or not visible(session, provider)
         ):
             raise PermissionError("Worker preference must reference a real registered workspace model")
     for scope, model_id in form.overrides.items():

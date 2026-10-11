@@ -1,5 +1,10 @@
 # Security
 
+## Model selector isolation — October 11, 2026
+
+Ordinary Playwright tests must never attach to the owner application or read its login credentials. Both browser harnesses use private test databases, synthetic accounts/vaults, denied outbound transports and server-side startup fencing; fixture catalog visibility requires a fenced isolated environment. Normal catalogs/state/selectors/preferences reject protected fixture provenance, and fixture models cannot authorize live inference even if metadata is changed to local. Generic record routes cannot forge or alter provenance. Quarantine is non-destructive and audit-backed. See MODEL_CATALOG_ISOLATION.md.
+
+
 Current checkout/PDF/history controls and limits are described in [docs/CHECKOUT_PDF_HISTORY.md](docs/CHECKOUT_PDF_HISTORY.md). Scoped GitHub GET capability stays in the trusted broker. Acquisition refuses moved SHA/ref, hooks/.git, links/submodules, traversal/case collisions, secret-shaped paths/content, binaries and size/time excess; source bytes never enter API/worker storage. Separate exact expiring owner approval binds source digest/suite and is consumed by one saved execution. Actual sandbox execution retains the existing isolated nonroot/network/resource/daemon controls. Interrupted requests reconcile persisted identities instead of blindly repeating actions.
 
 PDF parsing uses fixed code with stripped credential environment, strict structure/action/embedded-content checks and OS memory/CPU/process/wall-time limits. It is not a general filesystem/network sandbox or production security certification. Raw sources remain private hash-addressed evidence for reprocessing; extracted content is redacted, untrusted data. Replacement/removal deletes searchable chunks/grants and permanently tombstones old memory. Submission and exact project approval cannot be bypassed by reprocessing. Signed history cursors bind tenant/project/task/search; no historical audit rewrite occurs. No paid invocation, model installation, generated PR or release is authorized by this increment.

@@ -1,3 +1,4 @@
+import { testOrigin } from "./support/environment";
 import { test, expect } from "@playwright/test";
 import { loginOwner } from "./support/login";
 import type { State } from "../src/lib/types";
@@ -7,7 +8,7 @@ test("saved BA CTO PM fixture creates documents and an unapproved workforce revi
 }) => {
   test.setTimeout(180000);
   const request = page.context().request;
-  const headers = { Origin: "http://localhost:3000" };
+  const headers = { Origin: testOrigin };
   await loginOwner(request);
   const state: State = await (await request.get("/api/state")).json();
   const title = `Planning browser fixture ${Date.now()}`;

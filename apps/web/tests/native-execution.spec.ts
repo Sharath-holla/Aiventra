@@ -1,8 +1,9 @@
+import { testOrigin } from "./support/environment";
 import { test, expect, type Page } from "@playwright/test";
 import { loginOwner } from "./support/login";
 import type { State } from "../src/lib/types";
 
-const headers = { Origin: "http://localhost:3000" };
+const headers = { Origin: testOrigin };
 const state = async (page: Page): Promise<State> =>
   (await page.context().request.get("/api/state")).json();
 

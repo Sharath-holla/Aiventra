@@ -1,5 +1,10 @@
 # Next steps
 
+## Model selector isolation — October 11, 2026
+
+Complete the final isolation regression, actual running UI inspection, source push and exact-source CI verification recorded in TEST_REPORT.md. Then reconnect genuine providers only through secure Settings if desired. This active database has no genuine saved provider credentials or installed local model; do not reconstruct chat-disclosed secrets. Local model installation/download and any paid inference remain unauthorized. Preserve quarantine history and existing SQLite records; PostgreSQL cutover stays deferred.
+
+
 ## Current connected catalog continuation
 
 The owner authorized docs/CONNECTED_MODEL_CATALOG_SPEC.md after the checkout/PDF/history increment; the older stop instruction below is historical. Source **ce1a647** is published and [all six CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38107578728), including 405 backend / 35 browser checks, actual Docker/PostgreSQL/restart/restore verification. Preserve the connected catalog implementation in docs/CONNECTED_MODEL_CATALOG.md and the existing SQLite records/approval gates. This milestone is verified; do not rebuild it or infer live provider access from fixtures.

@@ -101,35 +101,64 @@ test("fixture vault catalogs feed Settings and saved blocked Lead and worker pre
   await expect(
     page.getByRole("heading", { name: "Choose your Lead AI", exact: true }),
   ).toBeVisible();
-  const lead = page.getByLabel("Lead AI", { exact: true });
+  const lead = page.getByRole("group", { name: "Lead AI", exact: true });
   for (const model of models)
-    await expect(lead.locator(`option[value="${model.id}"]`)).toHaveCount(1);
+    await expect(lead.locator(`input[value="${model.id}"]`)).toHaveCount(1);
+  await page
+    .getByLabel("AI provider", { exact: true })
+    .selectOption(models[1].provider_id);
+  await expect(lead.getByRole("radio")).toHaveCount(1);
+  await page.getByLabel("AI provider", { exact: true }).selectOption("");
+  await page
+    .getByLabel("Model availability", { exact: true })
+    .selectOption("ready");
+  await expect(lead.getByRole("radio")).toHaveCount(0);
+  await page
+    .getByLabel("Model availability", { exact: true })
+    .selectOption("blocked");
+  expect(
+    (await lead.locator(".model-picker-list").boundingBox())!.height,
+  ).toBeLessThanOrEqual(355);
+  const keyboardChoice = lead.locator(`input[value="${models[0].id}"]`);
+  await keyboardChoice.focus();
+  await page.keyboard.press("Space");
+  await expect(keyboardChoice).toBeChecked();
   await page
     .getByLabel("Search AI models", { exact: true })
     .fill("browser-contract-openai");
-  await lead.selectOption(models[0].id);
+  await expect(lead.getByRole("radio")).toHaveCount(1);
+  await lead.locator(`input[value="${models[0].id}"]`).check();
   await page.getByLabel("Search AI models", { exact: true }).fill("");
   await page
     .getByLabel("Specialist allocation", { exact: true })
     .selectOption("manual");
   await page.getByRole("checkbox", { name: /browser-contract-xai/ }).check();
   await page
-    .getByLabel("Business Analyst model", { exact: true })
-    .selectOption(models[1].id);
+    .getByRole("radio", {
+      name: `Business Analyst model: ${models[1].identifier}`,
+      exact: true,
+    })
+    .check();
   await expect(
     page.getByRole("status").filter({ hasText: "Saved · version" }),
   ).toBeVisible();
   const id = new URL(page.url()).searchParams.get("draft");
   await page.reload();
-  await expect(page.getByLabel("Lead AI", { exact: true })).toHaveValue(
-    models[0].id,
-  );
+  await expect(
+    page.getByRole("radio", {
+      name: `Lead AI: ${models[0].identifier}`,
+      exact: true,
+    }),
+  ).toBeChecked();
   await expect(
     page.getByLabel("Specialist allocation", { exact: true }),
   ).toHaveValue("manual");
   await expect(
-    page.getByLabel("Business Analyst model", { exact: true }),
-  ).toHaveValue(models[1].id);
+    page.getByRole("radio", {
+      name: `Business Analyst model: ${models[1].identifier}`,
+      exact: true,
+    }),
+  ).toBeChecked();
   const saved = await (await request.get(`/api/project-drafts/${id}`)).json();
   expect(saved.data.form.worker_model_ids).toEqual([models[1].id]);
   expect(saved.lead_status.allowed).toBe(false);
@@ -150,9 +179,12 @@ test("fixture vault catalogs feed Settings and saved blocked Lead and worker pre
   await page
     .getByRole("button", { name: "Choose an alternate Lead AI", exact: true })
     .click();
-  await expect(page.getByLabel("Lead AI", { exact: true })).toHaveValue(
-    models[0].id,
-  );
+  await expect(
+    page.getByRole("radio", {
+      name: `Lead AI: ${models[0].identifier}`,
+      exact: true,
+    }),
+  ).toBeChecked();
   await page.screenshot({ path: "../../data/catalog-fixture-mobile.png" });
   expect(
     await page.evaluate(

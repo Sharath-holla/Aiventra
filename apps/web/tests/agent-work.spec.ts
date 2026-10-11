@@ -1,17 +1,9 @@
+import { testOrigin } from "./support/environment";
+import { fixtureSetting as setting } from "./support/environment";
 import { test, expect, type Page } from "@playwright/test";
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 import type { State } from "../src/lib/types";
 
-const env = readFileSync(resolve(process.cwd(), "../../.env"), "utf8");
-const setting = (name: string) =>
-  process.env[name] ||
-  env
-    .split(/\r?\n/)
-    .find((line) => line.startsWith(name + "="))
-    ?.slice(name.length + 1) ||
-  "";
-const headers = { Origin: "http://localhost:3000" };
+const headers = { Origin: testOrigin };
 async function signIn(page: Page) {
   const login = await page.context().request.post("/api/auth/login", {
     data: {

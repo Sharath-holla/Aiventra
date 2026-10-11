@@ -1,3 +1,4 @@
+import { testOrigin } from "./support/environment";
 import { test, expect, type Page } from "@playwright/test";
 import { loginOwner } from "./support/login";
 async function login(page: Page) {
@@ -80,7 +81,11 @@ test("wizard persists autosaved step and uploads, and rejects stale browser edit
   await expect(
     page.getByRole("heading", { name: "Choose your Lead AI", exact: true }),
   ).toBeVisible();
-  await expect(page.getByLabel("Lead AI", { exact: true })).toHaveValue("");
+  await expect(
+    page
+      .getByRole("group", { name: "Lead AI", exact: true })
+      .getByRole("radio", { checked: true }),
+  ).toHaveCount(0);
   await expect(
     page.getByText(/cannot currently run under zero-cost mode/),
   ).toBeVisible();
@@ -91,7 +96,7 @@ test("wizard persists autosaved step and uploads, and rejects stale browser edit
   const changed = await page
     .context()
     .request.patch(`/api/project-drafts/${id}`, {
-      headers: { Origin: "http://localhost:3000" },
+      headers: { Origin: testOrigin },
       data: {
         request_id: crypto.randomUUID(),
         version: record.version,

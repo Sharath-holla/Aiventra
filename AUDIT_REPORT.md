@@ -1,5 +1,10 @@
 # Aiventra existing-project audit
 
+## Model selector isolation — October 11, 2026
+
+Confirmed ordinary browser tests used the owner development application and left disabled/non-mock provider records. Catalog organization scoping existed, but lacked fixture provenance filtering. 115 providers / 53 models were conclusively matched to test configuration and audit evidence and quarantined without deletion after verified backup. All original rows and references survive. All inspected project vaults are empty; saved-key audits were exclusively test credentials. New disposable browser services and server/catalog/inference fencing repair the boundary; remaining external/live limitations are explicit.
+
+
 ## Connected model catalog audit — October 11, 2026
 
 Final source **ce1a647** passed [all six CI jobs](https://github.com/Sharath-holla/Aiventra/actions/runs/38107578728): 405 backend / 35 browser checks, actual Docker isolation and PostgreSQL/catalog/application restart/restore. A final guard review also repaired cached availability after another connection's model removal; the two-connection regression and full CI pass. Prior checkout/PDF/history chat cancellation lock ordering and browser login throttling are now verified in the complete green run. No final regression failures remain; TEST_REPORT.md separates fixture provider/source data from actual application and CI infrastructure execution.

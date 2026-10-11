@@ -1,5 +1,10 @@
 # Simple project creation
 
+## Model selector isolation — October 11, 2026
+
+Lead and manual/hybrid worker choices use bounded, grouped, searchable radio lists with native keyboard access; worker pools also scroll. Search/provider/availability filters use the shared backend catalog. GPT-6.1 Sol remains a separate unavailable preference; missing saved references are labeled separately. Refresh performs allowed non-inference discovery, reports real counts/errors and preserves selections. Participating roles/departments can be added explicitly. No-provider states navigate to Models & Providers. Existing autosave/version guards and SQLite preference persistence remain.
+
+
 Home is the default owner landing page. Six primary destinations are Home, New project, My projects, Activity, Approvals and Settings. Advanced retains every existing operating surface and recent conversations; its expansion preference persists locally. Executive chat remains available through New chat and Home.
 
 The three-step wizard saves owner-bound versioned drafts in existing business_records (`kind=project_setup`). Describe accepts typed requirements, UTF-8 TXT/Markdown/CSV/JSON (16 KB each), and bounded main-text DOCX (1 MB source, 256 KB expanded archive, 64 KB text). Six files and 2 MB total are allowed. A two-second extraction response limit accompanies strict byte/entry/compression limits; background parsing is not a general-purpose execution sandbox. Macros/embedded objects/encrypted ZIP/XML DTD/entities are refused. PDF/images remain unavailable. Parsed redacted Artifact content is authoritative; raw-source and content SHA-256, warnings and provenance persist. Source binaries are not retained.
