@@ -2,16 +2,100 @@
 
 import argparse
 from concurrent.futures import ThreadPoolExecutor
+from threading import Event, local
 
 from company_os.authentication import count_attempt
 from company_os.config import settings
 from company_os.db import Base, SessionLocal, engine, uid
 from company_os.finance import BudgetExceeded, reserve
-from company_os.models import AuditEvent, Budget, Organization, Provider, ProviderProbe
+from company_os.models import (
+    AuditEvent,
+    Budget,
+    Client,
+    Conversation,
+    Organization,
+    Provider,
+    ProviderProbe,
+    User,
+    Workflow,
+)
 from company_os.provider_state import probe_for
+from company_os.routes.conversations import (
+    ConversationInput,
+    TurnInput,
+    cancel_turn,
+    create_conversation,
+    send_turn,
+)
 from company_os.security import audit, verify_audit
-from sqlalchemy import BigInteger, inspect, select, text
+from company_os.staffing import admit, lock_org
+from sqlalchemy import BigInteger, event, inspect, select, text, update
 from sqlalchemy.exc import DBAPIError
+
+
+def verify_chat_contention(factory, owner_id, client_id):
+    """Exercise real worker admission against cancellation, without inference."""
+    with factory() as session:
+        owner = session.get(User, owner_id)
+        conversation = create_conversation(ConversationInput(id=uid(), client_id=client_id), owner, session)
+        turn = send_turn(
+            conversation["id"],
+            TurnInput(request_id=uid(), version=1, text="Concurrency verification fixture"),
+            owner,
+            session,
+        )
+        workflow_id, org_id = turn["workflow"]["id"], owner.org_id
+        bind = session.get_bind()
+
+    locked, writing = Event(), Event()
+    context = local()
+    first_writes = []
+
+    def observe(connection, cursor, statement, parameters, execution_context, executemany):
+        if getattr(context, "cancelling", False) and statement.lstrip().upper().startswith("UPDATE "):
+            if not first_writes:
+                first_writes.append(statement)
+                writing.set()
+
+    def dispatch():
+        with factory() as session:
+            lock_org(session, org_id)
+            locked.set()
+            assert writing.wait(20), "Cancellation did not reach its first write"
+            session.get(Organization, org_id).paused = False
+            workflow = session.get(Workflow, workflow_id)
+            agents = admit(session, workflow)
+            assert agents is not None
+            session.execute(
+                update(Workflow)
+                .where(Workflow.id == workflow_id, Workflow.status == "queued")
+                .values(status="running", lease_until=2**31 - 1, lease_token=uid(), capacity_agents=agents)
+            )
+            session.commit()
+
+    def cancel():
+        assert locked.wait(20), "Worker did not acquire admission lock"
+        context.cancelling = True
+        with factory() as session:
+            return cancel_turn(conversation["id"], turn["id"], session.get(User, owner_id), session)
+
+    event.listen(bind, "before_cursor_execute", observe)
+    try:
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            worker = pool.submit(dispatch)
+            cancellation = pool.submit(cancel)
+            worker.result(timeout=30)
+            result = cancellation.result(timeout=30)
+    finally:
+        event.remove(bind, "before_cursor_execute", observe)
+    assert first_writes[0].lstrip().upper().startswith("UPDATE ORGANIZATIONS ")
+    assert result["workflow"]["status"] == "cancelled"
+    with factory() as session:
+        workflow = session.get(Workflow, workflow_id)
+        assert workflow.lease_until == 0 and workflow.lease_token != turn["workflow"]["lease_token"]
+        assert admit(session, workflow) is None
+        assert session.get(Conversation, conversation["id"]).version == 3
+        assert verify_audit(session, org_id)["valid"]
 
 
 def verify():
@@ -29,13 +113,21 @@ def verify():
 
     marker = uid()
     with SessionLocal() as session:
-        org = Organization(name="CI PostgreSQL verification " + marker)
+        org = Organization(name="CI PostgreSQL verification " + marker, paused=True)
         session.add(org)
         session.flush()
         budget = Budget(org_id=org.id, scope="ci-verification:" + marker, limit_micro=5_000_000_000)
         session.add(budget)
         session.commit()
         org_id, budget_id = org.id, budget.id
+
+    with SessionLocal() as session:
+        owner = User(org_id=org_id, email=f"ci-chat-{marker}@example.test", role="owner")
+        client = Client(org_id=org_id, name="CI chat contention fixture")
+        session.add_all([owner, client])
+        session.commit()
+        owner_id, client_id = owner.id, client.id
+    verify_chat_contention(SessionLocal, owner_id, client_id)
 
     def attempt(_):
         with SessionLocal() as session:
@@ -110,7 +202,7 @@ def verify():
                 raise AssertionError("Database allowed audit mutation")
         assert verify_audit(session, org_id)["valid"]
     print(
-        "PostgreSQL verified: 13 BIGINT money columns, large atomic caps, concurrent login counters/probe creation, append-only audit"
+        "PostgreSQL verified: 13 BIGINT money columns, large atomic caps, concurrent login counters/probe creation, chat admission/cancellation, append-only audit"
     )
 
 

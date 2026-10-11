@@ -33,6 +33,12 @@ def test_stream_authentication_rejects_tokens_without_expiry(http):
     assert http.get("/conversations").status_code == 401
 
 
+def test_worker_admission_and_cancellation_share_lock_order(company):
+    from scripts.verify_postgres import verify_chat_contention
+
+    verify_chat_contention(company["factory"], company["owner"].id, company["client"].id)
+
+
 def create(http, company, mode="live", **extra):
     response = http.post(
         "/conversations", json={"id": uid(), "client_id": company["client"].id, "mode": mode, **extra}

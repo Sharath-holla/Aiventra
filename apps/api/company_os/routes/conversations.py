@@ -19,6 +19,7 @@ from ..config import settings
 from ..db import now, session_dependency, uid
 from ..schemas import Strict
 from ..security import audit, clean, digest, owner, scoped
+from ..staffing import lock_org
 
 router = APIRouter(prefix="/conversations", tags=["conversations"])
 ACTIVE = {"queued", "running", "waiting_for_provider", "waiting_for_free_provider"}
@@ -216,6 +217,9 @@ def send_turn(
     user: m.User = Depends(owner),
     session: Session = Depends(session_dependency),
 ):
+    # Dispatch and audit both lock the organization before any child row.
+    lock_org(session, user.org_id)
+    session.expire_all()
     conversation = scoped(session, m.Conversation, record_id, user)
     content = clean(data.text.strip())
     if not content or (data.intent == "consult" and len(content) < 20):
@@ -301,6 +305,9 @@ def cancel_turn(
     user: m.User = Depends(owner),
     session: Session = Depends(session_dependency),
 ):
+    # Match worker admission's organization -> workflow lock order.
+    lock_org(session, user.org_id)
+    session.expire_all()
     conversation = scoped(session, m.Conversation, record_id, user)
     turn = scoped(session, m.ConversationTurn, turn_id, user)
     if turn.conversation_id != record_id:

@@ -10,6 +10,8 @@ history.py and history_operations.py implement bounded owner/project/task keyset
 
 SQLite stays active at d45f80a6ce12 with WAL/30000 ms busy_timeout; no DDL/backend cutover/reset is introduced. PostgreSQL-compatible models/queries/migrations/transfer/pgvector/recovery CI remain. ZERO_COST_ONLY is unchanged. TEST_REPORT.md distinguishes fixture transport, actual application persistence/browser checks and actual CI Docker/PostgreSQL verification; no live AI, generated PR or real client delivery is implied.
 
+Chat send/cancel acquire the organization write lock before conversation/workflow changes and refresh loaded state. This matches worker admission and audit lock order, preventing the observed PostgreSQL cancellation/admission deadlock while serializing SQLite writes. The compatibility probe deliberately overlaps these operations and checks final cancellation, revoked lease, no redispatch and intact audit.
+
 ## Task-specific routing and imported knowledge
 
 task_routing.py separates strict task requirements, scoped candidate selection and explanations from API routers. Profiles live in existing StaffingPlan/StaffingRevision JSON; exact approval copies them into Task.payload. task_ready verifies their approved binding and enabled approval owner; gateway/resume-free enforce actual capabilities, complexity/risk quality, minimum context, project sensitivity, policies, zero-cost and current task-case benchmark constraints. Automatic fallback stays within three eligible distinct attempts; exact manual choices cannot silently change. Reviewers use independent agent/model diversity checks. No extra model daemon is started for logical agents.
