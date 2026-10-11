@@ -2,6 +2,8 @@
 
 ## Connected model discovery and selection — October 11, 2026
 
+Source **ce1a64789b64a9df30ae936b732dafb1ae2f4536** is pushed normally with matching remote SHA. [All six CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38107578728): final-source **405 backend / 35 browser checks**, actual restricted Docker execution/restart, PostgreSQL compatibility/transfer/restart/restore and catalog/preference service recovery. The previous chat lock-order and browser throttle failures are repaired and covered by this green complete run. TEST_REPORT.md preserves failed attempts and exact evidence; the documentation-only follow-up changes no tested source.
+
 Implemented the owner-authorized continuation [docs/CONNECTED_MODEL_CATALOG.md](docs/CONNECTED_MODEL_CATALOG.md): GET-only vault-backed discovery upserts stable registry identities, retains owner configuration/preferences, records discovery/error/stale/interruption provenance, and marks disappeared models unavailable without deleting them. The shared safe catalog powers Settings and wizard/staffing selection. Search, filters, refresh, enable/configure and saved blocked Lead/worker/task/project defaults use actual backend state. Unverified GPT-6.1 Sol stays a labeled preference without an invented model ID.
 
 Task preferences are distinct from strict eligible assignments and are copied into exact approved task payloads. Routing/transport still enforce ZERO_COST_ONLY and current capabilities, scopes, finance and independent review; blocked choices wait without inference or reservations. SQLite and existing data remain active; PostgreSQL compatibility and all previous checkout/PDF/history/Phase 4/5 modules are preserved. No schema migration, model installation or paid call occurred.

@@ -2,9 +2,11 @@
 
 ## Connected catalog continuation — October 11, 2026
 
+Published source **ce1a64789b64a9df30ae936b732dafb1ae2f4536**, normal origin/master push and exact remote SHA equality. [All six CI jobs succeeded](https://github.com/Sharath-holla/Aiventra/actions/runs/38107578728): **405 backend / 35 browser checks**, actual Docker isolation/checkout test execution/result recovery, PostgreSQL-compatible 56-table transfer/rollback, actual catalog/preferences/application/database restart and separate restore. Local full suite 404 passed before the final availability freshness regression; corrected focused 134 and all 35 browser checks passed. TEST_REPORT.md records the distinction and real SQLite digests. This evidence-only follow-up modifies documentation, not the tested source.
+
 Actual starting source 9711fee/master. Preserved docs/CONNECTED_MODEL_CATALOG_SPEC.md and prior checkout/PDF/history/Phase 4/5 work. Fixed the probe-to-registry gap, executable-only picker filters and official DeepSeek allowlist omission. Added protected persistent discovery facts, stable non-destructive registry synchronization, owner/configuration/concurrent-response rechecks, stale/error recovery and shared safe catalog/UI. Saved real blocked Lead/worker/task/project preferences remain distinct from execution authority; exact task approval and independent review are preserved.
 
-No active database migration/reset, credential disclosure/use, paid inference, model installation, generated PR or client release occurred. Active vault has zero saved credentials. TEST_REPORT.md records actual focused/full/browser/recovery/CI results and previous failures; no positive provider fixture is counted as live model access. Architecture and operational limits are in docs/CONNECTED_MODEL_CATALOG.md. Source publication is recorded after execution.
+No active database migration/reset, owner-credential disclosure/use, paid inference, model installation, generated PR or client release occurred. Active vault has zero saved credentials. TEST_REPORT.md records actual focused/full/browser/recovery/CI results and previous failures; no positive provider fixture is counted as live model access. Architecture and operational limits are in docs/CONNECTED_MODEL_CATALOG.md. Source publication is recorded above.
 
 ## Restricted checkout/PDF/history increment — October 11, 2026
 
