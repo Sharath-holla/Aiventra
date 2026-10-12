@@ -39,3 +39,7 @@ Before broker HTTP, the worker commits the execution/job ID and full request has
 ## Current limits and evidence
 
 The independent three-round profile currently supports the existing Python unittest runtime. Node engineering remains available through its existing runner profile, but unsupported independent QA cannot pass this gate. Plans are owner-authored; eligible connected AI models assess actual evidence. There is no claim of live model execution, generated PR publication, deployment or completed client delivery from deterministic tests. Local Docker is unavailable on the owner's machine; exact-source GitHub runner/Compose/PostgreSQL evidence is recorded separately in TEST_REPORT.md after observation.
+
+## Verified Increment 5 evidence
+
+Source `e69ff70ea6b36ca9e3704358c1ecd91e146ed8d6`, [CI 38303099307](https://github.com/Sharath-holla/Aiventra/actions/runs/38303099307): all six jobs passed; 554 backend and 73 browser checks. Actual Docker detected a defect, enforced exact repair approval, completed the new candidate and three distinct fresh rounds, verified closure and immutable readiness/package integration. Actual broker interruption/cancellation/duplicate prevention and PostgreSQL restart/restore passed. All AI output remains FIXTURE_TESTED. TEST_REPORT.md retains failures, corrected receipt parsing and full limits; END_TO_END_ENGINEERING_EVIDENCE.md records receipts. DevOps Increment 6 has not begun.

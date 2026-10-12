@@ -1,10 +1,15 @@
 # Next steps
 
-## Current continuation — Increment 5 verification
+## Next unfinished milestone — Phase 7 Increment 6
 
-Local backend/QA and browser regressions passed. Push the verified source normally, then verify all six exact-source CI jobs including actual Docker QA/repair and PostgreSQL compatibility/restart/restore. Preserve SQLite, all baseline records, exact approvals and ZERO_COST_ONLY. Do not declare completion or begin Increment 6 before this evidence is observed.
+Increment 5 source `e69ff70ea6b36ca9e3704358c1ecd91e146ed8d6` is committed and pushed; [all six CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38303099307). Backend 554, browser 73, actual Docker defect/approved repair/three fresh QA rounds, SQLite preservation and PostgreSQL compatibility/restart/restore are verified. Preserve these services and the source/approval/fixture boundaries; do not rebuild them.
 
-After verified Increment 5, the next milestone is **Phase 7 Increment 6: DevOps staging and production deployment controls**. Implement target/plan manifests, separate exact staging/production owner approvals, restricted configured adapters, saved health/status receipts, interrupted-request reconciliation, rollback and incident controls. No actual production deployment, generated PR publication, paid infrastructure or model download is authorized by this source milestone. Eligible local AI and optional embedding-quality verification remain blocked on separately authorized resources/weights; do not substitute fixtures for live verification. Independent QA currently supports Python unittest; other runtimes fail closed and need a future reviewed profile.
+1. Add configured deployment target and versioned plan manifests, bound to the current source, quality readiness and immutable package. Reuse tenant/owner authorization and protected records; targets grant no arbitrary host/Docker control.
+2. Require separate exact staging and production owner approvals. Implement restricted adapters and saved health/status receipts; use idempotent dispatch and same-identity reconciliation after interrupted external requests. Never infer deployment from a successful model response.
+3. Add bounded rollback, incident and escalation controls, integrate real status in the existing project workspace and client delivery gates, and cover missing/stale approvals, target/source races, failures, cancellation and restarts with clearly labeled fixtures.
+4. Run backend/browser/security/integration regressions and harmless configured staging verification when separately authorized. Actual production deployment, paid/public infrastructure and generated PR publication are not authorized by this source milestone.
+
+Keep SQLite active, every existing row, PostgreSQL/pgvector compatibility and ZERO_COST_ONLY. No current increment credentials are required. Real AI/embedding quality remains unverified without separately authorized resources/weights; do not install/download or use paid inference. Independent QA currently supports Python unittest and owner-authored plans; other runtimes require a separately reviewed fixed profile. Current readiness always records production_ready=false and deployment=not_verified; independent role fixtures do not prove distinct live models. Increment 6 has not begun.
 
 ### Historical backlog (superseded by the current continuation above)
 
