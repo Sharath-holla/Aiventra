@@ -14,7 +14,9 @@ test("local model diagnostics use backend state and send no inference", async ({
   await page
     .getByLabel("Provider name", { exact: true })
     .fill("Ollama browser diagnostics fixture");
-  await page.getByLabel("Adapter type", { exact: true }).selectOption("ollama");
+  await page
+    .getByRole("combobox", { name: "Adapter type", exact: true })
+    .selectOption("ollama");
   await expect(
     page.getByLabel("Server credential variable name", { exact: true }),
   ).toHaveCount(0);

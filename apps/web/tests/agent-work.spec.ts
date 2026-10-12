@@ -42,10 +42,11 @@ test("provider UI encrypts a key without readback and records an actual failed l
         name: `Unreachable local catalog ${Date.now()}`,
         kind: "ollama",
         base_url: "http://127.0.0.1:9",
-        credential_env: "BROWSER_LOCAL_TEST_API_KEY",
+        credential_env: "",
       },
       headers,
     });
+  expect(localRegistration.status()).toBe(201);
   const local = await localRegistration.json();
   try {
     await page.goto("/?view=models");
