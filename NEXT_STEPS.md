@@ -2,7 +2,7 @@
 
 ## Current continuation — Increment 5 verification
 
-Finish the expanded backend/QA regression runs, commit the verified source and push normally, then verify all six exact-source CI jobs including actual Docker QA/repair and PostgreSQL compatibility/restart/restore. Preserve SQLite, all baseline records, exact approvals and ZERO_COST_ONLY. Do not declare completion or begin Increment 6 before this evidence is observed.
+Local backend/QA and browser regressions passed. Push the verified source normally, then verify all six exact-source CI jobs including actual Docker QA/repair and PostgreSQL compatibility/restart/restore. Preserve SQLite, all baseline records, exact approvals and ZERO_COST_ONLY. Do not declare completion or begin Increment 6 before this evidence is observed.
 
 After verified Increment 5, the next milestone is **Phase 7 Increment 6: DevOps staging and production deployment controls**. Implement target/plan manifests, separate exact staging/production owner approvals, restricted configured adapters, saved health/status receipts, interrupted-request reconciliation, rollback and incident controls. No actual production deployment, generated PR publication, paid infrastructure or model download is authorized by this source milestone. Eligible local AI and optional embedding-quality verification remain blocked on separately authorized resources/weights; do not substitute fixtures for live verification. Independent QA currently supports Python unittest; other runtimes fail closed and need a future reviewed profile.
 
