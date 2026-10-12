@@ -1,5 +1,9 @@
 # Aiventra verification report
 
+## Increment 5 diagnostic correction
+
+Source `1bd0882`, [CI 38302616725](https://github.com/Sharath-holla/Aiventra/actions/runs/38302616725): actual Docker journey **one passed / one failed, 10.55s**. The newly shortened test diagnostic incorrectly indexed `work` instead of the actual quality API `jobs` field, aborting on its first successful QA checkpoint. Corrected that test-only key using the inspected router response; no application gate or assertion was removed. Ruff lint/format passed. This run does not establish complete QA/repair success; exact corrected-source CI must do so.
+
 ## Increment 5 actual Docker stream-order correction
 
 [CI 38302068444](https://github.com/Sharath-holla/Aiventra/actions/runs/38302068444), source `2b69e5a603277e29a22b3bda3dbbfb3f94904c8b`: actual Docker engineering ended **one passed / one failed, 15.10s**. Legacy packaging passed. Phase 7 genuinely detected the independent unknown-field defect, required owner repair approval, produced a new candidate and passed its 11 developer tests. Its fresh first-round test succeeded, but Docker's interleaved stdout/stderr placed unittest's `OK` after the JSON receipt; the parser correctly refused the trailing data as INCONCLUSIVE and halted progression. Corrected the parser to require exactly one complete receipt line while retaining all exit/source/policy checks. Added reordering, duplicate-receipt and malformed-data regressions: **11 passed, 0.45s**. Candidate code still runs only in restricted Docker. Corrected-source six-job CI follows after observation.

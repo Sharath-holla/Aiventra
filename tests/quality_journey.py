@@ -100,7 +100,7 @@ async def verify_quality_repair(http, company, project, task, patch_files):
                     {"stage": row["data"]["body"]["stage"], "verdict": row["status"]}
                     for row in evidence["reports"]
                 ],
-                "work": evidence["work"],
+                "jobs": evidence["jobs"],
                 "executions": [
                     {"status": row.status, "logs": row.logs}
                     for row in session.scalars(
