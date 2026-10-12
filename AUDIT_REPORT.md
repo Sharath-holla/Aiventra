@@ -2,6 +2,8 @@
 
 ## Phase 7 architecture boundary
 
+Current source 66e4e91 has all six CI jobs passing with 511 backend/73 browser checks and actual Docker/PostgreSQL restart/restore evidence. Extended harmless-project verification confirmed the exact non-recommended design in document/planning/patch/review handoffs, failed-build bounded repair, intact unpublished candidate/nonproduction package and strict fixture publication/release refusal. A genuine login throttle and oversized generic fixture documents were repaired in test adapters without weakening authentication, context limits or release policy; TEST_REPORT.md retains both failed runs. Active SQLite preserves all 49,699 baseline row identities and validates 4,397 append-only audit events. These are verified requirements/design/engineering increments, not full Phase 7, genuine AI, three-stage QA or operational deployment certification.
+
 Extended the existing recommendation-only CTO step with bounded design options, canonical artifact/run/checkpoint provenance and separate architecture-selection authority. Approval now refreshes proposal state after obtaining the organization lock; request-changes/rejection uses the same lock, preventing a stale read from winning over a competing decision. Owner-authored plans are explicitly limited; legacy approved proposals retain their contract. Selected-design context and existing source-bound staffing/engineering authority prevent silently implementing the Lead recommendation after the owner chose another option. Fixture, actual restart and exact-source CI evidence are separate in TEST_REPORT.md. Three-stage QA and DevOps remain unfinished.
 
 ## Phase 7 requirements source audit — October 12, 2026

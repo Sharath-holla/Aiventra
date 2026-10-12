@@ -1,5 +1,7 @@
 # Client-to-delivery workflow
 
+Phase 7 reviewed requirements and owner-selected CTO design now flow through existing planning/engineering authority. Both the original and reviewed-design Task API journeys passed actual restricted Docker build/testing/repair and immutable fixture_nonproduction packaging on source 66e4e91. These checks preserve strict live-publication/release refusal and original source. The three distinct Phase 7 QA rounds, source-bound quality policy and DevOps staging/production/reconciliation are still unfinished; the five-role final review must not be described as those test rounds. See END_TO_END_ENGINEERING_EVIDENCE.md and NEXT_STEPS.md.
+
 Phase 6 controlled engineering coverage reaches a prepared, unpublished candidate after one repair and independent fixture review. Mock-only nonproduction packaging additionally requires real dedicated Docker QA, exact task approval and an unchanged candidate. It accepts explicit deterministic models solely for immutable `fixture_nonproduction` packages. Live readiness/publication still reject fixture reviews, and release refuses fixture classification. Local runner adapters cannot satisfy this packaging prerequisite. Existing document-package, immutable release-manifest and exact owner/client acceptance tests remain separate. Docker unit tests alone do not establish genuine AI review, production readiness, published PR or client delivery.
 
 ## Current implemented workflow

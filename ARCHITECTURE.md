@@ -2,6 +2,8 @@
 
 ## Phase 7 architecture decisions
 
+Document, BA/CTO/PM planning, patch and independent-review handoffs include explicit `owner_selected_architecture` with the selected option and scope/manifest hashes. Both legacy and reviewed-design paths are verified through real restricted Docker build/repair/testing and nonproduction packaging; all model outputs remain deterministic fixtures. Complete design artifacts remain persisted separately from test handoff documents. Existing lossless final-review context limits still refuse oversized evidence; they were not relaxed to pass the integration test. END_TO_END_ENGINEERING_EVIDENCE.md records actual candidate/package receipts and the remaining three-stage QA/DevOps boundary.
+
 `architecture_design.py` extends existing CTO consultation, proposal approval, project setup JSON and Artifact/Approval/ModelRun/WorkflowStep records. It binds proposed alternatives and HLD/LLD/API/database/design documents to approved requirements and successful CTO/checkpoint provenance. Separate exact architecture-selection approval is saved atomically with proposal/project creation. Existing planning and restricted coding consume the actual owner-selected design. The current proposal and project Requirements views expose saved details and hashes without additional navigation. See ARCHITECTURE_DESIGN.md; three-stage QA and restricted DevOps integration remain unfinished.
 
 ## Phase 7 collaborative requirements boundary
