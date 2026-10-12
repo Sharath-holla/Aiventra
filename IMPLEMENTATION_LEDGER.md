@@ -1,5 +1,13 @@
 # Implementation ledger
 
+## October 12, 2026 — Phase 6.1 bounded local connection increment
+
+Starting source 73706be. Preserved the owner authorization in docs/PHASE61_LOCAL_AI_SPEC.md. Existing official Ollama 0.40.3 was reused, cloud disabled and loopback-only service restarted with one loaded model/request, 2048 default server context and immediate unload. A genuine credential-free provider and successful empty discovery are saved in active SQLite; no Qwen model row was fabricated. Available RAM of about 1 GiB triggered the brief's stop-before-download condition. Zero weights downloaded, zero actual inference, no GPU-use claim and no live handoff/benchmark. OLLAMA_LOCAL_INFERENCE_REPORT.md records the blocker and safe continuation.
+
+Source extends existing APIs/transports/UI: read-only owner/tenant local diagnostics, hardware admission, credential-free Ollama registration, server identity/completion/timing receipts, visible installed metadata/effective context, and one-worker staffing draft compatibility. Protected requested/selected/attempted/successful identities remain distinct; all controlled transport results are FIXTURE_TESTED. The active SQLite database was backed up and all 49,679 pre-existing rows are subject to final identity/integrity verification. No PostgreSQL cutover, remote inference, generated publication or client release is authorized or performed.
+
+Test isolation repair: the active laptop's conservative scheduler value initially leaked into contract fixture plans, causing 68 failures (382 passed). Tests now use an explicit known scheduler capacity; the application stays at one worker. A positive/negative capacity regression verifies real drafts and strict approval rejection. The new receipt persistence test initially patched the structured adapter while the gateway uses native Ollama; corrected to exercise the real native decoder with controlled HTTP. Exact final local and CI evidence is recorded in TEST_REPORT.md after execution.
+
 ## October 12, 2026 — Phase 6 readiness increment
 
 Publication: source 908edfa followed by clean-checkout CI directory repair **40af17935a98adba7faf0baff707c58e49990a3b**, normal pushes to origin/master with exact SHA equality. [Final source CI 38168012616](https://github.com/Sharath-holla/Aiventra/actions/runs/38168012616) passed all six jobs: 426 backend, 67 browser, build/types/audits, actual restricted Docker engineering/package/isolation/recovery and PostgreSQL transfer/restart/restore. Actual Task API package remains fixture_nonproduction; no live AI, external generated PR or client release. Documentation-only evidence follow-up retains source unchanged and records all failures/repairs separately.

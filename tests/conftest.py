@@ -46,6 +46,12 @@ def company(tmp_path, monkeypatch):
     monkeypatch.setattr(config, "artifact_root", tmp_path / "artifacts")
     monkeypatch.setattr(config, "repository_root", tmp_path / "repositories")
     monkeypatch.setattr(config, "mock_enabled", True)
+    # Contract plans use a known scheduler capacity, independent of the owner's
+    # conservative local one-request configuration. Scheduling limits have their own tests.
+    monkeypatch.setattr(config, "scheduler_concurrency", 4)
+    monkeypatch.setattr(
+        config, "ollama_min_available_memory_mb", 0
+    )  # Host RAM is tested with explicit fixtures, never the developer's live workload.
     monkeypatch.setattr(config, "oidc_issuer", "")
     engine = make_engine(f"sqlite:///{tmp_path / 'test.db'}")
     Base.metadata.create_all(engine)

@@ -29,6 +29,22 @@ from ..staffing import lock_org
 router = APIRouter()
 
 
+@router.get("/providers/{record_id}/local-status")
+async def local_status(
+    record_id: str, user: m.User = Depends(owner), session: Session = Depends(session_dependency)
+):
+    from ..local_ai import diagnostics
+    from ..security import clean
+
+    provider = scoped(session, m.Provider, record_id, user)
+    if not visible(session, provider):
+        raise HTTPException(409, "Quarantined provider cannot run local diagnostics")
+    try:
+        return clean(await diagnostics(provider))
+    except PermissionError as exc:
+        raise HTTPException(422, str(exc)) from None
+
+
 class CredentialInput(Strict):
     secret: SecretStr
 

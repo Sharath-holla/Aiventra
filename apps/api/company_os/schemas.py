@@ -95,7 +95,7 @@ class ProviderInput(Strict):
     name: str = Field(min_length=1, max_length=200)
     kind: Literal["openai", "anthropic", "gemini", "ollama", "compatible", "xai"]
     base_url: str = Field(max_length=500)
-    credential_env: str = Field(pattern=r"^[A-Z][A-Z0-9_]{0,99}$")
+    credential_env: str = Field(default="", pattern=r"^(?:[A-Z][A-Z0-9_]{0,99})?$")
 
 
 class ModelInput(Strict):

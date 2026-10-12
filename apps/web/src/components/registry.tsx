@@ -315,7 +315,7 @@ export function Registry() {
                         name,
                         kind: kind === "deepseek" ? "compatible" : kind,
                         base_url: url,
-                        credential_env: credential,
+                        credential_env: kind === "ollama" ? "" : credential,
                       });
                       setShow(false);
                     });
@@ -355,10 +355,7 @@ export function Registry() {
                               "https://api.deepseek.com",
                               "DEEPSEEK_API_KEY",
                             ],
-                            ollama: [
-                              "http://localhost:11434",
-                              "OLLAMA_API_KEY",
-                            ],
+                            ollama: ["http://localhost:11434", ""],
                           };
                           if (defaults[value]) {
                             setUrl(defaults[value][0]);
@@ -388,15 +385,22 @@ export function Registry() {
                         onChange={(e) => setUrl(e.target.value)}
                       />
                     </label>
-                    <label>
-                      Server credential variable name
-                      <input
-                        required
-                        value={credential}
-                        onChange={(e) => setCredential(e.target.value)}
-                        pattern="[A-Z][A-Z0-9_]*_API_KEY"
-                      />
-                    </label>
+                    {kind === "ollama" ? (
+                      <p className="muted">
+                        Local Ollama uses no API key. Keep the server on
+                        loopback.
+                      </p>
+                    ) : (
+                      <label>
+                        Server credential variable name
+                        <input
+                          required
+                          value={credential}
+                          onChange={(e) => setCredential(e.target.value)}
+                          pattern="[A-Z][A-Z0-9_]*_API_KEY"
+                        />
+                      </label>
+                    )}
                   </div>
                   <Button type="submit" disabled={busy}>
                     Register provider

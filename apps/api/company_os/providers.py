@@ -1,5 +1,5 @@
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from urllib.parse import urlsplit
 
 import httpx
@@ -15,6 +15,42 @@ class Response:
     data: dict
     input_tokens: int
     output_tokens: int
+    metadata: dict = field(default_factory=dict)
+
+
+def ollama_metadata(data):
+    """Retain allowlisted transport facts, never reasoning or arbitrary response fields."""
+    if "done" in data and type(data["done"]) is not bool:
+        raise ProviderError("Invalid local completion marker; reconcile the request", uncertain=True)
+    value = {
+        "completed": data.get("done") is True,
+        "reported_model": data.get("model")
+        if isinstance(data.get("model"), str) and len(data["model"]) <= 200
+        else None,
+        "done_reason": data.get("done_reason")
+        if isinstance(data.get("done_reason"), str) and len(data["done_reason"]) <= 40
+        else None,
+    }
+    for name in ("total_duration", "load_duration", "prompt_eval_duration", "eval_duration"):
+        if type(data.get(name)) is int and data[name] >= 0:
+            value[name + "_ns"] = data[name]
+    if (
+        value.get("eval_duration_ns", 0) > 0
+        and type(data.get("eval_count")) is int
+        and data["eval_count"] >= 0
+    ):
+        value["tokens_per_second"] = round(data["eval_count"] * 1_000_000_000 / value["eval_duration_ns"], 3)
+    return value
+
+
+def verify_ollama_identity(metadata, expected):
+    actual = metadata.get("reported_model")
+    if actual is not None and actual != expected:
+        raise ProviderError(
+            "Ollama reported a different execution model; reconcile the request", uncertain=True
+        )
+    metadata["identity_verified"] = actual == expected
+    return metadata
 
 
 class ProviderError(Exception):
@@ -162,6 +198,7 @@ class HTTPAdapter:
                 "prompt": prompt,
                 "format": schema,
                 "stream": False,
+                "think": settings().ollama_thinking,
                 "options": {
                     "num_predict": max_output,
                     "num_ctx": min(model.context_tokens or 4096, settings().ollama_context_tokens),
@@ -233,11 +270,7 @@ class HTTPAdapter:
                 output = data["choices"][0]["message"]["content"]
                 usage = data.get("usage", {})
                 in_tokens, out_tokens = usage.get("prompt_tokens"), usage.get("completion_tokens")
-            if (
-                not isinstance(in_tokens, int)
-                or not isinstance(out_tokens, int)
-                or min(in_tokens, out_tokens) < 0
-            ):
+            if type(in_tokens) is not int or type(out_tokens) is not int or min(in_tokens, out_tokens) < 0:
                 raise ProviderError(
                     "Provider omitted verifiable usage; reconciliation required", uncertain=True
                 )
@@ -246,13 +279,19 @@ class HTTPAdapter:
                     output = output.replace(secret, "[REDACTED]")
                 result = (
                     {"_invalid_output": True}
-                    if provider.kind == "ollama" and data.get("done_reason", "stop") != "stop"
+                    if provider.kind == "ollama"
+                    and (data.get("done_reason", "stop") != "stop" or data.get("done") is False)
                     else scrub_secret(json.loads(output), secret)
                 )
             except (ValueError, TypeError):
                 # Usage must survive malformed output so it can be charged before escalating.
                 result = {"_invalid_output": True}
-            return Response(result, in_tokens, out_tokens)
+            metadata = (
+                verify_ollama_identity(ollama_metadata(data), model.identifier)
+                if provider.kind == "ollama"
+                else {}
+            )
+            return Response(result, in_tokens, out_tokens, metadata)
         except httpx.HTTPError:
             raise ProviderError(
                 "Provider network failure; billing outcome uncertain", uncertain=True

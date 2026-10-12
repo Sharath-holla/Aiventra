@@ -132,7 +132,7 @@ def suggest(session: Session, project: m.Project) -> m.StaffingPlan:
         "requirement_version": requirement.version,
         "proposal_hash": proposal.content_hash,
         "mode": "live",
-        "concurrency": 2,
+        "concurrency": min(2, settings().scheduler_concurrency),
         "allocations": [{"agent_id": agent_id, "slots": 1} for agent_id in sorted(ids)],
         "tasks": tasks,
         "foundation_task_ids": [task.id for task in foundation],

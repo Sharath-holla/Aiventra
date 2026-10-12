@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { api, date } from "@/lib/api";
 import { Badge, Button, Panel, useApp } from "./common";
+import { LocalAiStatus } from "./local-ai-status";
 
 export type CatalogModel = {
   id: string;
@@ -15,6 +16,8 @@ export type CatalogModel = {
   capabilities: string[];
   capability_source: string;
   context_tokens: number;
+  effective_context_tokens?: number;
+  local_metadata?: { digest?: string; size_bytes?: number };
   registration: string;
   present: boolean;
   stale: boolean;
@@ -206,12 +209,19 @@ export function ModelCatalog({
                   (p.status === "not_discovered"
                     ? "Models have not been discovered yet."
                     : p.status === "catalog_verified"
-                      ? "Model identifiers discovered; live inference is unverified."
+                      ? catalog!.models.some(
+                          (model) =>
+                            model.provider_id === p.id &&
+                            model.live_inference_at,
+                        )
+                        ? "Models discovered. Review each model's recorded inference evidence."
+                        : "Model identifiers discovered; live inference is unverified."
                       : p.status)}
             </p>
             {p.discovery_interrupted && (
               <p>Discovery was interrupted. Refresh models to retry safely.</p>
             )}
+            {p.kind === "ollama" && <LocalAiStatus providerId={p.id} />}
             {p.last_success_at && (
               <small>
                 Last successful discovery: {date(p.last_success_at)}
@@ -268,6 +278,21 @@ export function ModelCatalog({
                   · Context: {m.context_tokens || "unknown"} · Pricing:{" "}
                   {m.pricing_status}
                 </small>
+                {m.kind === "ollama" && (
+                  <p>
+                    Effective local context:{" "}
+                    {m.effective_context_tokens ?? "unverified"} tokens.
+                    Installed size:{" "}
+                    {m.local_metadata?.size_bytes
+                      ? `${(m.local_metadata.size_bytes / 1_000_000).toFixed(1)} MB`
+                      : "unverified"}
+                    . Last accepted live inference:{" "}
+                    {m.live_inference_at
+                      ? date(m.live_inference_at)
+                      : "not verified"}
+                    .
+                  </p>
+                )}
                 <div className="button-row">
                   <Button
                     secondary

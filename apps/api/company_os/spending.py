@@ -163,6 +163,10 @@ async def authorize(provider, model):
         return decision
     if not decision.local_candidate:
         raise InferenceBlocked(decision)
+    from .local_ai import memory_blocker
+
+    if reason := memory_blocker():
+        raise InferenceBlocked(Decision(False, "LOCAL_RESOURCES_BLOCKED", reason, True))
     try:
         async with httpx.AsyncClient(timeout=5, trust_env=False, follow_redirects=False) as client:
             base = provider.base_url.rstrip("/")
@@ -246,6 +250,14 @@ def status(session, provider, model):
 
     decision = assess(provider, model)
     if decision.local_candidate:
+        from .local_ai import memory_blocker
+
+        if reason := memory_blocker():
+            return {
+                "model_id": model.id,
+                "provider_id": provider.id,
+                **Decision(False, "LOCAL_RESOURCES_BLOCKED", reason, True).public(),
+            }
         record = session.scalar(
             select(LocalModelVerification).where(
                 LocalModelVerification.org_id == provider.org_id, LocalModelVerification.model_id == model.id

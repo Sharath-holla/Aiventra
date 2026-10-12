@@ -26,6 +26,7 @@ async def main():
             "ISOLATED_TEST_ENVIRONMENT": "true",
             "FIXTURE_CATALOG_ENABLED": "true",
             "AI_SPENDING_MODE": "ZERO_COST_ONLY",
+            "SCHEDULER_CONCURRENCY": "4",
             "EXECUTION_ENABLED": "false",
             "JWT_SECRET": "isolated-browser-auth-secret-32-characters",
             "PROVIDER_SECRET_KEY": base64.urlsafe_b64encode(b"b" * 32).decode(),

@@ -33,6 +33,13 @@ type Evidence = {
       agent_id: string;
       requested_model_id?: string | null;
       actual_model_id: string;
+      successful_model_id?: string | null;
+      transport?: {
+        reported_model?: string;
+        identity_verified?: boolean;
+        tokens_per_second?: number;
+        load_duration_ns?: number;
+      };
       identifier?: string;
       provider?: string;
       error?: string;
@@ -177,10 +184,29 @@ export function ExecutionEvidence({
                       · {run.step}
                     </strong>
                     <p>
-                      Requested: {modelName(run.requested_model_id)}. Execution
+                      Requested: {modelName(run.requested_model_id)}. Attempted
                       model: {run.identifier || modelName(run.actual_model_id)}
                       {run.provider ? ` (${run.provider})` : ""}.
                     </p>
+                    {run.successful_model_id && (
+                      <p>
+                        Accepted execution model:{" "}
+                        {modelName(run.successful_model_id)}.
+                      </p>
+                    )}
+                    {run.transport?.reported_model && (
+                      <p>
+                        Ollama reported: {run.transport.reported_model}.
+                        Identity{" "}
+                        {run.transport.identity_verified
+                          ? "matched"
+                          : "unverified"}
+                        {typeof run.transport.tokens_per_second === "number"
+                          ? ` · ${run.transport.tokens_per_second} tokens/s`
+                          : ""}
+                        .
+                      </p>
+                    )}
                     <Badge>{run.verification}</Badge>{" "}
                     <Badge>{run.status}</Badge>
                     {run.error && <p>{run.error}</p>}

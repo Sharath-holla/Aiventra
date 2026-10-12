@@ -72,6 +72,24 @@ async def discover(provider: Provider, client: httpx.AsyncClient | None = None) 
                 ):
                     raise ProviderError("catalog_invalid")
                 models[identifier] = {"identifier": identifier, "generation_methods": methods[:20]}
+                if provider.kind == "ollama":
+                    local = {}
+                    if isinstance(row.get("digest"), str) and re.fullmatch(
+                        r"[a-fA-F0-9]{32,128}", row["digest"]
+                    ):
+                        local["digest"] = row["digest"]
+                    if type(row.get("size")) is int and row["size"] > 0:
+                        local["size_bytes"] = row["size"]
+                    for key in ("format", "parameter_size", "quantization_level"):
+                        value = (
+                            row.get("details", {}).get(key)
+                            if isinstance(row.get("details", {}), dict)
+                            else None
+                        )
+                        if isinstance(value, str) and len(value) <= 100:
+                            local[key] = value
+                    if local:
+                        models[identifier]["local_metadata"] = local
                 if len(models) > 2000:
                     raise ProviderError("catalog_too_large")
             cursor = (

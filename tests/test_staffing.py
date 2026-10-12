@@ -74,6 +74,27 @@ async def test_plan_reuses_foundation_exact_approval_and_real_fixture_artifacts(
         )
 
 
+async def test_local_single_worker_draft_is_approvable_and_limits_remain_strict(
+    http, company, requirement, monkeypatch
+):
+    from company_os.config import settings
+
+    monkeypatch.setattr(settings(), "scheduler_concurrency", 1)
+    _, plan = await project_plan(http, company, requirement)
+    assert plan["content"]["concurrency"] == 1
+    invalid = http.patch(
+        f"/staffing/{plan['id']}",
+        json={
+            "version": plan["version"],
+            "content": {**plan["content"], "concurrency": 2},
+        },
+    )
+    assert invalid.status_code == 422
+    assert "exceeds configured scheduler concurrency" in invalid.text
+    revised = revise(http, plan, mode="mock")
+    assert approve(http, revised)["content"]["concurrency"] == 1
+
+
 async def test_rules_identify_ui_code_data_and_integrations(http, company, requirement):
     with company["factory"]() as session:
         row = session.get(m.Requirement, requirement["id"])

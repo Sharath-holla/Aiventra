@@ -8,7 +8,14 @@ import httpx
 
 from .config import settings
 from .credentials import secret_for
-from .providers import ProviderError, Response, scrub_secret, strict_schema
+from .providers import (
+    ProviderError,
+    Response,
+    ollama_metadata,
+    scrub_secret,
+    strict_schema,
+    verify_ollama_identity,
+)
 from .security import clean, validate_endpoint
 
 
@@ -193,6 +200,7 @@ def request_spec(provider, model, system, prompt, schema, tools, history, max_ou
             "json_schema": {"name": "agent_result", "strict": True, "schema": strict_schema(schema)},
         }
     if kind == "ollama":
+        body["think"] = settings().ollama_thinking
         body["options"] = {
             "num_predict": max_output,
             "num_ctx": min(model.context_tokens or 4096, settings().ollama_context_tokens),
@@ -213,6 +221,7 @@ class Decoder:
         self.terminal = False
         self.invalid_output = False
         self.events = 0
+        self.metadata = {}
 
     def call(self, index, name="", arguments="", call_id="", signature=None):
         record = self.calls.setdefault(
@@ -301,6 +310,12 @@ class Decoder:
                     candidates + thoughts if type(candidates) is int and type(thoughts) is int else None
                 )
         elif kind == "ollama":
+            previous_model = self.metadata.get("reported_model")
+            if previous_model and event.get("model") and previous_model != event["model"]:
+                raise ProviderError("Ollama model identity changed within stream", uncertain=True)
+            self.metadata.update(
+                {key: value for key, value in ollama_metadata(event).items() if value is not None}
+            )
             message = event.get("message", {})
             self.text += message.get("content", "")
             for call in message.get("tool_calls", []):
@@ -362,7 +377,7 @@ class Decoder:
         ):
             raise ProviderError("Incomplete native stream or usage; reconciliation required", uncertain=True)
         if self.invalid_output:
-            return Response({"_invalid_output": True}, self.input_tokens, self.output_tokens)
+            return Response({"_invalid_output": True}, self.input_tokens, self.output_tokens, self.metadata)
         if tool_mode:
             calls = []
             for call in self.calls.values():
@@ -379,7 +394,7 @@ class Decoder:
                 data = json.loads(self.text)
             except ValueError:
                 data = {"_invalid_output": True}
-        return Response(data, self.input_tokens, self.output_tokens)
+        return Response(data, self.input_tokens, self.output_tokens, self.metadata)
 
     def full_response(self, data):
         if self.kind == "openai":
@@ -535,6 +550,9 @@ class NativeAdapter:
                     await check()
             await pending
             result = decoder.result(bool(tools))
+            if provider.kind == "ollama":
+                result.metadata = verify_ollama_identity(result.metadata, model.identifier)
+                result.metadata["streamed"] = stream
             result.data = clean(scrub_secret(result.data, secret))
             if emit:
                 await emit(

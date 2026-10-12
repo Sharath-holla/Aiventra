@@ -1,5 +1,15 @@
 # Implementation status
 
+## Phase 6.1 local Ollama connection — October 12, 2026
+
+Continuation started at **73706be3db8da3fb5087884cb15078447ff99be3**. The owner authorizes only the existing official Ollama runtime and `qwen3:0.6b`; the complete brief is retained in docs/PHASE61_LOCAL_AI_SPEC.md. SQLite remains active; PostgreSQL compatibility and existing approval gates are preserved. This increment does **not** complete Phase 6.1 live AI acceptance.
+
+Implemented: credential-free Ollama provider registration through API/UI; owner/tenant-scoped read-only local diagnostics; installed size/digest and effective context in the catalog; configurable RAM admission before inference; no-thinking local requests; server-reported identity/completion/timing and throughput in protected requested/selected/attempted/successful receipts. Missing or mismatched server identity cannot establish live verification. Staffing drafts now respect the configured single-worker capacity without relaxing approval validation. Deterministic fixtures remain labeled separately.
+
+Live infrastructure verified: Windows 11, Ryzen 5 5600H (6 cores/12 threads), 7.34 GiB usable RAM, RX 6500M reported 4 GiB VRAM, approximately 322 GiB free disk. Existing Ollama **0.40.3** is responding on **127.0.0.1:11434**, cloud disabled, one parallel request/loaded model, default 2048-token server context and immediate unload. A genuine credential-free provider is saved in the active SQLite registry. No models are installed. No model weights have been downloaded and **zero actual inference requests** have been made in this increment: available RAM was about 1 GiB with Aiventra stopped. The owner brief requires stopping before download under unsafe resource shortage; a request to free memory is pending.
+
+Remaining: free roughly 2 GiB RAM, install only the authorized Qwen model, perform direct bounded CLI/API smoke tests, discovery/registry reconciliation, actual gateway/structured-output tests, the limited shared-model Lead → BA → CTO handoff, six-case live evaluation and restart verification of those real outputs. Keep the global GPT-6.1 Sol preference. No generated PR, client delivery, GPU acceleration or model suitability is claimed. See OLLAMA_LOCAL_INFERENCE_REPORT.md and TEST_REPORT.md for evidence and limitations.
+
 ## Phase 6 readiness and invocation evidence — October 12, 2026
 
 Verified application source **40af17935a98adba7faf0baff707c58e49990a3b** is pushed normally with exact remote SHA equality. [All six CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38168012616): **426 backend / 67 browser checks**, build/types/audits, actual restricted Docker engineering/repair/nonproduction package, PostgreSQL compatibility/transfer/restarts/separate restoration, and deterministic-vector retrieval/ACL across real API restart. TEST_REPORT.md retains local failures, repairs and exact evidence. This follow-up modifies documentation only.

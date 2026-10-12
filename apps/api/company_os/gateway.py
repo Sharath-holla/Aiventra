@@ -507,6 +507,7 @@ async def execute[T: BaseModel](
             session.commit()
             last_trace = time.monotonic()
 
+        transport_metadata = {}
         try:
             if provider.kind != "mock" and (
                 provider.kind == "ollama" or native_tools or "streaming" in model.capabilities
@@ -548,6 +549,7 @@ async def execute[T: BaseModel](
                 )
             )
             run.input_tokens, run.output_tokens = response.input_tokens, response.output_tokens
+            transport_metadata = response.metadata
             actual = token_cost(model, response.input_tokens, response.output_tokens)
             settle(
                 session,
@@ -577,7 +579,7 @@ async def execute[T: BaseModel](
             if provider.kind != "mock" and credential_revision(provider, session) == credential_before:
                 probe = probe_for(session, provider)
                 probe.inference_at, probe.inference_model_id = now(), model.id
-            finish(session, run, accepted=state == "COMPLETED")
+            finish(session, run, accepted=state == "COMPLETED", transport=transport_metadata)
             session.commit()
             session.refresh(agent)
             if project:
@@ -588,7 +590,7 @@ async def execute[T: BaseModel](
             settle(session, run, 0, "zero_cost_policy_blocked_before_inference")
             run.status, run.error = "failed", exc.decision.reason
             transition(session, workflow, agent, "FAILED", step, run.id)
-            finish(session, run)
+            finish(session, run, transport=transport_metadata)
             session.commit()
             wait_context["eligibility"] = [{"model_id": model.id, **exc.decision.public()}]
             raise FreeProviderUnavailable(wait_context) from None
@@ -614,7 +616,7 @@ async def execute[T: BaseModel](
                 run.id,
                 {"error": error},
             )
-            finish(session, run)
+            finish(session, run, transport=transport_metadata)
             session.commit()
             if exc.uncertain:
                 raise
@@ -624,7 +626,7 @@ async def execute[T: BaseModel](
             if trace:
                 trace.state, trace.preview = "invalid_output", ""
             transition(session, workflow, agent, "FAILED", step, run.id, {"error": error})
-            finish(session, run)
+            finish(session, run, transport=transport_metadata)
             session.commit()
         previous.append(run)
     if budget_error and not previous:

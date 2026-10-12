@@ -75,7 +75,9 @@ def add_provider(
         )
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from None
-    if not data.credential_env.endswith("_API_KEY"):
+    if data.kind == "ollama" and data.credential_env:
+        raise HTTPException(422, "Local Ollama must not use a credential reference")
+    if data.kind != "ollama" and not data.credential_env.endswith("_API_KEY"):
         raise HTTPException(422, "Use a dedicated *_API_KEY environment reference")
     provider = m.Provider(id=uid(), org_id=user.org_id, **data.model_dump())
     session.add(provider)

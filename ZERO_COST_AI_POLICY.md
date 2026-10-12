@@ -1,5 +1,7 @@
 # Zero-cost AI policy
 
+Phase 6.1, October 12, 2026: the owner has authorized only the existing official Ollama runtime and `qwen3:0.6b`. Ollama 0.40.3 is now locally reachable, cloud disabled and bound to loopback; a credential-free provider is registered. Model download and inference remain blocked by insufficient available RAM, so installed-model/free-inference eligibility and live model evidence are not claimed. This supersedes historical runtime-absence statements below. Remote paid/unverifiable-free inference remains denied with no fallback. Ollama registration now rejects credential references, matching transport policy; hardware admission does not override installed-manifest, model identity, capabilities, budgets or task authorization.
+
 Milestone 2 database transfer and storage inspection do not invoke AI or modify provider eligibility. Remote generation remains blocked; local Ollama is still absent and no model was downloaded or invoked. All inference/embedding guard and waiting-state tests remain part of the regression suite. MODEL_CONFIGURATION.md's local candidates require explicit installation and real measurement before role assignment. Existing vault ciphertext is transferred unchanged and decrypted only for integrity verification with the private key; keys never enter reports or Git.
 
 Enterprise milestone 1, October 10, 2026. `AI_SPENDING_MODE=ZERO_COST_ONLY` is the only accepted setting. There is no owner, CEO, API, budget or routing override to enable paid inference.

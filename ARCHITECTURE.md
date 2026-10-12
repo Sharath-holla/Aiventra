@@ -1,5 +1,15 @@
 # Aiventra OS architecture
 
+## Phase 6.1 local transport and admission
+
+`local_ai.py` supplies GET-only loopback diagnostics and configurable available-RAM admission. The owner-only `/providers/{id}/local-status` route uses tenant scope and registry visibility, verifies the credential-free local spending policy before contacting the server, and reads bounded `/api/version`, `/api/tags` and `/api/ps` responses. It cannot install, pull or invoke a model. Local providers require an empty credential reference; remote registration still requires a dedicated `*_API_KEY` reference. Discovery retains validated installed metadata and existing idempotent registry synchronization.
+
+The existing structured/native Ollama adapters send `think=false` by default and preserve bounded context, output, timeout, cancellation and immediate-unload controls. Allowlisted response metadata records server model identity, boolean completion, done reason, nanosecond durations and measured generation throughput. A mismatched model is an uncertain failure; absent identity cannot establish live evidence. Protected receipts distinguish requested, selected, attempted and accepted execution model. The readiness/catalog/dashboard read these records; fixture databases never become live evidence.
+
+`OLLAMA_MIN_AVAILABLE_MEMORY_MB` is an optional admission floor (zero disables only this host-memory check, not model/network/cost policy); the active laptop sets **1536**, `OLLAMA_THINKING=false`, keep-alive zero and scheduler concurrency one. Unknown or insufficient available RAM blocks before transport. This is a point-in-time admission check, not a peak-memory guarantee; monitor actual inference and respect container/OS limits. Ollama's separately configured service binds loopback, disables cloud, allows one loaded model/request and defaults to 2048 context. Application context defaults to 8192 because existing conservative gateway accounting includes schemas and output reservations; it may require more than a direct 2048-token smoke test. No validator was weakened. Staffing drafts cap their default concurrency to server capacity; exact approval still rejects over-capacity edits.
+
+Only metadata connectivity has been live-verified in this increment. No installed model, genuine inference, Qwen capability, shared-model handoff or GPU acceleration is claimed. SQLite remains active with retained PostgreSQL models/migrations; no schema change or database cutover is needed.
+
 ## Phase 6 execution evidence
 
 `readiness.py` and its owner-only router expose read-only eligibility and project/draft execution facts from the shared model catalog and persisted workflows. Home, Settings, wizard and project panels consume these endpoints. Readiness never probes inference, installs models or grants authority. Project model-selection history is stored on its existing versioned wizard record; exact approval hashes remain unchanged.

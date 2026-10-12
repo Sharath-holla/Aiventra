@@ -14,6 +14,14 @@ def overview(session, org_id):
     catalog = catalog_view(session, org_id)
     models = catalog["models"]
     eligible = [row for row in models if row["eligibility"]["allowed"]]
+    resource_wait = next(
+        (
+            row["eligibility"]["reason"]
+            for row in models
+            if row["eligibility"]["state"] == "LOCAL_RESOURCES_BLOCKED"
+        ),
+        "",
+    )
     return {
         "checked_at": now(),
         "spending_mode": settings().ai_spending_mode,
@@ -23,10 +31,14 @@ def overview(session, org_id):
         "eligible_models": len(eligible),
         "live_verified_models": len([row for row in models if row["live_inference_at"]]),
         "execution_enabled": settings().execution_enabled,
-        "state": "MODEL_AVAILABLE" if eligible else "WAITING_FOR_ELIGIBLE_MODEL",
+        "state": "MODEL_AVAILABLE"
+        if eligible
+        else "WAITING_FOR_LOCAL_RESOURCES"
+        if resource_wait
+        else "WAITING_FOR_ELIGIBLE_MODEL",
         "message": "An eligible registered model is available; each task still requires authorization."
         if eligible
-        else WAIT_MESSAGE,
+        else resource_wait or WAIT_MESSAGE,
         "setup_message": "Your providers are not connected. Open Settings to securely connect OpenAI, Grok or DeepSeek."
         if not any(row["configured"] for row in catalog["providers"])
         else "A connected provider and successful discovery do not establish free inference eligibility.",

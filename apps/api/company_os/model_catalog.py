@@ -6,6 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import object_session
 
 from . import models as m
+from .config import settings
 from .credentials import credential_facts
 from .db import now
 from .registry_provenance import facts as origin_facts
@@ -98,6 +99,7 @@ def synchronize(session, provider, row, catalog):
             "last_seen_at": stamp,
             "source": "provider_catalog",
             "generation_methods": entry.get("generation_methods", []),
+            "local_metadata": entry.get("local_metadata", {}),
         }
     # Removed identifiers are preserved, but bound total retained evidence.
     if len(items) > 4000:
@@ -202,6 +204,10 @@ def view(session, org_id):
                 "capabilities": model.capabilities,
                 "capability_source": "owner_configured" if model.capabilities else "unknown",
                 "context_tokens": model.context_tokens,
+                "effective_context_tokens": min(model.context_tokens, settings().ollama_context_tokens)
+                if provider.kind == "ollama"
+                else model.context_tokens,
+                "local_metadata": metadata.get("local_metadata", {}),
                 "configured_quality": model.quality,
                 "registration": "discovered" if metadata else "owner_registered",
                 "provenance": origin_facts(session, provider)["source"]
@@ -223,8 +229,6 @@ def view(session, org_id):
                 "supports_structured": True if "structured" in model.capabilities else None,
             }
         )
-    from .config import settings
-
     return {
         "providers": provider_rows,
         "models": model_rows,

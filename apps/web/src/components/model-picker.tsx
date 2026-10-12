@@ -39,13 +39,23 @@ export function ModelPicker({
                     onChange={() => onChange(model.id)}
                   />
                   <span>
-                    <strong>{model.identifier}</strong>
+                    <strong>
+                      {model.identifier === "qwen3:0.6b"
+                        ? "Qwen3 0.6B"
+                        : model.identifier}
+                    </strong>
                     <small>
-                      {model.provider} ·{" "}
+                      {model.provider} · {model.kind === "ollama" && "Local · "}
                       {model.eligibility.allowed
                         ? "Ready to use"
                         : "Unavailable"}
                     </small>
+                    {model.identifier === "qwen3:0.6b" && (
+                      <small>
+                        {model.identifier} · Small-model capability must be
+                        measured; no production QA qualification is implied.
+                      </small>
+                    )}
                     <small>
                       {model.capabilities.join(", ") ||
                         "Capabilities unverified"}{" "}

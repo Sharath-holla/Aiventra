@@ -52,6 +52,9 @@ def begin(session, run, workflow, model, provider, decision, requested, pool, co
             "requested_model_id": requested,
             "worker_pool": pool,
             "actual_model_id": model.id,
+            "selected_model_id": model.id,
+            "attempted_model_id": model.id,
+            "successful_model_id": None,
             "identifier": model.identifier,
             "provider_id": provider.id,
             "provider": provider.name,
@@ -81,19 +84,23 @@ def begin(session, run, workflow, model, provider, decision, requested, pool, co
     return row
 
 
-def finish(session, run, *, accepted=False):
+def finish(session, run, *, accepted=False, transport=None):
     row = session.get(m.BusinessRecord, identity(run))
     if not row or row.org_id != run.org_id or row.kind != KIND:
         raise PermissionError("Invocation receipt is unavailable")
     data = row.data
     model = session.get(m.ModelConfig, run.model_id)
     provider = session.get(m.Provider, model.provider_id)
+    transport = clean(transport or {})
     local_verified = (
         accepted
         and run.status == "succeeded"
         and not data["fixture"]
         and data["mode"] == "live"
         and provider.kind == "ollama"
+        and transport.get("identity_verified") is True
+        and transport.get("completed") is True
+        and transport.get("reported_model") == model.identifier
         and data["eligibility"]["allowed"]
         and data["eligibility"]["state"] == "LOCAL_AVAILABLE"
         and bool(data["eligibility"]["evidence_digest"])
@@ -109,6 +116,15 @@ def finish(session, run, *, accepted=False):
         if local_verified
         else "UNVERIFIED",
         "accepted": accepted,
+        "transport": transport,
+        "successful_model_id": run.model_id
+        if accepted
+        and run.status == "succeeded"
+        and (
+            provider.kind != "ollama"
+            or (transport.get("identity_verified") is True and transport.get("completed") is True)
+        )
+        else None,
         "status": run.status,
         "finished_at": now(),
         "error": clean(run.error),
@@ -150,6 +166,9 @@ def live_results(session, org_id):
             and data.get("eligibility", {}).get("state") == "LOCAL_AVAILABLE"
             and data.get("eligibility", {}).get("allowed")
             and data.get("eligibility", {}).get("evidence_digest")
+            and data.get("transport", {}).get("identity_verified") is True
+            and data.get("transport", {}).get("completed") is True
+            and data.get("transport", {}).get("reported_model") == model.identifier
             and data.get("accepted")
             and not data.get("fixture")
             and data["fingerprint"] == fingerprint(provider, model)
@@ -161,6 +180,14 @@ def live_results(session, org_id):
 
 
 def workflow_view(session, workflow):
+    resource_wait = next(
+        (
+            row.get("reason", "")
+            for row in workflow.wait_context.get("eligibility", [])
+            if row.get("state") == "LOCAL_RESOURCES_BLOCKED"
+        ),
+        "",
+    )
     runs = session.scalars(
         select(m.ModelRun)
         .where(m.ModelRun.org_id == workflow.org_id, m.ModelRun.workflow_id == workflow.id)
@@ -185,7 +212,7 @@ def workflow_view(session, workflow):
         "task_id": workflow.task_id,
         "mode": workflow.mode,
         "waiting": workflow.wait_context,
-        "message": WAIT_MESSAGE
+        "message": resource_wait or WAIT_MESSAGE
         if workflow.status in {"waiting_for_free_provider", "waiting_for_provider"}
         else workflow.last_error,
         "runs": [

@@ -1,5 +1,16 @@
 # Next steps
 
+## Phase 6.1 continuation — local resources first
+
+The current owner authorizes **only Ollama and qwen3:0.6b**. Reuse verified Ollama 0.40.3; cloud is disabled and a genuine local provider is registered. Do not reinstall the runtime or migrate SQLite. Historical statements below that installation is not authorized are superseded by docs/PHASE61_LOCAL_AI_SPEC.md.
+
+1. Recheck available RAM after the owner closes unneeded applications/tabs. About 1 GiB was available even with Aiventra stopped; target roughly 2 GiB before download/initial inference. Do not terminate unrelated processes. The active app rejects inference below 1536 MiB or with unknown RAM.
+2. Check `/api/tags`; reuse `qwen3:0.6b` if present, otherwise use the existing official executable to pull **only that tag**. Record actual size/digest/version. Never substitute another model.
+3. First run one bounded direct CLI and HTTP smoke test (2048 context, at most 128 output tokens, thinking disabled, one request, immediate unload). Measure real resource usage; stop under pressure. No local or paid inference has yet occurred in this increment.
+4. Use the existing discovery/probe/benchmark and durable agent services. Preserve conservative context bounds and schemas. The gateway's current conservative schema/input/output reservation may exceed 2048 tokens; do not bypass it. Increase effective context only after measuring available resources, otherwise report that exact blocker.
+5. Save actual results in SQLite and verify the limited Lead → BA → CTO handoff, clearly attributed to logical agents sharing one model. Preserve the global GPT-6.1 Sol preference and explicit project overrides. Report schema/capability failures; never grant independent QA based on this shared model.
+6. Perform the six modest evaluation cases and real receipt/artifact/preferences restart recovery, then update suitability and verification reports. Publication, coding and release retain separate exact approvals.
+
 ## Phase 6 continuation — October 12, 2026
 
 Application source **40af179** is verified and pushed; [all six CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38168012616), with 426 backend / 67 browser checks and actual restricted Docker nonproduction packaging. Preserve this increment. The application is running locally with its nonproduction Task API requirement durably waiting for an eligible model. Complete the optional owner-tab visual check after manual reload; its cached error page blocked automation after restart, while health and isolated browser checks passed. Follow the bounded live verification plan only after explicit runtime/model authorization or secure configuration of an already eligible local endpoint. No keys are requested.
