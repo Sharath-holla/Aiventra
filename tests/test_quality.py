@@ -618,7 +618,10 @@ def test_plan_rejects_unsafe_missing_and_ambiguous_checks(mutation):
         quality.PlanInput.model_validate(data)
 
 
-@pytest.mark.parametrize("change", ["empty", "skipped", "missing", "identity", "policy", "build", "timeout"])
+@pytest.mark.parametrize(
+    "change",
+    ["empty", "skipped", "missing", "identity", "policy", "build", "timeout", "duplicate", "malformed"],
+)
 def test_tool_failure_and_missing_receipts_never_pass(change):
     request = RunInput(job_id=uuid4(), suite="python-qa-1", files={"fixture.txt": "Fixture only"})
     result = tool_result(request)
@@ -635,9 +638,21 @@ def test_tool_failure_and_missing_receipts_never_pass(change):
     elif change == "build":
         result["build"]["exit_code"] = 1
         result["command"] = SUITES[request.suite][2]
+    elif change == "duplicate":
+        result["logs"] += "\n" + result["logs"]
+    elif change == "malformed":
+        result["logs"] += " extra JSON data"
     else:
         result["exit_code"] = 124
     verdict = quality.test_result(result, 1, plan_body("a" * 64))["verdict"]
     assert verdict != "PASS"
     if change == "build":
         assert verdict == "FAIL"
+
+
+@pytest.mark.parametrize("summary", ["\n\nOK\n", "\nRan 1 test in 0.020s\n\nOK\n"])
+def test_qa_receipt_survives_docker_stdout_stderr_reordering(summary):
+    request = RunInput(job_id=uuid4(), suite="python-qa-1", files={"fixture.txt": "Fixture only"})
+    result = tool_result(request)
+    result["logs"] = "unittest output\n" + result["logs"] + summary
+    assert quality.test_result(result, 1, plan_body("a" * 64))["verdict"] == "PASS"

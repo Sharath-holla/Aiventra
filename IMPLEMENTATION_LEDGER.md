@@ -1,5 +1,9 @@
 # Implementation ledger
 
+## Increment 5 runner stream reconciliation
+
+Real Docker passed legacy delivery and the Phase 7 defect/approved repair/new source/11-test developer rerun. Fresh independent QA exposed stdout/stderr ordering around its JSON receipt. The parser now accepts exactly one complete receipt line and refuses duplicate/malformed evidence; eleven focused receipt checks passed. Production gates remain closed until all fresh rounds and corrected-source CI pass.
+
 ## Increment 5 CI correction
 
 Actual Docker isolation and interrupted QA reconciliation passed. First committed end-to-end CI exposed oversized legacy fixture documents and a sample incompatible with the fixed QA lint profile. Corrected only deterministic handoff/sample fixtures, retained full saved source and production context bounds, added persisted failure diagnostics and reran both local engineering contracts (two passed). TEST_REPORT.md records the failed run and pending corrected-source CI.

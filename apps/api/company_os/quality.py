@@ -401,8 +401,14 @@ def test_result(result, stage, plan):
     cases = [c for c in plan["cases"] if c["stage"] == stage]
     expected = {c["id"] for c in cases}
     try:
-        line = str(result.get("logs", "")).split("AIVENTRA_QA_RESULT=")[-1].strip()
-        receipt = json.loads(line)
+        # Docker multiplexes stdout/stderr; unittest's summary may arrive after
+        # the harness receipt. Accept one complete receipt line, never an
+        # ambiguous duplicate or an arbitrary JSON suffix of combined logs.
+        prefix = "AIVENTRA_QA_RESULT="
+        lines = [line for line in str(result.get("logs", "")).splitlines() if line.startswith(prefix)]
+        if len(lines) != 1:
+            raise ValueError("Exactly one QA receipt is required")
+        receipt = json.loads(lines[0][len(prefix) :])
         observed = {c["id"] for c in receipt["cases"]}
         if receipt["tests"] < len(expected) or not expected.issubset(observed):
             raise ValueError("Missing approved test cases")

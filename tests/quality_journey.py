@@ -91,10 +91,16 @@ def start(http, task_id, body=None):
 async def verify_quality_repair(http, company, project, task, patch_files):
     async def checkpoint():
         advanced = await tick(company["factory"])
+        evidence = http.get(f"/projects/{project['id']}/quality").json()
         with company["factory"]() as session:
             # Include actual persisted tool failures in CI; never silently skip a stage.
             diagnostic = {
-                "quality": http.get(f"/projects/{project['id']}/quality").json(),
+                "blockers": evidence["readiness"]["blockers"],
+                "reports": [
+                    {"stage": row["data"]["body"]["stage"], "verdict": row["status"]}
+                    for row in evidence["reports"]
+                ],
+                "work": evidence["work"],
                 "executions": [
                     {"status": row.status, "logs": row.logs}
                     for row in session.scalars(
