@@ -89,10 +89,25 @@ def start(http, task_id, body=None):
 
 
 async def verify_quality_repair(http, company, project, task, patch_files):
+    async def checkpoint():
+        advanced = await tick(company["factory"])
+        with company["factory"]() as session:
+            # Include actual persisted tool failures in CI; never silently skip a stage.
+            diagnostic = {
+                "quality": http.get(f"/projects/{project['id']}/quality").json(),
+                "executions": [
+                    {"status": row.status, "logs": row.logs}
+                    for row in session.scalars(
+                        select(m.Execution).join(m.Task).where(m.Task.project_id == project["id"])
+                    )
+                ],
+            }
+        assert advanced, diagnostic
+        company["factory"].kw["bind"].dispose()
+
     plan, body = start(http, task["id"])
     for _ in range(2):
-        assert await tick(company["factory"])
-        company["factory"].kw["bind"].dispose()
+        await checkpoint()
     evidence = http.get(f"/projects/{project['id']}/quality").json()
     assert {row["data"]["body"]["stage"]: row["status"] for row in evidence["reports"]} == {
         1: "PASS",
@@ -129,8 +144,7 @@ async def verify_quality_repair(http, company, project, task, patch_files):
         assert repaired.evidence["pull_request"]["head_commit"] != plan["data"]["source"]["commit"]
     fresh, _ = start(http, repair["id"], body)
     for _ in range(3):
-        assert await tick(company["factory"])
-        company["factory"].kw["bind"].dispose()
+        await checkpoint()
     evidence = http.get(f"/projects/{project['id']}/quality").json()
     assert [
         row["status"] for row in sorted(evidence["reports"], key=lambda r: r["data"]["body"]["position"])

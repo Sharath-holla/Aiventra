@@ -1,5 +1,9 @@
 # Implementation ledger
 
+## Increment 5 CI correction
+
+Actual Docker isolation and interrupted QA reconciliation passed. First committed end-to-end CI exposed oversized legacy fixture documents and a sample incompatible with the fixed QA lint profile. Corrected only deterministic handoff/sample fixtures, retained full saved source and production context bounds, added persisted failure diagnostics and reran both local engineering contracts (two passed). TEST_REPORT.md records the failed run and pending corrected-source CI.
+
 ## October 13, 2026 — resumed Increment 5 source
 
 Starting HEAD `62e4ad4` and all existing uncommitted changes were retained. Finished the three-stage QA domain/router, fixed trusted Python runner profiles, source/tool approval manifests, receipt/checkpoint/artifact/model identity validation, persistent structured defects, PM/owner notifications, exact-approved parent-candidate repair branches, fresh unchanged QA re-verification, bounded escalation and immutable release-quality evaluation. Connected the existing Testing UI and final-review/package/release services. No DDL or active database migration.

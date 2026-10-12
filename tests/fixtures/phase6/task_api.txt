@@ -46,9 +46,8 @@ class TaskAPI:
                     title = body["title"]
                     if not isinstance(title, str) or not 1 <= len(title.strip()) <= 200:
                         return 400, {"error": "invalid title"}
-                if "completed" in body:
-                    if not isinstance(body["completed"], bool):
-                        return 400, {"error": "completed must be boolean"}
+                if "completed" in body and not isinstance(body["completed"], bool):
+                    return 400, {"error": "completed must be boolean"}
                 if "title" in body:
                     db.execute(
                         "UPDATE tasks SET title=? WHERE id=?",
@@ -75,7 +74,7 @@ class TaskAPI:
             raw = environ["wsgi.input"].read(length)
             body = json.loads(raw) if raw else {}
             if not isinstance(body, dict):
-                raise ValueError()
+                raise TypeError()
             status, result = self.request(
                 environ["REQUEST_METHOD"], environ["PATH_INFO"], body
             )

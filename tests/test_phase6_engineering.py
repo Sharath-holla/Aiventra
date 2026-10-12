@@ -49,25 +49,29 @@ async def test_controlled_engineering_repair_qa_and_delivery_gate(http, company,
             and schema in {"DocumentResult", "ProjectPlanResult", "PatchResult", "ReviewResult"}
         ):
             assert context["owner_selected_architecture"] == design_binding
-            if schema == "DocumentResult":
-                return Response(
-                    {
-                        "title": context["objective"][:150],
-                        "content": "DETERMINISTIC DOCUMENT FIXTURE; no live analysis.\n\nObjective: "
-                        + context["objective"]
-                        + "\n\nOwner-selected design: "
+        if schema == "DocumentResult":
+            return Response(
+                {
+                    "title": context["objective"][:150],
+                    "content": "DETERMINISTIC DOCUMENT FIXTURE; no live analysis.\n\nObjective: "
+                    + context["objective"]
+                    + (
+                        "\n\nOwner-selected design: "
                         + design_binding["selection"]
                         + "\n\nSaved design manifest: "
                         + design_binding["manifest_hash"]
-                        + "\n\nThe complete design remains in its original versioned artifacts. This short fixture tests handoff binding only.",
-                        "acceptance_checks": [
-                            "Exact selected design binding asserted",
-                            "No deployment or live analysis claimed",
-                        ],
-                    },
-                    0,
-                    0,
-                )
+                        if design_binding
+                        else "\n\nControlled Task API: CRUD, SQLite persistence, input validation and unit tests."
+                    )
+                    + "\n\nComplete inputs remain in their original versioned artifacts. This short fixture tests handoff binding only.",
+                    "acceptance_checks": [
+                        "Saved source handoff checked",
+                        "No deployment or live analysis claimed",
+                    ],
+                },
+                0,
+                0,
+            )
         if schema == "ProjectPlanResult":
             return Response(
                 {

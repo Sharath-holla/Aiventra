@@ -1,5 +1,9 @@
 # Aiventra verification report
 
+## Increment 5 first committed CI and fixture corrections
+
+Source `d81ac1d80291b2fb589340c5706a8c815f78c7f9`, [CI 38300856963](https://github.com/Sharath-holla/Aiventra/actions/runs/38300856963): backend, frontend, secrets and isolated browser passed. Actual dedicated Docker isolation, eight persisted results across broker restart, running QA-container interruption/reconciliation without duplicate dispatch and checkout restart probes passed. The final engineering journey failed **both variants, 8.88s**: legacy fixture documents exceeded the retained 18 KB review bound; Phase 7 halted before its second QA round. Inspection found the sample failed the fixed lint profile (nested conditional, exception type, import grouping). Corrected test source only, preserved the seeded unknown-field bug for independent QA, made legacy handoffs concise like the already bound Phase 7 fixture and added persisted execution diagnostics. Both local affected engineering variants passed **2 tests, 38.25s**, using deterministic runner receipts. Trusted Ruff text lint/format checks passed for all five sample/independent fixtures; candidate code was not executed on the host. Exact corrected-source CI remains required; no Increment 6 work has begun.
+
 ## Increment 5 continuation — October 13, 2026 (CI pending)
 
 Starting HEAD `62e4ad463eacdc7fd5232f262b650cdbf53eb306`. Existing uncommitted source was preserved. Local Docker daemon is unavailable; no local transport fixture is described as actual Docker.
