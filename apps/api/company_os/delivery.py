@@ -221,6 +221,18 @@ def readiness(session, project, mode):
         "deployment_status": "not_verified",
         "delivery_status": "not_released",
     }
+    from . import quality
+
+    if quality.required(session, project):
+        quality_evidence = quality.readiness(session, project)
+        blockers.extend(quality_evidence["blockers"])
+        manifest["quality"] = {
+            "manifest_hash": quality_evidence["manifest_hash"],
+            "candidates": [
+                {"task_id": c["task_id"], "plan_hash": c["plan_hash"], "reports": c["reports"]}
+                for c in quality_evidence["manifest"]["candidates"]
+            ],
+        }
     if len(json.dumps(manifest, ensure_ascii=False)) > 24000:
         blockers.append("Project manifest exceeds the bounded review context; partition before review")
     return {

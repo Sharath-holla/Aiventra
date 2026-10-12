@@ -22,6 +22,23 @@ SUITES = {
         ],
     ),
 }
+for _round in (1, 2, 3):
+    SUITES[f"python-qa-{_round}"] = (
+        "aiventra-quality-python:1",
+        ["python", "-I", "/opt/aiventra/quality_runner.py", "test", str(_round)],
+        ["python", "-I", "/opt/aiventra/quality_runner.py", "build", str(_round)],
+    )
+
+
+def request_digest(data):
+    import hashlib
+    import json
+
+    return hashlib.sha256(
+        json.dumps(data.model_dump(mode="json"), sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+
+
 FORBIDDEN = {
     ".git",
     "node_modules",
@@ -37,7 +54,7 @@ FORBIDDEN = {
 class RunInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
     job_id: UUID
-    suite: Literal["python-unittest", "node-test"]
+    suite: Literal["python-unittest", "node-test", "python-qa-1", "python-qa-2", "python-qa-3"]
     files: dict[str, str] = Field(min_length=1, max_length=500)
     timeout: int = Field(ge=1, le=120, default=120)
 

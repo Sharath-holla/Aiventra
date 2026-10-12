@@ -189,8 +189,15 @@ async def coding_step(session: Session, workflow: Workflow, token: str) -> None:
     repository = session.get(Repository, task.payload["repository_id"])
     agent = session.get(Agent, task.assigned_agent_id)
     workspace = settings().repository_root.resolve() / ".worktrees" / project.id / task.id
-    context = source_context(workspace if workspace.exists() else Path(repository.path), task.objective)
+    baseline_root = Path(repository.path)
+    if task.payload.get("quality_defect_id"):
+        from .quality import repair_baseline
+
+        baseline_root = repair_baseline(session, task, project)
+    context = source_context(workspace if workspace.exists() else baseline_root, task.objective)
     context["acceptance"] = task.acceptance
+    if task.payload.get("quality_defect_id"):
+        context["independent_qa_defect"] = task.payload["quality_feedback"]
     from .architecture_design import selected_context
     from .models import Proposal
 
@@ -210,7 +217,7 @@ async def coding_step(session: Session, workflow: Workflow, token: str) -> None:
         context["repair_evidence"] = task.evidence.get("repair_feedback", {})
     if workflow.step == 0:
         check_agent(session, agent, "propose_patch", project)
-        baseline = worktree(Path(repository.path), workspace, task.id, task.payload.get("baseline_commit"))
+        baseline = worktree(baseline_root, workspace, task.id, task.payload.get("baseline_commit"))
         task.evidence = {"baseline_commit": baseline, "workspace": str(workspace)}
         qa = agent_for(session, workflow.org_id, "QA Director")
         check_agent(session, qa, "run_tests", project)

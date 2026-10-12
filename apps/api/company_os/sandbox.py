@@ -64,10 +64,16 @@ async def cancel_job(job_id: str) -> None:
 async def run_tests(workspace: Path, suite: str, timeout=120, job_id: str | None = None) -> dict:
     if not settings().execution_enabled:
         raise PermissionError("Dedicated Docker execution is disabled")
-    url, headers = connection()
     data = RunInput(job_id=job_id or uid(), suite=suite, files=snapshot(workspace), timeout=timeout)
+    return await run_snapshot(data)
+
+
+async def run_snapshot(data: RunInput) -> dict:
+    if not settings().execution_enabled:
+        raise PermissionError("Dedicated Docker execution is disabled")
+    url, headers = connection()
     async with httpx.AsyncClient(
-        base_url=url, headers=headers, timeout=timeout + 30, trust_env=False, follow_redirects=False
+        base_url=url, headers=headers, timeout=data.timeout + 30, trust_env=False, follow_redirects=False
     ) as client:
         response = await client.post("/run", json=data.model_dump(mode="json"))
         response.raise_for_status()

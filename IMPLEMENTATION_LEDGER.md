@@ -1,5 +1,12 @@
 # Implementation ledger
 
+## October 13, 2026 — resumed Increment 5 source
+
+Starting HEAD `62e4ad4` and all existing uncommitted changes were retained. Finished the three-stage QA domain/router, fixed trusted Python runner profiles, source/tool approval manifests, receipt/checkpoint/artifact/model identity validation, persistent structured defects, PM/owner notifications, exact-approved parent-candidate repair branches, fresh unchanged QA re-verification, bounded escalation and immutable release-quality evaluation. Connected the existing Testing UI and final-review/package/release services. No DDL or active database migration.
+
+Repair verification exposed the owner's repository-HEAD guard: fixed only authorized QA repairs to start from their exact protected parent candidate worktree, keeping the original worktree guard and owner repository untouched. Browser verification exposed the missing accessible QA region label; fixed the panel and asserted actual saved readiness response. Default deterministic review intentionally refuses certification; positive lifecycle review is confined to explicit test fixtures. Tenant tamper fixture initially violated an FK and was corrected by creating its foreign fixture organization; production FK enforcement stayed enabled. Final source/tests/CI evidence follows in TEST_REPORT.md after observation. Increment 6 has not begun.
+
+
 ## October 12, 2026 — verified Phase 7 engineering source and evidence
 
 Started this Phase 7 continuation at clean a52b267/master. Normal pushes delivered requirements 528a3ae, architecture 11ab08a, selected-design engineering/browser helper a534228 and bounded fixture correction **66e4e917c43c65551f107d4199f8e855e9d951ba**, with matching origin/master SHA. [All six corrected-source CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38283388434): backend **511**, browser **73**, frontend/audits/secrets, actual restricted Docker runner and PostgreSQL transfer/restarts/separate restoration. Both legacy and reviewed-design engineering journeys use three real Docker executions and one repair, preserve original source, freeze a nonproduction package and refuse fixture publication/release. Failure history and exact candidate/package receipts remain recorded in TEST_REPORT.md and END_TO_END_ENGINEERING_EVIDENCE.md. This final follow-up updates evidence documentation only.

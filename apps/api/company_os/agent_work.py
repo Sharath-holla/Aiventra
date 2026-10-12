@@ -48,6 +48,10 @@ async def work_step(session: Session, workflow: m.Workflow, token: str):
         from .delivery import review_step
 
         await review_step(session, workflow, token, work, project)
+    elif work.kind == "quality":
+        from .quality import quality_step
+
+        await quality_step(session, workflow, token, work, project)
     elif work.kind == "tools":
         from .tools import tool_step
 

@@ -22,6 +22,8 @@ class Isolation(unittest.TestCase):
             self.assertNotIn(key, os.environ)
         self.assertFalse(pathlib.Path('/var/run/docker.sock').exists())
         self.assertFalse(pathlib.Path('/app/.env').exists())
+        if pathlib.Path('/opt/aiventra/quality_runner.py').exists():
+            with self.assertRaises(OSError): pathlib.Path('/opt/aiventra/quality_runner.py').write_text('tamper')
         status = pathlib.Path('/proc/self/status').read_text()
         self.assertIn('CapEff:\\t0000000000000000', status)
         with self.assertRaises(OSError): pathlib.Path('/etc/forbidden').write_text('x')
@@ -62,6 +64,23 @@ async def verify():
         assert "/input" in policy["mount_destinations"] and set(policy["mount_destinations"]).issubset(
             {"/input", "/tmp", "/workspace"}
         )
+        quality = await run(
+            {
+                "aiventra_qa/__init__.py": "",
+                "aiventra_qa/round_3/__init__.py": "",
+                "aiventra_qa/round_3/test_isolation.py": PROBE,
+            },
+            "python-qa-3",
+        )
+        assert quality["exit_code"] == quality["build"]["exit_code"] == 0, quality
+        assert '"status": "PASS"' in quality["logs"] and "AIVENTRA_QA_RESULT=" in quality["logs"]
+        assert len(quality["request_hash"]) == 64 and quality["policy"]["image_id"]
+        assert {k: v for k, v in quality["policy"].items() if k != "image_id"} == {
+            k: v for k, v in policy.items() if k != "image_id"
+        }
+        quality_broken = await run({"test_broken.py": "def invalid(:\n"}, "python-qa-1")
+        assert quality_broken["build"]["exit_code"] != 0
+        assert quality_broken["command"] == quality_broken["build"]["command"]
         node = await run(
             {
                 "sum.test.js": "const test=require('node:test'),assert=require('node:assert/strict');test('real node regression',()=>assert.equal(2+3,5));"
@@ -126,7 +145,7 @@ async def verify():
 def snapshot():
     ids = json.loads((ROOT / "verification.json").read_text())
     values = [(ROOT / "results" / (job_id + ".json")).read_bytes() for job_id in ids]
-    assert len(values) == 6
+    assert len(values) == 8
     print(
         json.dumps(
             {"runner_results": len(values), "sha256": hashlib.sha256(b"".join(values)).hexdigest()},
@@ -135,5 +154,70 @@ def snapshot():
     )
 
 
+async def interrupted(check=False):
+    """Actual broker interruption; generated slow test executes only in Docker."""
+    from company_os.runner_protocol import RunInput, request_digest
+
+    checkpoint = ROOT / "qa-interrupted-verification.json"
+    if check:
+        saved = json.loads(checkpoint.read_text())
+        data = RunInput.model_validate(saved["request"])
+    else:
+        data = RunInput(
+            job_id=uuid4(),
+            suite="python-qa-3",
+            files={
+                "aiventra_qa/__init__.py": "",
+                "aiventra_qa/round_3/__init__.py": "",
+                "aiventra_qa/round_3/test_wait.py": "import time\nimport unittest\nclass Slow(unittest.TestCase):\n def test_wait(self):\n  time.sleep(90)\n",
+            },
+        )
+    job_id = str(data.job_id)
+    async with (
+        httpx.AsyncClient(base_url=URL, headers=HEADERS, timeout=140, trust_env=False) as client,
+        httpx.AsyncClient(base_url=os.environ["RUNNER_DAEMON_URL"], trust_env=False) as daemon,
+    ):
+        filters = {"all": "true", "filters": json.dumps({"label": [f"aiventra.job={job_id}"]})}
+        if check:
+            value = (await client.get(f"/jobs/{job_id}")).json()
+            assert value["status"] == "interrupted" and value["exit_code"] == 125, value
+            assert value["request_hash"] == request_digest(data)
+            assert (await client.post("/run", json=data.model_dump(mode="json"))).status_code == 409
+            assert (await client.get(f"/jobs/{job_id}")).json() == value
+            containers = await daemon.get("/containers/json", params=filters)
+            assert containers.status_code == 200 and containers.json() == []
+            assert not (ROOT / job_id).exists(), "Interrupted input staging leaked"
+            print(
+                json.dumps(
+                    {"actual_qa_broker_restart": "passed", "job_id": job_id, "duplicate_dispatch": False}
+                )
+            )
+            return
+        pending = asyncio.create_task(client.post("/run", json=data.model_dump(mode="json")))
+        try:
+            for _ in range(100):
+                containers = await daemon.get("/containers/json", params=filters)
+                containers.raise_for_status()
+                if any(
+                    c["State"] == "running" and any(n.endswith("-test") for n in c["Names"])
+                    for c in containers.json()
+                ):
+                    value = (await client.get(f"/jobs/{job_id}")).json()
+                    assert value["status"] == "running" and value["request_hash"] == request_digest(data)
+                    checkpoint.write_text(json.dumps({"request": data.model_dump(mode="json")}))
+                    print(json.dumps({"actual_qa_job_running": job_id}))
+                    return
+                await asyncio.sleep(0.2)
+            raise AssertionError("Actual restricted QA test container did not start")
+        finally:
+            pending.cancel()
+            await asyncio.gather(pending, return_exceptions=True)
+
+
 if __name__ == "__main__":
-    snapshot() if "--snapshot" in sys.argv else asyncio.run(verify())
+    if "--snapshot" in sys.argv:
+        snapshot()
+    elif "--start-interrupted" in sys.argv or "--check-interrupted" in sys.argv:
+        asyncio.run(interrupted(check="--check-interrupted" in sys.argv))
+    else:
+        asyncio.run(verify())

@@ -1,5 +1,18 @@
 # Aiventra verification report
 
+## Increment 5 continuation — October 13, 2026 (CI pending)
+
+Starting HEAD `62e4ad463eacdc7fd5232f262b650cdbf53eb306`. Existing uncommitted source was preserved. Local Docker daemon is unavailable; no local transport fixture is described as actual Docker.
+
+Observed passes: ordinary browser **32, 3.3m**; final isolated browser **nine, 1.7m**; strict TypeScript, production Next.js build, frontend formatting and npm audit (zero vulnerabilities); Python Ruff lint/format (**187 files**), pip-audit (no known vulnerabilities; local project is not a PyPI package), Alembic no-new-upgrade-operations. Actual five-API-process/abrupt-worker/resume recovery retained two reviews, two design documents, three approvals and one project, with zero duplicate runs and valid SQLite/WAL/FKs. Scope hash `7b23b200aa93fd1164304af90000b372f23a95ff8d8eee6cfd1153e7ee33c2c3`.
+
+Focused corrected lifecycle tests **four passed, 117.94s**: exact-approved repair/new candidate/three fresh rounds/closure/reopening, pause/cancel, required model independence and actual worker-process crash recovery. Subsequent actual cross-project/tenant denial and in-flight exact-job cancellation **two passed, 29.23s**. Runner and AI responses in these local tests are explicitly deterministic transports; actual process and SQLite persistence are real. Full backend and final expanded QA provenance suite remain running at this record.
+
+Intermediate failure history retained: QA core **28 passed, 299.45s**; expanded run **15 passed / one failed, 297.96s**, correctly blocked candidate-based repair against the original repository HEAD. Corrected authorized repair lineage/worktree selection; next focused run failed because the default fixture reviewer deliberately refuses approval. Added an explicit positive test reviewer without changing the production default. Isolated browser first ran **eight passed / one failed, 2.0m** due to an unnamed region, then **nine passed, 1.5m** after the accessibility fix. An older in-flight QA run retained the pre-fix tenant fixture and ended **17 passed / one failed, 371.12s** on an FK violation; final scope fixture creates a real foreign tenant and preserves FK checks. Existing Phase 4/5 regressions **33 passed, 125.34s**. Earlier command mistakes naming absent tests collected nothing and are not counted as passes.
+
+SQLite latest preservation probe: **49,699 baseline row identities retained, 49,729 current rows / 57 tables**, integrity OK, zero FK errors. Baseline backup remains private. Managed API/worker readiness and web HTTP 200 verified after restart. Index/history secret scan at the preceding checkpoint: **1,492 blobs, zero findings**; a final staged scan runs before commit. Remote origin/master still equals the starting HEAD. Final source SHA, all six CI jobs, actual Docker QA/repair and PostgreSQL restart/restore evidence will be recorded only after observation.
+
+
 ## Phase 7 current-source verification — October 12, 2026
 
 Implementation source **66e4e917c43c65551f107d4199f8e855e9d951ba** is pushed normally to origin/master with exact remote SHA equality. [CI 38283388434](https://github.com/Sharath-holla/Aiventra/actions/runs/38283388434) completed successfully: **all six jobs passed**. This subsequent evidence follow-up changes documentation only; the application and CI source remain the tested source.

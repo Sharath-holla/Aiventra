@@ -75,6 +75,56 @@ test("saved CTO options and exact owner selection persist in the project", async
     (row: { proposal_id: string }) => row.proposal_id === proposal.id,
   );
   expect(project.selected_alternative).toBe("Separated API and web client");
+  await page
+    .getByRole("button", { name: "Open QA & review stage", exact: true })
+    .click();
+  const quality = page.getByRole("region", {
+    name: "Three-stage quality assurance",
+    exact: true,
+  });
+  await expect(quality).toBeVisible();
+  for (const label of [
+    "Implementation Verification",
+    "Independent Functional QA",
+    "Security & Release Verification",
+  ]) {
+    await expect(
+      quality.getByText(new RegExp(`Round [123] — ${label}`)),
+    ).toBeVisible();
+  }
+  await expect(
+    quality.getByRole("heading", { name: "Release blockers", exact: true }),
+  ).toBeVisible();
+  const frozenResponse = page.waitForResponse(
+    (response) =>
+      response.url().endsWith(`/projects/${project.id}/quality-readiness`) &&
+      response.request().method() === "POST",
+  );
+  await quality
+    .getByRole("button", { name: "Save readiness report", exact: true })
+    .click();
+  const frozen = await frozenResponse;
+  expect(frozen.status()).toBe(201);
+  const savedReadiness = await frozen.json();
+  expect(savedReadiness.data.evaluation.manifest.production_ready).toBe(false);
+  expect(savedReadiness.data.evaluation.ready).toBe(false);
+  expect(savedReadiness.data.artifact_hash).toMatch(/^[a-f0-9]{64}$/);
+  await quality
+    .getByText("Requirement traceability and exact evidence versions", {
+      exact: true,
+    })
+    .click();
+  await expect(quality).toContainText('"production_ready": false');
+  await page.reload();
+  await page
+    .getByRole("button", { name: "Open QA & review stage", exact: true })
+    .click();
+  await expect(
+    page.getByRole("region", {
+      name: "Three-stage quality assurance",
+      exact: true,
+    }),
+  ).toContainText("No engineering candidate has been independently verified");
   await page.reload();
   await page
     .getByRole("button", { name: "Open Requirements stage", exact: true })

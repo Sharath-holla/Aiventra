@@ -1,5 +1,8 @@
 # Aiventra OS architecture
 
+Phase 7 Increment 5 adds company_os.quality and a separate quality_operations router using existing BusinessRecord/Approval/Artifact/Execution/AgentWork/Workflow storage. Three fixed Python QA broker profiles execute distinct owner-approved test overlays, source-bound receipts and independent assessment contexts. Protected defects link exact approved candidate repairs and fresh verification; deterministic readiness binds final-review/package/release authority. The Testing stage reads dedicated persisted evidence and actual worker controls. SQLite/PG schemas are unchanged. See docs/QUALITY_RELEASE_POLICY.md; observed verification is recorded in TEST_REPORT.md.
+
+
 ## Phase 7 architecture decisions
 
 Document, BA/CTO/PM planning, patch and independent-review handoffs include explicit `owner_selected_architecture` with the selected option and scope/manifest hashes. Both legacy and reviewed-design paths are verified through real restricted Docker build/repair/testing and nonproduction packaging; all model outputs remain deterministic fixtures. Complete design artifacts remain persisted separately from test handoff documents. Existing lossless final-review context limits still refuse oversized evidence; they were not relaxed to pass the integration test. END_TO_END_ENGINEERING_EVIDENCE.md records actual candidate/package receipts and the remaining three-stage QA/DevOps boundary.

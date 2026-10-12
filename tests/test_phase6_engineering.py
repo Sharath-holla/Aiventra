@@ -116,6 +116,17 @@ async def test_controlled_engineering_repair_qa_and_delivery_gate(http, company,
                 0,
                 0,
             )
+        if schema == "QualityAssessment":
+            return Response(
+                {
+                    "verdict": "PASS",
+                    "summary": "DETERMINISTIC QA ASSESSMENT; actual tool outcomes remain authoritative.",
+                    "checked_cases": [case["id"] for case in context["cases"]],
+                    "findings": [],
+                },
+                0,
+                0,
+            )
         return original_fixture(schema, context)
 
     monkeypatch.setattr(gateway, "fixture", model_fixture)
@@ -198,7 +209,7 @@ async def test_controlled_engineering_repair_qa_and_delivery_gate(http, company,
     root.mkdir(parents=True)
     (root / "README.md").write_text("NONPRODUCTION controlled Task API fixture\n")
     (root / "test_baseline.py").write_text(
-        "import unittest\nclass Baseline(unittest.TestCase):\n def test_baseline(self): self.assertTrue(True)\n"
+        "import unittest\n\n\nclass Baseline(unittest.TestCase):\n    def test_baseline(self):\n        self.assertTrue(True)\n"
     )
     for args in (
         ["init"],
@@ -254,6 +265,10 @@ async def test_controlled_engineering_repair_qa_and_delivery_gate(http, company,
     assert actual_results[-1]["exit_code"] == actual_results[-1]["build"]["exit_code"] == 0
     if real_runner:
         assert "Ran 10 tests" in actual_results[-1]["logs"]
+    if real_runner and reviewed_scope:
+        from quality_journey import verify_quality_repair
+
+        await verify_quality_repair(http, company, project, task, patch_files)
     evidence = http.get(f"/projects/{project['id']}/delivery-readiness?mode=mock").json()
     package_receipt = {"status": "blocked: actual dedicated Docker QA required"}
     if real_runner:

@@ -225,6 +225,26 @@ def assemble(session, package):
     add("Approved proposal.json", "proposal", canonical(proposal.content))
     add("Verified project evidence.json", "internal_evidence", canonical(source))
     add("Five-role final review.json", "internal_reviews", canonical(review.data["reviews"]))
+    if "quality" in source:
+        from . import quality
+
+        evaluation = quality.readiness(session, project)
+        if not evaluation["ready"] or evaluation["manifest_hash"] != source["quality"]["manifest_hash"]:
+            raise PermissionError("Exact three-stage QA evidence changed before package assembly")
+        add("Three-stage QA readiness.json", "quality_readiness", canonical(evaluation), True)
+        for candidate in evaluation["manifest"]["candidates"]:
+            plan = session.get(m.BusinessRecord, candidate["plan_id"])
+            add(f"Approved QA plan {plan.id}.json", "quality_plan", canonical(plan.data))
+            for ref in candidate["reports"]:
+                report = session.get(m.BusinessRecord, ref["report_id"])
+                artifact = session.get(m.Artifact, report.data["artifact_id"])
+                add(
+                    f"Round {ref['stage']} evidence {report.id}.json",
+                    "quality_report",
+                    artifact.content,
+                    False,
+                    artifact.id,
+                )
     selected = package.input.get("documents", [])
     actual_sources = {row.get("artifact_id") for row in source["sources"] if row.get("artifact_id")}
     for document in selected:

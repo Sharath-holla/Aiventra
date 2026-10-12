@@ -6,7 +6,7 @@ from . import models as m
 from . import packages
 from .config import settings
 from .db import now, uid
-from .security import audit
+from .security import audit, canonical
 
 
 def command_result(session, user, request_id, request_hash):
@@ -87,6 +87,15 @@ def release_readiness(session, package):
     if not package.manifest["recipient_ids"]:
         raise PermissionError("An exact intended recipient scope is required")
     project = session.get(m.Project, package.project_id)
+    from . import quality
+
+    if quality.required(session, project):
+        evidence = quality.readiness(session, project)
+        refs = [row for row in package.manifest.get("files", []) if row.get("purpose") == "quality_readiness"]
+        if not evidence["ready"] or len(refs) != 1:
+            raise PermissionError("Current three-stage QA and immutable package evidence are required")
+        if packages.read_blob(package, refs[0]).decode() != canonical(evidence):
+            raise PermissionError("Package QA evidence is stale")
     budget = session.scalar(
         select(m.Budget).where(m.Budget.org_id == package.org_id, m.Budget.scope == f"project:{project.id}")
     )

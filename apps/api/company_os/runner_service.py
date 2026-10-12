@@ -1,11 +1,13 @@
 """Trusted broker only. Generated code never imports or runs in this process."""
 
 import asyncio
+import io
 import json
 import os
 import secrets
 import shlex
 import shutil
+import tarfile
 import time
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -16,7 +18,7 @@ from fastapi import FastAPI, HTTPException, Request
 from pydantic import ValidationError
 
 from .runner_checkout import CheckoutExecution, CheckoutInput, CheckoutScope
-from .runner_protocol import SUITES, RunInput
+from .runner_protocol import SUITES, RunInput, request_digest
 
 ROOT = Path(os.environ.get("RUNNER_STAGING_ROOT", "/jobs"))
 DAEMON = os.environ.get("RUNNER_DAEMON_URL", "http://runner-daemon:2375")
@@ -52,7 +54,20 @@ def prune():
         if path.stem in active:
             continue
         if index < len(results) - 199 or time.time() - path.stat().st_mtime > 604800:
+            discard_input(path.stem)
             path.unlink()
+
+
+def discard_input(job_id):
+    """Remove only this broker's private UUID staging child, never an arbitrary path."""
+    identity = str(UUID(job_id))
+    source = ROOT / identity
+    if source.is_symlink() or (source.exists() and source.resolve().parent != ROOT.resolve()):
+        raise RuntimeError("Runner staging integrity failed")
+    if source.exists():
+        for path in [source, *[p for p in source.rglob("*") if p.is_dir()]]:
+            path.chmod(0o755)
+        shutil.rmtree(source)
 
 
 @asynccontextmanager
@@ -76,9 +91,11 @@ async def lifespan(_app):
         for path in (ROOT / "results").glob("*.json"):
             value = json.loads(path.read_text())
             if value.get("status") == "running":
+                discard_input(path.stem)
                 record(
                     path.stem,
                     {
+                        **value,
                         "status": "interrupted",
                         "exit_code": 125,
                         "logs": "Broker restarted; execution was stopped. Owner reconciliation required.",
@@ -88,11 +105,35 @@ async def lifespan(_app):
                     },
                 )
         # Only trusted startup can pull these fixed public runtime images.
-        for image in sorted({row[0] for row in SUITES.values()}):
+        for image in sorted({row[0] for row in SUITES.values()} - {"aiventra-quality-python:1"}):
             result = await client.post("/images/create", params={"fromImage": image})
             result.raise_for_status()
             inspect = await client.get(f"/images/{image}/json")
             inspect.raise_for_status()
+        # Fixed, trusted runtime template. Agents cannot supply Dockerfiles, images or packages.
+        context = io.BytesIO()
+        dockerfile = (
+            b"FROM python:3.12-slim\nRUN pip install --no-cache-dir ruff==0.16.10\n"
+            b"COPY quality_runner.py /opt/aiventra/quality_runner.py\n"
+        )
+        with tarfile.open(fileobj=context, mode="w") as archive:
+            for name, body in (
+                ("Dockerfile", dockerfile),
+                ("quality_runner.py", Path(__file__).with_name("quality_runner.py").read_bytes()),
+            ):
+                info = tarfile.TarInfo(name)
+                info.size, info.mode = len(body), 0o444
+                archive.addfile(info, io.BytesIO(body))
+        built = await client.post(
+            "/build",
+            params={"t": "aiventra-quality-python:1", "rm": "true"},
+            content=context.getvalue(),
+            headers={"Content-Type": "application/x-tar"},
+        )
+        built.raise_for_status()
+        if any(json.loads(line).get("error") for line in built.text.splitlines() if line.strip()):
+            raise RuntimeError("Trusted QA runtime image build failed")
+        (await client.get("/images/aiventra-quality-python:1/json")).raise_for_status()
 
     async def expire_checkouts():
         from .runner_checkout import expire_sources
@@ -253,6 +294,7 @@ async def run(request: Request):
 
 async def run_input(data: RunInput):
     job_id = str(data.job_id)
+    request_hash, started_at = request_digest(data), int(time.time())
     try:
         await asyncio.wait_for(gate.acquire(), timeout=1)
     except TimeoutError:
@@ -265,7 +307,7 @@ async def run_input(data: RunInput):
             raise HTTPException(409, "Job ID already used; reconcile its stored result")
         active[job_id] = {"container": None, "cancelled": False}
         owned = True
-        record(job_id, {"status": "running", "job_id": job_id})
+        record(job_id, {"status": "running", "job_id": job_id, "request_hash": request_hash})
         source.mkdir(parents=True, exist_ok=False)
         for name, content in data.files.items():
             path = source.joinpath(*name.split("/"))
@@ -294,6 +336,9 @@ async def run_input(data: RunInput):
             "build": build,
             "status": "completed",
             "job_id": job_id,
+            "request_hash": request_hash,
+            "started_at": started_at,
+            "ended_at": int(time.time()),
             "environment": SUITES[data.suite][0]
             + "; dedicated Docker; no network; nonroot; read-only root; capped tmpfs/CPU/memory/PIDs",
         }
@@ -305,6 +350,9 @@ async def run_input(data: RunInput):
         value = {
             "status": "interrupted",
             "job_id": job_id,
+            "request_hash": request_hash,
+            "started_at": started_at,
+            "ended_at": int(time.time()),
             "exit_code": 125,
             "logs": "Runner interrupted; inspect stored execution before retry",
             "command": [],
@@ -315,9 +363,7 @@ async def run_input(data: RunInput):
     finally:
         # Only this fixed UUID child of the private staging root is ever removed.
         if owned and source.exists():
-            for path in [source, *[p for p in source.rglob("*") if p.is_dir()]]:
-                path.chmod(0o755)
-            shutil.rmtree(source)
+            discard_input(job_id)
         if owned:
             active.pop(job_id, None)
         gate.release()

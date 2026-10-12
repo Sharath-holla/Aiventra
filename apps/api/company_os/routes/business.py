@@ -87,6 +87,7 @@ def update_record(
             "provider_catalog",
             "registry_provenance",
             "invocation_receipt",
+            "quality_",
         )
     ):
         raise HTTPException(409, "Publication and final-review records use their dedicated workflow controls")

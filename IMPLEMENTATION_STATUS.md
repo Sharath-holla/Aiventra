@@ -1,14 +1,21 @@
 # Implementation status
 
+## October 13, 2026 â€” Phase 7 Increment 5, verification in progress
+
+Resumed the existing unfinished working tree at `62e4ad463eacdc7fd5232f262b650cdbf53eb306`; no reset or rebuild. Implemented distinct owner-approved implementation/functional/security QA profiles, durable source-pinned tool and assessment reports, protected structured defects, PM notifications, exactly approved candidate-based repairs, unchanged fresh three-round verification, bounded escalation, requirement traceability and immutable release-quality readiness. The existing Testing stage exposes real plans, jobs, controls, reports, defects, repair history and blockers. Existing final review, package and release services consume current QA evidence; separate release approvals and fixture release/publication refusal remain enforced. See docs/QUALITY_RELEASE_POLICY.md.
+
+Observed local checks include 32 ordinary and nine isolated browser tests, strict TypeScript/build/formatting, Python lint/format, dependency audits, Alembic no-drift, actual five-process API/worker recovery, exact-job QA worker-crash recovery and SQLite record preservation. The full local backend run passed 548 tests (1211.62s); final runner protocol/cleanup regressions passed 15 tests, including two added cases. Actual Docker and PostgreSQL verification still require the exact-source CI run. Increment 5 is not declared complete before all six jobs pass. No live AI, generated PR publication, production deployment or completed client delivery is claimed. SQLite remains active and ZERO_COST_ONLY remains mandatory; no model installation/download or paid call occurred.
+
+
 ## Phase 7 verified requirements, design and engineering integration
 
 Current application source **66e4e917c43c65551f107d4199f8e855e9d951ba** is pushed normally to master; [all six exact-source CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38283388434). Full backend **511 passed**, browser **73 passed** (32 SQLite, 32 PostgreSQL, nine isolated), types/build/audits/secrets and actual restricted Docker isolation/recovery plus **both** Task API journeys passed. Each actual engineering journey has three executions, one repair and an immutable fixture_nonproduction package; live publication/release remain refused. PostgreSQL transfer, service/package recovery, database restart and separate restore passed with matching table digests. TEST_REPORT.md retains the actual failures and fixes. This evidence follow-up changes documentation only.
 
-Phase 7 increments 1–4 are implemented and integrated: source audit, collaborative requirements/versioned sign-off, CTO design alternatives/artifacts/exact owner selection, existing dynamic staffing and approved restricted engineering using that actual selected design. All AI output in verification is explicitly deterministic. Existing model choice/routing, memory, durable messages/checkpoints, cancellation/recovery, immutable delivery/client access/acceptance/closure controls are retained. No real AI generation, generated PR, deployment or completed client delivery occurred.
+Phase 7 increments 1â€“4 are implemented and integrated: source audit, collaborative requirements/versioned sign-off, CTO design alternatives/artifacts/exact owner selection, existing dynamic staffing and approved restricted engineering using that actual selected design. All AI output in verification is explicitly deterministic. Existing model choice/routing, memory, durable messages/checkpoints, cancellation/recovery, immutable delivery/client access/acceptance/closure controls are retained. No real AI generation, generated PR, deployment or completed client delivery occurred.
 
 Still unfinished: three genuinely distinct source-bound QA stages, structured pre-release defects/traceability, complete deterministic release quality policy and restricted DevOps target/plan/staging/production/health/reconciliation/rollback integration. Follow NEXT_STEPS.md increment 5 before DevOps. SQLite is active; all 49,699 baseline row identities and PostgreSQL-compatible structures remain. Local API/worker/web are ready, 4,397 audit events validate, Ollama has no models and RAM remains below inference guard. Models can be configured later; no provider keys are requested and ZERO_COST_ONLY remains mandatory.
 
-## Phase 7 increment 4 — approved design through engineering
+## Phase 7 increment 4 â€” approved design through engineering
 
 Follow-up source a534228 passed frontend, secrets, backend and isolated-browser CI. Actual Docker verification exposed oversized generic fixture documents in the new Phase 7 path: coding/repair/tests passed, final review correctly refused excess context. The test adapter now emits concise explicitly deterministic documents bound to the saved design; production limits and full architecture artifacts are retained. The existing oversized-evidence rejection test is strengthened. Corrected-source evidence follows in TEST_REPORT.md; the failed run is retained rather than described as a completed journey.
 
@@ -16,7 +23,7 @@ Architecture source **11ab08a3b7baf93a4e539586b02604b6faa2827f** is pushed norma
 
 Extended the existing harmless Task API engineering contract with a Phase 7 requirements/sign-off/CTO-design/non-recommended-selection path, preserving the legacy case. Document handoffs now include the exact selected design, matching planning/coding/review context. Both local variants passed with clearly labeled deterministic adapters; no sample code executes on the host. CI uses actual restricted Docker for these same variants. Existing workforce/repository approvals, failed-build repair bound, independent review, candidate integrity and fixture publication/release prohibitions remain enforced. Three-stage QA and DevOps are still unfinished.
 
-## Phase 7 increment 3 — architecture decisions, October 12, 2026
+## Phase 7 increment 3 â€” architecture decisions, October 12, 2026
 
 The preceding requirements increment is pushed at **528a3aeda9f4bac42c5a60f940bd54a42299c2de**. [All six exact-source CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38275680733): 487 backend tests, ordinary SQLite/PostgreSQL browser regressions, eight isolated browser contracts, restricted Docker execution/recovery and PostgreSQL restart/restore. These results certify that source, not later changes.
 
@@ -28,7 +35,7 @@ Current local verification: 32 ordinary and nine isolated browser checks passed;
 
 Full local backend suite passed **507 tests**, collected before three final hardening cases; final complete architecture file **23 passed**. History/staged secret scan checked 1,438 blobs with zero findings. No current observed test failure remains; exact final-source CI is verified after publication rather than inferred from earlier runs.
 
-## Phase 7 increment 2 — collaborative requirements, October 12, 2026
+## Phase 7 increment 2 â€” collaborative requirements, October 12, 2026
 
 Continued actual clean master HEAD a52b267. The full owner brief is preserved in docs/PHASE7_PRODUCTION_SDLC_SPEC.md; PRODUCTION_SDLC_WORKFLOW.md maps existing code to unfinished dependency-ordered work. Implemented requirements refinement on the current wizard/workflow/database: strict Lead/BA critiques, explicit improvement decisions/clarifications, bounded scope versions, source/document hashes, owner-authored exact requirements sign-off, pre-architecture pause, current authority rechecks, approved requirements artifacts/memory and bound downstream proposals. Connected the existing draft, requirement and workspace UI without new top-level navigation. SQLite and existing records, legacy approvals, PostgreSQL compatibility, ZERO_COST_ONLY and Phase 4/5 controls remain.
 
@@ -36,7 +43,7 @@ Initial 38 focused backend/wizard tests passed; strict frontend types passed. Ac
 
 Final local checks: 45 affected backend/wizard, 32 complete ordinary browser and eight isolated delivery/critique browser passed; earlier full backend 480 passed before final hardening cases. Build/types/format/lint/dependency audits and Alembic no-drift passed. All 49,679 original rows remain with SQLite integrity/FKs valid. Exact-source publication/CI follows after verification; source and fixture/live categories are kept separate in TEST_REPORT.md.
 
-## Phase 6.1 local Ollama connection — October 12, 2026
+## Phase 6.1 local Ollama connection â€” October 12, 2026
 
 Verified application source **ed065c839c1aae56d496a0a1ab187bb995d676c6** is pushed normally. [All six CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38241398273): **458 backend / 69 browser checks**, production build/types/audits, actual restricted Docker fixture execution/recovery and PostgreSQL compatibility/transfer/restart/restore. The documentation follow-up preserves that tested source. Earlier failed runs and repairs remain in TEST_REPORT.md. This is a completed connection/security increment; real Qwen execution acceptance is still resource-blocked.
 
@@ -48,9 +55,9 @@ Live infrastructure verified: Windows 11, Ryzen 5 5600H (6 cores/12 threads), 7.
 
 Actual managed API/worker/web restart reused the same provider ID and preserved the GPT-6.1 Sol preference/selection history. All **49,679 original rows** remain, SQLite integrity/FKs pass and **4,395 audit events** validate. The earlier Phase 6 test draft is now **needs_attention: Provider wait exceeded workflow deadline**, with zero runs; its deadline was not reset. The old waiting-state helper correctly failed its outdated expectation, so current scoped evidence was inspected separately. API readiness passes and Next.js reports ready on port 3000. Actual owner-tab inspection is blocked by browser URL policy on its cached connection-error page; manual reload is pending, separate from passing private browser checks.
 
-Remaining: free roughly 2 GiB RAM, install only the authorized Qwen model, perform direct bounded CLI/API smoke tests, discovery/registry reconciliation, actual gateway/structured-output tests, the limited shared-model Lead → BA → CTO handoff, six-case live evaluation and restart verification of those real outputs. Keep the global GPT-6.1 Sol preference. No generated PR, client delivery, GPU acceleration or model suitability is claimed. See OLLAMA_LOCAL_INFERENCE_REPORT.md and TEST_REPORT.md for evidence and limitations.
+Remaining: free roughly 2 GiB RAM, install only the authorized Qwen model, perform direct bounded CLI/API smoke tests, discovery/registry reconciliation, actual gateway/structured-output tests, the limited shared-model Lead â†’ BA â†’ CTO handoff, six-case live evaluation and restart verification of those real outputs. Keep the global GPT-6.1 Sol preference. No generated PR, client delivery, GPU acceleration or model suitability is claimed. See OLLAMA_LOCAL_INFERENCE_REPORT.md and TEST_REPORT.md for evidence and limitations.
 
-## Phase 6 readiness and invocation evidence — October 12, 2026
+## Phase 6 readiness and invocation evidence â€” October 12, 2026
 
 Verified application source **40af17935a98adba7faf0baff707c58e49990a3b** is pushed normally with exact remote SHA equality. [All six CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38168012616): **426 backend / 67 browser checks**, build/types/audits, actual restricted Docker engineering/repair/nonproduction package, PostgreSQL compatibility/transfer/restarts/separate restoration, and deterministic-vector retrieval/ACL across real API restart. TEST_REPORT.md retains local failures, repairs and exact evidence. This follow-up modifies documentation only.
 
@@ -64,7 +71,7 @@ The controlled Task API test exercises persisted intake, analysis/planning fixtu
 
 SQLite remains active; PostgreSQL/pgvector compatibility is retained without DDL changes. Verified pre-activation backup: 49,640 rows / 57 tables, integrity OK and zero FK violations. Baseline 418 backend tests and 30 updated ordinary browser checks passed. Final regression, restart, publication and exact-source CI evidence follow in TEST_REPORT.md after observation.
 
-## Model selector isolation — October 11, 2026
+## Model selector isolation â€” October 11, 2026
 
 Model selector isolation repair: traced actual owner-database browser contamination; backed up SQLite and non-destructively quarantined 115 providers / 53 models with audit-backed provenance. All 49,399 original rows remain preserved. Normal selectors and execution exclude fixtures; browser suites now use private databases/accounts/vaults and server-side guards. Grouped searchable Lead/worker pickers, honest GPT-6.1 Sol preference, non-inference refresh and secure provider navigation are implemented. Positive catalogs remain deterministic fixtures. Source **53c4f8ae4b2ae7519e1bd41316ff8e2f3aa1faf2** is pushed normally with matching remote SHA; exact-source CI evidence is recorded in TEST_REPORT.md.
 
@@ -73,7 +80,7 @@ The active normal catalog has zero genuine provider/model choices; retained hist
 [All six final-source CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38161867121): **418 backend / 65 browser checks**, production build/types/audits, actual Docker isolation and broker recovery, PostgreSQL compatibility/transfer/service restart/database restart/separate restore. Earlier mobile, throttle and bounded-history test failures were repaired and retained in TEST_REPORT.md. This documentation-only evidence follow-up changes no tested source.
 
 
-## Connected model discovery and selection — October 11, 2026
+## Connected model discovery and selection â€” October 11, 2026
 
 Source **ce1a64789b64a9df30ae936b732dafb1ae2f4536** is pushed normally with matching remote SHA. [All six CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38107578728): final-source **405 backend / 35 browser checks**, actual restricted Docker execution/restart, PostgreSQL compatibility/transfer/restart/restore and catalog/preference service recovery. The previous chat lock-order and browser throttle failures are repaired and covered by this green complete run. TEST_REPORT.md preserves failed attempts and exact evidence; the documentation-only follow-up changes no tested source.
 
@@ -85,7 +92,7 @@ Actual credential inspection found zero saved vault records and no genuine confi
 
 Local verification: complete backend suite 404 passed; final fresh-catalog guard set 134 passed; 28 ordinary and seven isolated browser journeys passed. Build/types/format/lint, dependency audits, no-drift and actual SQLite/process restart checks passed. Exact published-source CI is recorded after observation; no provider fixture counts as a live account connection.
 
-## Restricted checkout, PDF and history — October 11, 2026
+## Restricted checkout, PDF and history â€” October 11, 2026
 
 Source fcc147e is pushed with matching remote SHA. Local complete suite passed 377 backend, 28 ordinary browser and five isolated delivery checks. First-source CI passed five jobs including actual Docker checkout build/test/restart, but PostgreSQL integration found a chat cancellation/admission lock inversion. Send/cancel now use organization-first locking with fresh state; controlled contention coverage runs in SQLite and the disposable PostgreSQL probe. Corrected focused set passed 19. Repair-source CI remains pending until observed; no PostgreSQL recovery success is claimed for the failed run.
 
@@ -97,7 +104,7 @@ Implemented recent/older project/task audit and chat turn pages, signed scoped c
 
 SQLite remains authoritative at d45f80a6ce12; WAL/busy_timeout/serialized writes and PostgreSQL/pgvector compatibility are preserved without DDL or reset. ZERO_COST_ONLY remains mandatory. No model install/download, paid inference, live AI, generated PR, deployment or real client delivery occurred. Verification/publication evidence is recorded in TEST_REPORT.md after observation. This is the requested bounded increment; do not start another major feature without owner approval.
 
-## Task-specific workforce and read-only imports — October 10–11, 2026
+## Task-specific workforce and read-only imports â€” October 10â€“11, 2026
 
 Source **0b3df92** is pushed normally to origin/master with exact remote SHA equality. [All six CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38076888005): 343 backend / 25 ordinary browser / four isolated delivery checks, frontend/security checks, actual restricted Docker isolation/recovery and PostgreSQL transfer/restart/separate restore. Local final regression passed 343 backend / 25 ordinary / four isolated delivery checks; saved SQLite draft/workforce hashes matched across actual service restart. TEST_REPORT.md records exact timings, digests and the unchanged successful reruns after one load-related browser timeout. This completes the task-routing/DOCX/read-only-import increment, not full engineering readiness or live AI delivery. The evidence-only follow-up changes no tested application source.
 
@@ -111,7 +118,7 @@ Read-only GitHub import reuses the allowlisted authenticated connector, discover
 
 SQLite remains active at d45f80a6ce12, with WAL/busy_timeout 30000 and serialized writes. No schema migration, database reset, installation/download or paid invocation occurs. Final regression, restart and exact-source CI evidence is recorded in TEST_REPORT.md after execution. Remaining work is listed in NEXT_STEPS.md.
 
-## Simple UI + Lead AI continuation — October 10, 2026
+## Simple UI + Lead AI continuation â€” October 10, 2026
 
 Application source **eeb0e6d7976dd508c349372aea39a336aee5fe74** is pushed normally to origin/master with exact remote SHA equality. [All six CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38068123116): 316 backend tests, 23 real Compose browser journeys, four isolated delivery contracts, frontend/security audits, actual restricted Docker isolation/recovery and PostgreSQL/pgvector compatibility/restart/separate restore. Three wizard drafts and one attachment retained matching hashes across actual CI service restart. This completes the simple project-creation and constrained Lead-routing increment, not full adaptive workstream allocation or live AI delivery. A documentation-only evidence follow-up changes no tested application source.
 
@@ -123,7 +130,7 @@ No schema migration: existing BusinessRecord/Artifact/Requirement/Workflow persi
 
 Local final verification: 316 backend tests, all 23 ordinary browser journeys, four isolated delivery contracts and the final QA-stage project journey passed. Strict types/format/build, Python/production npm audits, lint/schema/SQLite integrity checks passed. Nine drafts and three attachments retained identical hashes through actual managed service restart. Publication/CI is recorded after execution; live AI and production readiness remain unclaimed.
 
-## Current Phase 5 continuation — October 10, 2026
+## Current Phase 5 continuation â€” October 10, 2026
 
 Application source **2e9ba4372cb440b298137b29b36527a380e4c883** is pushed normally to origin/master and [all six CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38062389394): 300 backend tests, 19 Compose browser checks, four isolated delivery browser contracts, frontend build/audits, actual restricted Docker isolation/recovery and 56-table PostgreSQL transfer/restart/restore. Partial package validation survived actual service restart and resumed to freeze without release. Current phase: Phase 5 application delivery gates implemented and fixture/infrastructure verified; live end-to-end delivery and production operational readiness remain pending. The workstation app is running with active SQLite and ZERO_COST_ONLY.
 
@@ -137,7 +144,7 @@ Client acceptance, rejection, changes, defects and support are append-only state
 
 Remaining live work: authorized local-model setup and measured quality, genuine isolated coding/QA/final review, scoped GitHub publication authorization, a genuine owner-approved release/client acceptance and authorized deployment. Binary build export, production identity, encrypted offsite recovery and operational/load verification remain incomplete. No provider key is requested. Older sections below are dated implementation history, not current missing-feature lists.
 
-## Phase 5 increment A — immutable package preparation
+## Phase 5 increment A â€” immutable package preparation
 
 Application source **203127b30d67bdf4369e209870b335843b52f866** is pushed normally and [all five CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38056412779): 269 backend checks, 19 Compose browser journeys, actual frozen-package recovery, 53-table PostgreSQL transfer/restart/restore and restricted runner execution/recovery. Model downloads stayed skipped. Continue with separate owner release and scoped client access; increment A does not complete Phase 5.
 
@@ -149,21 +156,21 @@ Isolated package/migration/security/recovery checks: 25 passed. Development SQLi
 
 Observed post-change verification: full 268 backend tests, final 12 package checks, all 19 browser journeys, dependency audits/lint/typecheck/build and actual frozen-package service restart digest passed. The final test-only exact-version race correction and pushed-source CI are tracked in TEST_REPORT.md. Live coding/PR receipt handling is contract-tested only; no live AI or client release is claimed.
 
-## Latest increment — Phase 5 persisted final-review foundation
+## Latest increment â€” Phase 5 persisted final-review foundation
 
 Published application source **f601d3352c24e9ad654428f634181754228d7229**, normal origin/master push, [all five CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38050159682): 257 backend tests, 18 actual Compose browser journeys, real final-review service recovery, all-table PostgreSQL restart/restore equality and actual restricted Docker runner checks. Model-weight download/verification stayed intentionally skipped. This completes the final-review **engineering increment** with explicit fixture evidence, not live AI or client delivery.
 
 Connector source **3db86172fa57c28662c9085fdacc0637b294773b** was pushed normally and passed [all five CI jobs](https://github.com/Sharath-holla/Aiventra/actions/runs/38047943880): 244 backend tests, 16 actual Compose browser journeys, PostgreSQL transfer/rollback/service restart/database restart/separate restore, frontend/security checks and real restricted Docker execution/recovery. Normal CI deliberately skipped embedding-weight downloads. No generated PR was published and no live AI was invoked.
 
-Phase 5 now connects approved project/workforce/task evidence to an owner-requested CTO → QA Director → Security Architect → Project Manager → CFO final review. Readiness checks current exact approvals, completed tasks, document integrity and author checkpoints, real engineering candidate evidence for live review, expected workforce tasks, budget and bounded complete review context. Repeated document paragraphs are referenced losslessly; oversized context blocks review instead of silently truncating evidence. Every stage saves an artifact, model-run reference, checkpoint, audit and hash-bound handoff. Source changes before or during inference invalidate the result. Existing scoped memory, authorization, zero-cost gateway, budgets and worker leases remain authoritative.
+Phase 5 now connects approved project/workforce/task evidence to an owner-requested CTO â†’ QA Director â†’ Security Architect â†’ Project Manager â†’ CFO final review. Readiness checks current exact approvals, completed tasks, document integrity and author checkpoints, real engineering candidate evidence for live review, expected workforce tasks, budget and bounded complete review context. Repeated document paragraphs are referenced losslessly; oversized context blocks review instead of silently truncating evidence. Every stage saves an artifact, model-run reference, checkpoint, audit and hash-bound handoff. Source changes before or during inference invalidate the result. Existing scoped memory, authorization, zero-cost gateway, budgets and worker leases remain authoritative.
 
-Project → Delivery reads backend readiness, queues an exact-source review and shows saved statuses/results/errors; pause, resume and cancellation preserve checkpoints. Duplicate request IDs are idempotent and a second active chain is refused. Cancelling a stale review allows a fresh review against current evidence. Fixtures end only at `fixture_reviewed`; a successful live chain would end at `awaiting_delivery_approval`. Neither releases delivery, deploys, publishes a PR or records client acceptance. TEST_REPORT.md records observed checks.
+Project â†’ Delivery reads backend readiness, queues an exact-source review and shows saved statuses/results/errors; pause, resume and cancellation preserve checkpoints. Duplicate request IDs are idempotent and a second active chain is refused. Cancelling a stale review allows a fresh review against current evidence. Fixtures end only at `fixture_reviewed`; a successful live chain would end at `awaiting_delivery_approval`. Neither releases delivery, deploys, publishes a PR or records client acceptance. TEST_REPORT.md records observed checks.
 
 Current phase: **Phase 5 final-review foundation**, not completed client-to-delivery automation. Remaining: immutable delivery package, separate exact owner release approval, tenant-scoped client acceptance/change/defect/support workflows and actual live verification. SQLite remains active with existing data; PostgreSQL-compatible schema/migrations/pgvector/transfer/CI remain preserved. No new schema migration, provider credentials, paid inference, Ollama installation or model download was required.
 
 Local verification: full backend **257 passed**, final cross-connection/security follow-up **13 passed**, complete actual-service browser **18 passed**, production build/typecheck/format/lint/schema checks passed. Saved final-review checksum matched through actual API/worker/web restart. Initial context/criterion/browser-selector failures were repaired and are documented in TEST_REPORT.md. Source publication/CI evidence follows there after execution.
 
-## Current increment — exact-approved GitHub PR connector
+## Current increment â€” exact-approved GitHub PR connector
 
 Starting source `817f03c`. Implemented an owner-only scoped GitHub connector, immutable publication manifests, exact base/tree/commit checks, separate expiring owner approval and draft publication, persisted leases/reconciliation, duplicate prevention, stored CI/review feedback and two bounded separately approved repair scopes. Project Engineering now exposes actual connector configuration, candidate selection, manifest approval, publication/recovery and feedback controls. Raw Git object reads preserve UTF-8/newline bytes. No schema migration or active database cutover; SQLite and ZERO_COST_ONLY remain mandatory.
 
@@ -173,29 +180,29 @@ Local evidence: saved full backend run **244 passed**; corrected full browser ru
 
 Previous local-runtime/planning source `817f03cde762d1e705434b918fd09a1b5cd434b8` passed [all five CI jobs](https://github.com/Sharath-holla/Aiventra/actions/runs/38023771771), including 223 backend tests, 15 browser journeys, PostgreSQL/pgvector transfer/restart/restore and actual restricted-runner execution/recovery. This evidence applies to that source; the connector increment requires its own verification below.
 
-## Current milestone 3 — local execution and saved planning
+## Current milestone 3 â€” local execution and saved planning
 
 Starting source `7ab79cb`, clean tree. Hardware was rechecked: Ryzen 5 5600H, 6 cores/12 threads, 7.34 GiB RAM with 1.01 GiB free, RX 6500M reporting approximately 4 GiB VRAM, C: 338.01 GiB free. Ollama executable/service/standard paths and loopback endpoint were unavailable. No runtime/model was installed or downloaded; no actual model benchmark result is claimed.
 
-Implemented this increment: local native transport hardening for idle cancellation, finite local read/overall limits, context/output/residency bounds, installed-model tool capability checks, stop-reason validation and honest traces; durable single local inference admission across workers with no-cost/no-attempt backoff; explicit SQLite busy timeout; owner-created BA → CTO → PM checkpointed document workflow, persisted hash-bound handoffs, automatic scoped memory retrieval and a validated new unapproved workforce revision; connected planning/handoff/approval-navigation UI. No database schema or active backend migration is required.
+Implemented this increment: local native transport hardening for idle cancellation, finite local read/overall limits, context/output/residency bounds, installed-model tool capability checks, stop-reason validation and honest traces; durable single local inference admission across workers with no-cost/no-attempt backoff; explicit SQLite busy timeout; owner-created BA â†’ CTO â†’ PM checkpointed document workflow, persisted hash-bound handoffs, automatic scoped memory retrieval and a validated new unapproved workforce revision; connected planning/handoff/approval-navigation UI. No database schema or active backend migration is required.
 
 These are engineering and fixture-verification results. Real local quality, actual benchmarks saved from a model, real planning outputs and GPU compatibility remain pending authorized Ollama/model setup and sufficient free memory. GitHub generated draft publication/CI/review connector and complete client delivery remain next functional increments. Existing restricted runner and PostgreSQL compatibility are preserved, with CI evidence reported by exact run rather than assumed locally.
 
-## Current owner decision — SQLite active, PostgreSQL compatibility retained
+## Current owner decision â€” SQLite active, PostgreSQL compatibility retained
 
 Use the existing SQLite database for the running application. PostgreSQL cutover is deferred by owner choice, rather than a blocker awaiting credentials. The local backend fence and example configuration select SQLite; all normalized tables, PostgreSQL migrations/pgvector definitions, transfer/recovery tools and optional compatibility infrastructure are retained. Continue local-model, orchestration, approved PR publication and delivery work on SQLite. Historical PostgreSQL verification below remains valid CI evidence, not authorization to migrate the owner's records.
 
-## Current enterprise milestone 2 — PostgreSQL transfer and recovery
+## Current enterprise milestone 2 â€” PostgreSQL transfer and recovery
 
-Published source **`af5b85c13cc05ceaa350318628236452b02ad860`** passed [all five CI jobs](https://github.com/Sharath-holla/Aiventra/actions/runs/38018391046). CI verified 208 backend checks, 14 Compose browser journeys, actual SQLite → pgvector PostgreSQL transfer and failure rollback, plus all 52 table digests through a real database restart and separate pg_dump restore. Semantic retrieval and restricted runner isolation/recovery passed. Local verification passed 208 backend/14 browser checks, format/type/build and source backup validation. This completes the database transition **engineering increment**, not the entire Milestone 2 roadmap or the workstation cutover.
+Published source **`af5b85c13cc05ceaa350318628236452b02ad860`** passed [all five CI jobs](https://github.com/Sharath-holla/Aiventra/actions/runs/38018391046). CI verified 208 backend checks, 14 Compose browser journeys, actual SQLite â†’ pgvector PostgreSQL transfer and failure rollback, plus all 52 table digests through a real database restart and separate pg_dump restore. Semantic retrieval and restricted runner isolation/recovery passed. Local verification passed 208 backend/14 browser checks, format/type/build and source backup validation. This completes the database transition **engineering increment**, not the entire Milestone 2 roadmap or the workstation cutover.
 
-Continuation began from clean master `9826b0e`. The new request is preserved in docs/ENTERPRISE_MILESTONE_2_SPEC.md. Implemented a real offline SQLite → PostgreSQL transfer domain/CLI, retained integrity-checked backups, schema/key/version validation, dependency-safe row copying, all-table hashes/counts, float32 vector equality, audit/vault validation, occupied-destination refusal and transactional DDL/data rollback. Explicit configuration remains the only cutover; a required-backend startup fence protects API/worker against accidental SQLite fallback. The connected Settings inspector reports actual schema/pgvector/HNSW facts through owner authorization. Existing Phase 1–3, runner, data and strict zero-cost controls are preserved.
+Continuation began from clean master `9826b0e`. The new request is preserved in docs/ENTERPRISE_MILESTONE_2_SPEC.md. Implemented a real offline SQLite â†’ PostgreSQL transfer domain/CLI, retained integrity-checked backups, schema/key/version validation, dependency-safe row copying, all-table hashes/counts, float32 vector equality, audit/vault validation, occupied-destination refusal and transactional DDL/data rollback. Explicit configuration remains the only cutover; a required-backend startup fence protects API/worker against accidental SQLite fallback. The connected Settings inspector reports actual schema/pgvector/HNSW facts through owner authorization. Existing Phase 1â€“3, runner, data and strict zero-cost controls are preserved.
 
 Local: the actual database snapshot preserved 52 tables/14,257 rows at capture and passed integrity/FK/schema/audit checks. PostgreSQL 18 is reachable but rejects inspection without an authorized password reference (`fe_sendauth: no password supplied`); no local migration/cutover or pgvector success is claimed. Docker/Ollama are absent. Hardware/model installation guidance is in MODEL_CONFIGURATION.md; no local LLM was downloaded/executed and no paid inference occurred. PostgreSQL transfer/recovery evidence is recorded above and in TEST_REPORT.md.
 
 Current phase: milestone 2 database transition foundation; milestone 2 as a whole is incomplete. Remaining: authorized local PostgreSQL cutover, installed-model benchmarks and real saved BA/CTO/PM execution, exact-approved authenticated generated PR publication, coding-agent live quality and Phase 5 delivery. No production readiness or live-model success is claimed.
 
-## Current enterprise milestone — strict ZERO_COST_ONLY
+## Current enterprise milestone â€” strict ZERO_COST_ONLY
 
 Published application source: **0e8797d1e255af68bb80d9db868eb818151c7719**. [All five GitHub Actions jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/37983863735): backend, frontend, secrets, PostgreSQL/pgvector integration and dedicated restricted Docker runner. CI reran 197 Linux backend checks and 13 actual Compose browser journeys. The integration restart comparison preserved one saved zero-cost workflow, plus existing memory/conversation/staffing digests; local service restart comparison preserved five saved workflows. No live LLM or remote-free entitlement is claimed.
 
@@ -209,7 +216,7 @@ Phase 3 memory/staffing and the prior Phase 4 runner increment are preserved. Th
 See IMPLEMENTATION_LEDGER.md, ZERO_COST_AI_POLICY.md, PROVIDER_ELIGIBILITY.md and docs/ENTERPRISE_AUDIT.md. TEST_REPORT.md records current verification; local verification passed 197 full backend checks, 33 policy checks, all 13 browser journeys, type/format/build and restart comparison. Published source and CI evidence are recorded above. Earlier sections below are historical evidence, not current provider eligibility claims.
 
 
-## Current verified status — Phase 3 complete; Phase 4 runner increment
+## Current verified status â€” Phase 3 complete; Phase 4 runner increment
 
 The current published application source is **c6dd90ed08b243af4553bc949cb4422cbec976ea**. [All five GitHub Actions jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/37974429455): backend, frontend, secrets, PostgreSQL/pgvector integration and dedicated Docker runner isolation. The integration job verified real local embeddings/vector search and durable state across restarts. The runner job executed harmless sample-repository tests/builds in the dedicated restricted Docker daemon and checked containment, cancellation, output bounds, cleanup and result recovery after broker restart.
 
@@ -219,7 +226,7 @@ The current Phase 4 source increment adds runner-job cancellation on lease loss,
 
 Phase 4 still needs live provider-backed coding/review after the owner connects credentials, and a narrowly scoped GitHub pull-request publication adapter before PR publication can be claimed. No AI API key, live model run, PR publication, production readiness, cloud deployment or local Docker execution is claimed. Historical status sections below describe earlier source states.
 
-## Phase 3 — semantic-memory increment, October 9, 2026
+## Phase 3 â€” semantic-memory increment, October 9, 2026
 
 Latest instructions: [PHASE3_MEMORY_WORKFORCE_SPEC.md](docs/PHASE3_MEMORY_WORKFORCE_SPEC.md). Actual starting HEAD was clean local master 1670e83; all 129 existing backend tests were rerun successfully in 72.05 seconds. Provider credentials are deferred by the owner; they do not block this work.
 
@@ -231,9 +238,9 @@ Phase 3 is not complete: dynamic staffing and expanded scheduling/orchestration 
 
 ## Previous native execution increment
 
-Updated October 9, 2026. The latest request is [LIVE_EXECUTION_SPEC.md](docs/LIVE_EXECUTION_SPEC.md), extending the preserved Phases 2–5 specification.
+Updated October 9, 2026. The latest request is [LIVE_EXECUTION_SPEC.md](docs/LIVE_EXECUTION_SPEC.md), extending the preserved Phases 2â€“5 specification.
 
-**Current increment: Milestone A native execution and model measurement. Phase 2 remains partial; Phases 3–5 are incomplete.**
+**Current increment: Milestone A native execution and model measurement. Phase 2 remains partial; Phases 3â€“5 are incomplete.**
 
 - Native OpenAI Responses, Anthropic Messages, Gemini, xAI, Ollama and compatible streaming parsers, plus complete-response native tools. Transport, output, arguments, rounds, time and usage are bounded. Interrupted/unknown usage remains reserved for owner reconciliation; known usage survives malformed/incomplete output.
 - Closed calculator/project memory/artifact/document/handoff tools with strict argument validation, role/tenant/project/approval checks, per-round deduplication and durable results. One selected peer document task shares the job cap and produces an actual stored artifact. Parent cancellation also fences pending peer tasks/workflows.
@@ -251,9 +258,9 @@ Next: bounded live provider/account checks and broader benchmark/recovery/role c
 ## Previous provider/workforce foundation
 
 
-Updated October 9, 2026. The authoritative request is [Phases 2–5](docs/PHASES_2_5_SPEC.md). Earlier roadmap phase numbers are historical. The audit began on clean `master` at `ae10711`; the previous tested application source was `4de41f5`.
+Updated October 9, 2026. The authoritative request is [Phases 2â€“5](docs/PHASES_2_5_SPEC.md). Earlier roadmap phase numbers are historical. The audit began on clean `master` at `ae10711`; the previous tested application source was `4de41f5`.
 
-**Previous increment: Milestone A — Phase 2 workforce/provider foundation. Phase 2 is partially implemented; Phases 3–5 are not complete.** This increment adds real backend and UI functionality without certifying live AI or production deployment.
+**Previous increment: Milestone A â€” Phase 2 workforce/provider foundation. Phase 2 is partially implemented; Phases 3â€“5 are not complete.** This increment adds real backend and UI functionality without certifying live AI or production deployment.
 
 Previous published application source: **c28582ee6aa3ac9ba936c149a428feeaf01a1d60**. [All four GitHub Actions jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/37829944013), including 98 Linux backend tests, nine real Compose/PostgreSQL browser tests and an actual container restart/integrity comparison. Local agent-work restart evidence and exact limits are recorded in TEST_REPORT.md.
 
@@ -266,7 +273,7 @@ Previous published application source: **c28582ee6aa3ac9ba936c149a428feeaf01a1d6
 - Task-specific owner evaluations tied to successful real-provider run records, evaluator identity and notes. Their averages and recorded latency inform routing. This is not an automatic benchmark certification.
 - Persisted agent invocation states, validated transitions and ordered event history. RUNNING requires an actual durable call marker; expired/revoked work is shown as blocked. Runtime totals are actual SQL aggregates. Registered roles remain on-demand, with fixture/live mode explicit.
 - Owner-directed, scoped durable agent messages with UUID request deduplication, artifact boundary checks, correlation IDs and a two-hop reply bound. A recipient model produces a saved artifact before acknowledgement and a recorded response. Response messages do not recursively start more inference.
-- General project meetings with 2–8 selected agents, 1–2 rounds and a bounded CEO synthesis. First-round participants receive the same saved project evidence without earlier verdicts; round two can inspect round one. Decisions persist and optional document follow-ups share the original job cap. Model output cannot create coding or deployment authority.
+- General project meetings with 2â€“8 selected agents, 1â€“2 rounds and a bounded CEO synthesis. First-round participants receive the same saved project evidence without earlier verdicts; round two can inspect round one. Decisions persist and optional document follow-ups share the original job cap. Model output cannot create coding or deployment authority.
 - Fenced cancellation for agent work. Late provider usage remains charged/recorded; cancelled output cannot publish an artifact or acknowledgement. Company/project/employee permissions are rechecked around inference.
 - Connected provider key/discovery/default/restriction/probe controls, employee runtime/history/preferences, message/meeting forms, job results/cancellation and human evaluations. Retry of the same unresolved form submission retains its request ID.
 - Additive migration `b02442d39feb`, retaining existing data and 13 monetary BIGINT columns. A private pre-migration SQLite backup was created. Dashboard redaction now reuses one secret snapshot per value tree, and runtime statistics avoid loading full model outputs.
@@ -281,11 +288,11 @@ Native streaming/complete-response adapters, a scoped tool registry and versione
 
 | Milestone | Actual state |
 |---|---|
-| A — Phase 2 | Vault/catalog/routing/runtime/messages/meetings plus native execution and microbenchmarks implemented; latest verification is recorded above and in TEST_REPORT.md. Remote verification is recorded in TEST_REPORT.md. Live verification, broader model evaluation and distributed recovery/load coverage pending |
-| B — Phase 3 memory | Scoped keyword memory and saved conversation/artifact history exist; semantic embeddings/indexing, layered memory, version/provenance/retention still missing |
-| C — Phase 3 workforce | Registered roles and fixed approved planning tasks exist; requirements-based team plans, staffing approval and distributed scheduling still missing |
-| D — Phase 4 coding | Approved Git worktrees, actual patch/diff workflow and restricted runner implementation exist; Docker runner evidence, bounded repair, commits/PR/merge lifecycle and broader QA incomplete |
-| E — Phase 5 delivery | Real intake, consultation, proposal and exact approval exist; complete engineering/final review/delivery/client acceptance incomplete |
-| F–H | Dark/light shell and several connected screens exist. Full UX integration, production certification and publication of later milestones remain pending |
+| A â€” Phase 2 | Vault/catalog/routing/runtime/messages/meetings plus native execution and microbenchmarks implemented; latest verification is recorded above and in TEST_REPORT.md. Remote verification is recorded in TEST_REPORT.md. Live verification, broader model evaluation and distributed recovery/load coverage pending |
+| B â€” Phase 3 memory | Scoped keyword memory and saved conversation/artifact history exist; semantic embeddings/indexing, layered memory, version/provenance/retention still missing |
+| C â€” Phase 3 workforce | Registered roles and fixed approved planning tasks exist; requirements-based team plans, staffing approval and distributed scheduling still missing |
+| D â€” Phase 4 coding | Approved Git worktrees, actual patch/diff workflow and restricted runner implementation exist; Docker runner evidence, bounded repair, commits/PR/merge lifecycle and broader QA incomplete |
+| E â€” Phase 5 delivery | Real intake, consultation, proposal and exact approval exist; complete engineering/final review/delivery/client acceptance incomplete |
+| Fâ€“H | Dark/light shell and several connected screens exist. Full UX integration, production certification and publication of later milestones remain pending |
 
 [Gap analysis](docs/PHASES_2_5_GAP_ANALYSIS.md) preserves the audit classification before this increment. Historical evidence remains in TEST_REPORT.md and Git history. No crypto repository, live cross-model collaboration, completed client software delivery or staging deployment is claimed.

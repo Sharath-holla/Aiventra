@@ -31,6 +31,12 @@ jobs:
           docker compose -f compose.yaml -f compose.runner.yaml exec -T runner python - --snapshot < scripts/verify_runner_isolation.py > /tmp/runner-after.json
           cmp /tmp/runner-before.json /tmp/runner-after.json
           cat /tmp/runner-after.json
+      - name: Reconcile an actual interrupted QA container without duplicate execution
+        run: |
+          docker compose -f compose.yaml -f compose.runner.yaml exec -T runner python - --start-interrupted < scripts/verify_runner_isolation.py
+          docker compose -f compose.yaml -f compose.runner.yaml restart --timeout 1 runner
+          docker compose -f compose.yaml -f compose.runner.yaml up -d --wait --wait-timeout 120 runner
+          docker compose -f compose.yaml -f compose.runner.yaml exec -T runner python - --check-interrupted < scripts/verify_runner_isolation.py
       - name: Verify checkout fixtures with actual Docker execution and broker restart
         run: |
           docker compose -f compose.yaml -f compose.runner.yaml exec -T runner python - < scripts/verify_checkout_isolation.py

@@ -21,5 +21,5 @@ def tenant_rows(session: Session, model, user: m.User, limit=500):
     if model is m.BusinessRecord:
         # Operational receipts have a scoped evidence endpoint; do not crowd
         # approvals, drafts and business records out of the bounded dashboard.
-        statement = statement.where(model.kind != "invocation_receipt")
+        statement = statement.where(model.kind != "invocation_receipt", ~model.kind.like("quality_%"))
     return session.scalars(statement.order_by(model.created_at.desc(), model.id.desc()).limit(limit)).all()

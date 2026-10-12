@@ -1,5 +1,14 @@
 # Next steps
 
+## Current continuation — Increment 5 verification
+
+Finish the expanded backend/QA regression runs, commit the verified source and push normally, then verify all six exact-source CI jobs including actual Docker QA/repair and PostgreSQL compatibility/restart/restore. Preserve SQLite, all baseline records, exact approvals and ZERO_COST_ONLY. Do not declare completion or begin Increment 6 before this evidence is observed.
+
+After verified Increment 5, the next milestone is **Phase 7 Increment 6: DevOps staging and production deployment controls**. Implement target/plan manifests, separate exact staging/production owner approvals, restricted configured adapters, saved health/status receipts, interrupted-request reconciliation, rollback and incident controls. No actual production deployment, generated PR publication, paid infrastructure or model download is authorized by this source milestone. Eligible local AI and optional embedding-quality verification remain blocked on separately authorized resources/weights; do not substitute fixtures for live verification. Independent QA currently supports Python unittest; other runtimes fail closed and need a future reviewed profile.
+
+### Historical backlog (superseded by the current continuation above)
+
+
 ## Phase 7 increment 5 — three distinct quality stages
 
 Preserve the collaborative requirements and versioned CTO architecture increments described in REQUIREMENTS_REFINEMENT.md and ARCHITECTURE_DESIGN.md. Their exact approvals flow into current workforce/planning/engineering authority. Tested source 66e4e91 also passes both legacy and Phase 7 approved-design engineering paths in actual restricted Docker; all model output stays deterministic. END_TO_END_ENGINEERING_EVIDENCE.md records candidate/package receipts; TEST_REPORT.md records exact-source checks and CI conclusions. Do not repeat completed requirements/design/planning work.

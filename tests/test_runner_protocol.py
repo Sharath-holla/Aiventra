@@ -1,3 +1,5 @@
+import os
+import time
 from pathlib import Path
 from uuid import uuid4
 
@@ -64,3 +66,37 @@ def test_snapshot_omits_secrets_rejects_binary_links_and_secret_content(company,
     (root / "safe.py").write_text("test-snapshot-redaction-private-value")
     with pytest.raises(PermissionError, match="Potential secret"):
         snapshot(root)
+
+
+def test_interrupted_input_cleanup_is_scoped_to_private_uuid(tmp_path, monkeypatch):
+    from company_os import runner_service
+
+    monkeypatch.setattr(runner_service, "ROOT", tmp_path)
+    identity = str(uuid4())
+    source = tmp_path / identity
+    source.mkdir()
+    (source / "fixture.txt").write_text("Non-executable input fixture")
+    sibling = tmp_path / "keep.txt"
+    sibling.write_text("Unrelated broker evidence")
+    with pytest.raises(ValueError):
+        runner_service.discard_input("../keep.txt")
+    runner_service.discard_input(identity)
+    runner_service.discard_input(identity)  # Recovery is idempotent.
+    assert not source.exists() and sibling.read_text() == "Unrelated broker evidence"
+
+
+def test_expired_runner_receipts_prune_orphan_inputs_without_removing_recent_jobs(tmp_path, monkeypatch):
+    from company_os import runner_service
+
+    monkeypatch.setattr(runner_service, "ROOT", tmp_path)
+    results = tmp_path / "results"
+    results.mkdir()
+    stale, recent = str(uuid4()), str(uuid4())
+    for identity in (stale, recent):
+        (tmp_path / identity).mkdir()
+        (results / (identity + ".json")).write_text("{}")
+    expired = time.time() - 604801
+    os.utime(results / (stale + ".json"), (expired, expired))
+    runner_service.prune()
+    assert not (results / (stale + ".json")).exists() and not (tmp_path / stale).exists()
+    assert (results / (recent + ".json")).exists() and (tmp_path / recent).exists()

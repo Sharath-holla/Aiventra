@@ -20,6 +20,7 @@ import { ProjectHistory } from "./project-history";
 import { ExecutionEvidence } from "./ai-readiness";
 import { RequirementsReview } from "./requirements-review";
 import { ArchitectureEvidence } from "./consulting";
+import { QualityControls } from "./quality-controls";
 
 export function Projects({
   engineering,
@@ -224,6 +225,13 @@ export function Projects({
       )}
       {tab === "planning" && (
         <Staffing key={project.id} initialId={project.id} />
+      )}
+      {tab === "qa" && (
+        <QualityControls
+          key={`quality:${project.id}`}
+          projectId={project.id}
+          tasks={tasks}
+        />
       )}
       {tab === "qa" && (
         <Panel

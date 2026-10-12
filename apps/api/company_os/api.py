@@ -24,6 +24,7 @@ from .routes import (
     project_setup_operations,
     provider_operations,
     publication_operations,
+    quality_operations,
     readiness_operations,
     refinement_operations,
     release_operations,
@@ -73,5 +74,6 @@ for router in (
     checkout_operations.router,
     readiness_operations.router,
     refinement_operations.router,
+    quality_operations.router,
 ):
     app.include_router(router)
