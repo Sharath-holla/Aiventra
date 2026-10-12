@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { readFileSync } from "node:fs";
+import { loginAccount } from "../tests/support/login";
 
 test("deterministic critiques require explicit decisions, revision and exact owner sign-off", async ({
   page,
@@ -8,17 +9,14 @@ test("deterministic critiques require explicit decisions, revision and exact own
     readFileSync("../../data/phase5-browser-state.json", "utf8"),
   );
   const request = page.context().request;
-  expect(
-    (
-      await request.post("/api/auth/login", {
-        headers: { Origin: "http://localhost:3001" },
-        data: {
-          email: "phase5-owner@fixture.test",
-          password: "phase5-fixture-owner-password",
-        },
-      })
-    ).status(),
-  ).toBe(200);
+  await loginAccount(
+    request,
+    {
+      email: "phase5-owner@fixture.test",
+      password: "phase5-fixture-owner-password",
+    },
+    "http://localhost:3001",
+  );
   const id = fixture.requirements_review_draft_id;
   await page.goto(`/?view=new-project&draft=${id}`);
   await expect(

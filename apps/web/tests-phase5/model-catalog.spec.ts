@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { readFileSync } from "node:fs";
+import { loginAccount } from "../tests/support/login";
 
 test("fixture vault catalogs feed Settings and saved blocked Lead and worker preferences", async ({
   page,
@@ -9,17 +10,14 @@ test("fixture vault catalogs feed Settings and saved blocked Lead and worker pre
   );
   const request = page.context().request;
   const headers = { Origin: "http://localhost:3001" };
-  expect(
-    (
-      await request.post("/api/auth/login", {
-        headers,
-        data: {
-          email: "phase5-owner@fixture.test",
-          password: "phase5-fixture-owner-password",
-        },
-      })
-    ).status(),
-  ).toBe(200);
+  await loginAccount(
+    request,
+    {
+      email: "phase5-owner@fixture.test",
+      password: "phase5-fixture-owner-password",
+    },
+    "http://localhost:3001",
+  );
   await page.goto("/?view=settings");
   await page
     .getByRole("button", { name: "Models & Providers", exact: true })
@@ -218,17 +216,14 @@ test("registered blocked model saves as a project default and an exact task pref
   );
   const request = page.context().request;
   const headers = { Origin: "http://localhost:3001" };
-  expect(
-    (
-      await request.post("/api/auth/login", {
-        headers,
-        data: {
-          email: "phase5-owner@fixture.test",
-          password: "phase5-fixture-owner-password",
-        },
-      })
-    ).status(),
-  ).toBe(200);
+  await loginAccount(
+    request,
+    {
+      email: "phase5-owner@fixture.test",
+      password: "phase5-fixture-owner-password",
+    },
+    "http://localhost:3001",
+  );
   expect(
     (
       await request.post(

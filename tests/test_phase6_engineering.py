@@ -24,7 +24,8 @@ from test_packages import package_input
 from test_staffing import approve
 
 
-async def test_controlled_engineering_repair_qa_and_delivery_gate(http, company, monkeypatch):
+@pytest.mark.parametrize("reviewed_scope", [False, True], ids=["legacy", "phase7"])
+async def test_controlled_engineering_repair_qa_and_delivery_gate(http, company, monkeypatch, reviewed_scope):
     config = settings()
     real_runner = os.environ.get("PHASE6_REAL_RUNNER") == "true"
     if real_runner:
@@ -38,9 +39,16 @@ async def test_controlled_engineering_repair_qa_and_delivery_gate(http, company,
     ]
     original_fixture = gateway.fixture
     patch_count = 0
+    design_binding = None
 
     def model_fixture(schema, context):
         nonlocal patch_count
+        if (
+            reviewed_scope
+            and design_binding
+            and schema in {"DocumentResult", "ProjectPlanResult", "PatchResult", "ReviewResult"}
+        ):
+            assert context["owner_selected_architecture"] == design_binding
         if schema == "ProjectPlanResult":
             return Response(
                 {
@@ -119,17 +127,37 @@ async def test_controlled_engineering_repair_qa_and_delivery_gate(http, company,
         return value
 
     monkeypatch.setattr("company_os.engineering.run_tests", runner)
-    requirement = http.post(
-        "/requirements",
-        json={
-            "client_id": company["client"].id,
-            "title": "NONPRODUCTION controlled Task API",
-            "text": "Build a small task-management API with persistent tasks, CRUD validation and automated tests. This is an explicit deterministic integration fixture.",
-            "mode": "mock",
-        },
-    )
-    assert requirement.status_code == 201
-    project, plan = await draft_project(http, company, requirement.json())
+    if reviewed_scope:
+        from company_os.architecture_design import selected_context
+        from test_architecture_design import proposed
+
+        _row, proposal_id, body = await proposed(http, company)
+        with company["factory"]() as session:
+            manifest = session.get(m.Proposal, proposal_id).content["architecture_manifest"]
+            body["selection"] = manifest["design"]["options"][1]["name"]
+        response = http.post(f"/proposals/{proposal_id}/approve", json=body)
+        assert response.status_code == 200, response.text
+        project = response.json()
+        with company["factory"]() as session:
+            design_binding = selected_context(
+                session.get(m.Proposal, proposal_id), session.get(m.Project, project["id"])
+            )
+            for task in session.scalars(select(m.Task).where(m.Task.project_id == project["id"])):
+                task.status = "paused"
+            session.commit()
+        plan = http.get(f"/projects/{project['id']}/staffing").json()
+    else:
+        requirement = http.post(
+            "/requirements",
+            json={
+                "client_id": company["client"].id,
+                "title": "NONPRODUCTION controlled Task API",
+                "text": "Build a small task-management API with persistent tasks, CRUD validation and automated tests. This is an explicit deterministic integration fixture.",
+                "mode": "mock",
+            },
+        )
+        assert requirement.status_code == 201
+        project, plan = await draft_project(http, company, requirement.json())
     planning = start_planning(http, project, plan)
     assert planning.status_code == 201
     for _ in range(3):
@@ -256,6 +284,7 @@ async def test_controlled_engineering_repair_qa_and_delivery_gate(http, company,
         json.dumps(
             {
                 "classification": "FIXTURE_TESTED",
+                "phase7_reviewed_scope": reviewed_scope,
                 "runner": "actual restricted Docker" if real_runner else "DETERMINISTIC_RUNNER_FIXTURE",
                 "executions": len(actual_results),
                 "bounded_repairs": 1,

@@ -344,6 +344,8 @@ async def document_step(session: Session, workflow: Workflow, token: str) -> Non
     agent = session.get(Agent, task.assigned_agent_id)
     check_agent(session, agent, "write_artifact", project)
     proposal = session.get(Proposal, project.proposal_id)
+    from .architecture_design import selected_context
+
     result = await execute(
         session,
         workflow,
@@ -354,6 +356,7 @@ async def document_step(session: Session, workflow: Workflow, token: str) -> Non
             "objective": task.objective,
             "acceptance": task.acceptance,
             "project": proposal.content,
+            "owner_selected_architecture": selected_context(proposal, project),
             "project_memory": [
                 {**row, "excerpt": str(row.get("excerpt", ""))[:1000]}
                 for row in retrieve(session, project.org_id, project.id)[:2]

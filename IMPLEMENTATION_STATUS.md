@@ -1,5 +1,11 @@
 # Implementation status
 
+## Phase 7 increment 4 — approved design through engineering
+
+Architecture source **11ab08a3b7baf93a4e539586b02604b6faa2827f** is pushed normally. Its CI frontend, secrets and actual Docker runner passed; isolated browser had eight passes/one failure from a real login 429 in the faster suite. Bounded test-helper waiting repairs that timing issue without changing authentication limits or accepting failure. Final corrected-source CI is recorded in TEST_REPORT.md after observation.
+
+Extended the existing harmless Task API engineering contract with a Phase 7 requirements/sign-off/CTO-design/non-recommended-selection path, preserving the legacy case. Document handoffs now include the exact selected design, matching planning/coding/review context. Both local variants passed with clearly labeled deterministic adapters; no sample code executes on the host. CI uses actual restricted Docker for these same variants. Existing workforce/repository approvals, failed-build repair bound, independent review, candidate integrity and fixture publication/release prohibitions remain enforced. Three-stage QA and DevOps are still unfinished.
+
 ## Phase 7 increment 3 — architecture decisions, October 12, 2026
 
 The preceding requirements increment is pushed at **528a3aeda9f4bac42c5a60f940bd54a42299c2de**. [All six exact-source CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38275680733): 487 backend tests, ordinary SQLite/PostgreSQL browser regressions, eight isolated browser contracts, restricted Docker execution/recovery and PostgreSQL restart/restore. These results certify that source, not later changes.

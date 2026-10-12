@@ -1,5 +1,11 @@
 # Implementation ledger
 
+## October 12, 2026 — Phase 7 approved engineering integration
+
+Normal architecture push **11ab08a** matched origin/master. Extended the retained controlled Task API test with a reviewed Phase 7 variant and verified the actual owner-selected design in document, BA/CTO/PM planning, patch and review handoffs. Fixed the missing explicit document-task binding using the existing worker. Both local engineering variants passed (37.21s); runner outcomes there are deterministic contracts, not local Docker claims. CI replaces only runner transport with actual dedicated Docker and checks prepared nonproduction packaging and fixture release/publication refusal.
+
+Architecture-source CI exposed a faster-suite login throttle: eight isolated browser checks passed, final critique login returned 429. Shared test-account login now waits within a bounded window for real expiry and always requires 200. Production authentication and all application assertions remain intact. Updated source/browser/security/CI evidence follows in TEST_REPORT.md; distinct three-round QA and DevOps remain the next dependency.
+
 ## October 12, 2026 — Phase 7 architecture increment
 
 Continued requirements source **528a3ae**, whose six CI jobs passed with 487 backend and 72 browser checks. Extended CTO consultation rather than rebuilding planning: strict alternatives/full proposed design sections, canonical option artifacts, scope/version/run/checkpoint bindings and preserved architecture history. Lead publication uses saved options and deterministic incomplete cost comparison. Existing proposal selection atomically creates a separate architecture approval, project and scoped selected-design memory; planning/coding receive the selected design. Current proposal/workspace views display saved details and hashes.

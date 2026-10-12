@@ -6,6 +6,7 @@ import {
 } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
+import { loginAccount } from "../tests/support/login";
 
 type Fixture = {
   packages: Record<
@@ -26,9 +27,9 @@ const fixture = () =>
   ) as Fixture;
 const origin = { Origin: "http://localhost:3001" };
 async function login(request: APIRequestContext, role: "owner" | "client") {
-  const response = await request.post("/api/auth/login", {
-    headers: origin,
-    data: {
+  await loginAccount(
+    request,
+    {
       email:
         role === "owner"
           ? "phase5-owner@fixture.test"
@@ -38,8 +39,8 @@ async function login(request: APIRequestContext, role: "owner" | "client") {
           ? "phase5-fixture-owner-password"
           : "private-fixture-client-password",
     },
-  });
-  expect(response.ok()).toBeTruthy();
+    origin.Origin,
+  );
 }
 async function ownerProject(page: Page, name: string) {
   await login(page.request, "owner");

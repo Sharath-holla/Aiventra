@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { readFileSync } from "node:fs";
+import { loginAccount } from "../tests/support/login";
 
 test("saved CTO options and exact owner selection persist in the project", async ({
   page,
@@ -8,17 +9,14 @@ test("saved CTO options and exact owner selection persist in the project", async
     readFileSync("../../data/phase5-browser-state.json", "utf8"),
   );
   const request = page.context().request;
-  expect(
-    (
-      await request.post("/api/auth/login", {
-        headers: { Origin: "http://localhost:3001" },
-        data: {
-          email: "phase5-owner@fixture.test",
-          password: "phase5-fixture-owner-password",
-        },
-      })
-    ).status(),
-  ).toBe(200);
+  await loginAccount(
+    request,
+    {
+      email: "phase5-owner@fixture.test",
+      password: "phase5-fixture-owner-password",
+    },
+    "http://localhost:3001",
+  );
   await page.goto("/?view=proposals");
   await page
     .getByRole("row")
