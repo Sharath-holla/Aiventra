@@ -227,7 +227,17 @@ async def test_disabled_reviewer_and_oversized_evidence_block_review(http, compa
         checkpoint.result = task.evidence
         session.commit()
     response = http.get(f"/projects/{project['id']}/delivery-readiness?mode=mock").json()
-    assert not response["ready"] and any("bounded review context" in item for item in response["blockers"])
+    assert not response["ready"]
+    assert (
+        "Evidence exceeds the bounded review context; partition the project before review"
+        in response["blockers"]
+    )
+    assert (
+        "Project manifest exceeds the bounded review context; partition before review" in response["blockers"]
+    )
+    assert start(http, project, response).status_code == 409
+    with company["factory"]() as session:
+        assert session.get(m.Artifact, artifact.id).content == artifact.content
 
 
 async def test_source_changed_during_inference_cannot_publish_review(http, company, requirement, monkeypatch):

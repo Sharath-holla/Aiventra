@@ -1,5 +1,9 @@
 # Implementation ledger
 
+## October 12, 2026 — restricted-runner context correction
+
+Source a534228 repaired the browser throttle in CI; frontend, secrets, backend and isolated browser jobs passed. The expanded actual Docker contract passed the legacy path but correctly blocked the Phase 7 final review on oversized echoed fixture documents. Replaced only the deterministic Phase 7 document output with concise manifest-bound handoffs, preserving complete design artifacts, context limits and selected-design assertions. Strengthened oversized-evidence rejection, denied-review and source-preservation assertions. Final exact-source test/publication evidence follows in TEST_REPORT.md after observation.
+
 ## October 12, 2026 — Phase 7 approved engineering integration
 
 Normal architecture push **11ab08a** matched origin/master. Extended the retained controlled Task API test with a reviewed Phase 7 variant and verified the actual owner-selected design in document, BA/CTO/PM planning, patch and review handoffs. Fixed the missing explicit document-task binding using the existing worker. Both local engineering variants passed (37.21s); runner outcomes there are deterministic contracts, not local Docker claims. CI replaces only runner transport with actual dedicated Docker and checks prepared nonproduction packaging and fixture release/publication refusal.

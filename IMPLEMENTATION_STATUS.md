@@ -2,6 +2,8 @@
 
 ## Phase 7 increment 4 — approved design through engineering
 
+Follow-up source a534228 passed frontend, secrets, backend and isolated-browser CI. Actual Docker verification exposed oversized generic fixture documents in the new Phase 7 path: coding/repair/tests passed, final review correctly refused excess context. The test adapter now emits concise explicitly deterministic documents bound to the saved design; production limits and full architecture artifacts are retained. The existing oversized-evidence rejection test is strengthened. Corrected-source evidence follows in TEST_REPORT.md; the failed run is retained rather than described as a completed journey.
+
 Architecture source **11ab08a3b7baf93a4e539586b02604b6faa2827f** is pushed normally. Its CI frontend, secrets and actual Docker runner passed; isolated browser had eight passes/one failure from a real login 429 in the faster suite. Bounded test-helper waiting repairs that timing issue without changing authentication limits or accepting failure. Final corrected-source CI is recorded in TEST_REPORT.md after observation.
 
 Extended the existing harmless Task API engineering contract with a Phase 7 requirements/sign-off/CTO-design/non-recommended-selection path, preserving the legacy case. Document handoffs now include the exact selected design, matching planning/coding/review context. Both local variants passed with clearly labeled deterministic adapters; no sample code executes on the host. CI uses actual restricted Docker for these same variants. Existing workforce/repository approvals, failed-build repair bound, independent review, candidate integrity and fixture publication/release prohibitions remain enforced. Three-stage QA and DevOps are still unfinished.

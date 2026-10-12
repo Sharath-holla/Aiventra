@@ -1,5 +1,11 @@
 # Aiventra verification report
 
+## Phase 7 restricted-runner fixture correction
+
+Source **a534228841091818c0f97665520f24dc0f192b71**, [CI 38281870337](https://github.com/Sharath-holla/Aiventra/actions/runs/38281870337): frontend, secrets, backend and isolated browser jobs passed. Actual restricted-runner engineering contract had **one pass / one failure, 8.01s**. The reviewed Phase 7 variant passed real coding/build/repair/tests, then correctly failed delivery-readiness because the generic deterministic document fixture echoed the full proposal and exceeded the 18 KB evidence / 24 KB manifest review limits. The legacy variant passed. Integration's final restart/restore conclusion is recorded after observation.
+
+Corrected only the Phase 7 deterministic document adapter to save concise, explicitly labeled handoff documents referring to the complete separately persisted design manifest. Exact selected-design assertions remain in every handoff. Production review limits, complete saved architecture evidence and all approval gates remain enforced. Strengthened the existing oversized-evidence regression to require both blockers, denied review and unchanged source content. All **15 affected engineering and delivery tests passed, 44.94s**, with one existing Starlette/httpx warning. Ruff lint/format and diff checks passed. Exact corrected-source CI follows after observation.
+
 ## Phase 7 approved engineering integration and CI repair
 
 Architecture source **11ab08a3b7baf93a4e539586b02604b6faa2827f** pushed normally with matching remote SHA. [CI 38280621646](https://github.com/Sharath-holla/Aiventra/actions/runs/38280621646) passed frontend/types/build/audits, secrets and actual restricted runner; isolated browser **eight passed / one failed, 1.2m**. The final requirements-review login returned **429**, while expecting 200. Faster Linux execution reached the genuine persistent account throttle; local slower runs did not. The repaired shared test-account helper waits at most 65 seconds for real expiry, still requires 200 and preserves test assertion timeouts. No production limit or security requirement changed. Exact corrected-source CI follows after observation.
