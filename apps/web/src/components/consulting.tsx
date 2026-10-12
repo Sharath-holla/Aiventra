@@ -14,6 +14,7 @@ import {
 import { api, money } from "@/lib/api";
 import type { Project, Proposal, Requirement } from "@/lib/types";
 import { Badge, Button, Empty, Panel, Pretty, useApp } from "./common";
+import { RequirementsReview } from "./requirements-review";
 
 export function Consulting({
   approvals,
@@ -118,6 +119,10 @@ export function Consulting({
         >
           <p className="brief-text">{requirement.text}</p>
         </Panel>
+        <RequirementsReview
+          key={requirement.id}
+          requirementId={requirement.id}
+        />
         {requirement.mode === "mock" && (
           <div className="alert warning">
             This is a deterministic local fixture. Specialist analysis and

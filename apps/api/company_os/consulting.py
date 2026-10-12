@@ -40,6 +40,41 @@ def proposal_content(requirement: Requirement, content: ProposalContent, contrib
 
 
 def publish(session: Session, requirement: Requirement, content: dict) -> Proposal:
+    from .requirements_refinement import assert_approved
+
+    scope_approval = assert_approved(session, requirement)
+    if scope_approval:
+        from .project_setup import for_requirement
+
+        scope = for_requirement(session, requirement.id, requirement.org_id).data["refinement"]["current"][
+            "scope"
+        ]
+        content = {
+            **content,
+            "requirements_signoff": {
+                "approval_id": scope_approval.id,
+                "version": requirement.version,
+                "scope_hash": scope_approval.subject_hash,
+                "specification": scope,
+            },
+            "confirmed_requirements": list(
+                dict.fromkeys(
+                    [
+                        *scope["functional_requirements"],
+                        *scope["nonfunctional_requirements"],
+                        *content["confirmed_requirements"],
+                    ]
+                )
+            ),
+            "acceptance_criteria": list(
+                dict.fromkeys(
+                    [
+                        *scope["acceptance_criteria"],
+                        *content["acceptance_criteria"],
+                    ]
+                )
+            ),
+        }
     owner_authored = content.get("authorship") == "owner"
     proposal = Proposal(
         id=uid(),
@@ -91,6 +126,9 @@ def approve_proposal(session: Session, proposal: Proposal, request: Approve, use
     if user.role != "owner":
         raise PermissionError("Only owner approval is implemented")
     requirement = session.get(Requirement, proposal.requirement_id)
+    from .requirements_refinement import assert_approved
+
+    assert_approved(session, requirement)
     if (
         proposal.version != requirement.version
         or request.version != proposal.version

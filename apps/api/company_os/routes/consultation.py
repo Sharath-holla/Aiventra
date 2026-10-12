@@ -90,6 +90,11 @@ def clarify(
     session: Session = Depends(session_dependency),
 ):
     requirement = scoped(session, m.Requirement, record_id, user)
+    from ..project_setup import for_requirement
+    from ..requirements_refinement import enabled
+
+    if enabled(for_requirement(session, requirement.id, requirement.org_id)):
+        raise HTTPException(409, "Use the versioned project requirements review controls")
     if user.role != "owner" and session.scalar(
         select(m.Project.id).join(m.Proposal).where(m.Proposal.requirement_id == requirement.id)
     ):

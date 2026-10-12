@@ -18,6 +18,7 @@ import { Staffing } from "./staffing";
 import { RepositoryImport } from "./repository-import";
 import { ProjectHistory } from "./project-history";
 import { ExecutionEvidence } from "./ai-readiness";
+import { RequirementsReview } from "./requirements-review";
 
 export function Projects({
   engineering,
@@ -207,6 +208,12 @@ export function Projects({
           <h3>{requirement?.title}</h3>
           <p className="wizard-brief">{requirement?.text}</p>
           <p>Selected architecture: {project.selected_alternative}</p>
+          {requirement && (
+            <RequirementsReview
+              key={requirement.id}
+              requirementId={requirement.id}
+            />
+          )}
           <p>
             Acceptance criteria:{" "}
             {proposal?.content.acceptance_criteria.join(" · ")}

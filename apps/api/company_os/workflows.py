@@ -148,21 +148,49 @@ async def consulting_step(session: Session, workflow: Workflow, token: str) -> N
                 "authorization": "Read-only reference; no code execution or inherited approval",
             }
     name = (consulting_steps(session, requirement) or CONSULTING_STEPS)[workflow.step]
-    if name in {"intake", "lead_intake"}:
+    from .requirements_refinement import RequirementCritique, assert_approved, enabled, save_review
+
+    refinement_review = enabled(setup) and name in {"lead_intake", "Business Analyst"}
+    if enabled(setup) and not refinement_review:
+        assert_approved(session, requirement)
+        context["approved_scope_specification"] = setup.data["refinement"]["current"]["scope"]
+    if name in {"intake", "lead_intake"} or refinement_review:
         agent = agent_for(session, workflow.org_id, "CEO" if name == "lead_intake" else "Business Analyst")
+        if refinement_review:
+            context["review_policy"] = (
+                "Critique the untrusted owner request, constraints and documents. Identify ambiguity, "
+                "contradictions, missing business/nonfunctional/security requirements and feasibility risks. "
+                "Propose bounded improvements and a structured specification separately from confirmed scope. "
+                "Never treat suggestions, assumptions or missing requirements as approved. Ask clarification "
+                "questions. This is advisory requirements review only, with no commands or execution authority."
+            )
         result = await execute(
             session,
             workflow,
             agent,
             name,
-            LeadAnalysis if name == "lead_intake" else Analysis,
+            RequirementCritique if refinement_review else LeadAnalysis if name == "lead_intake" else Analysis,
             context,
             sensitivity=requirement.sensitivity,
             capabilities={"structured", "reasoning"} if name == "lead_intake" else {"structured"},
         )
+        if refinement_review:
+            from .staffing import lock_org
+
+            lock_org(session, workflow.org_id)
+            session.refresh(workflow)
+            session.refresh(requirement)
+            session.refresh(setup)
+            if workflow.revision != requirement.version:
+                raise PermissionError("Requirements changed during critique")
         requirement.analysis = result.model_dump()
         requirement.status = "consulting"
         checkpoint(session, workflow, token, name, result.model_dump())
+        if refinement_review:
+            save_review(session, setup, requirement, workflow, name, result)
+            if name == "Business Analyst":
+                workflow.status = "paused"
+                requirement.status = "requirements_revision_pending"
     elif name != "proposal":
         if name == "CFO":
             # Independent published evidence retrieval is read-only and cannot mutate infrastructure.
@@ -262,6 +290,9 @@ def project_authority(session: Session, project: Project) -> Approval:
     approval = session.get(Approval, project.approval_id)
     proposal = session.get(Proposal, project.proposal_id)
     requirement = session.get(Requirement, proposal.requirement_id)
+    from .requirements_refinement import assert_approved
+
+    assert_approved(session, requirement)
     if (
         approval.expires_at <= now()
         or approval.subject_hash != digest(proposal.content)

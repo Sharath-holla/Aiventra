@@ -1,5 +1,5 @@
 import { testOrigin } from "./support/environment";
-import { fixtureSetting as setting } from "./support/environment";
+import { loginOwner } from "./support/login";
 import { test, expect } from "@playwright/test";
 import type { State } from "../src/lib/types";
 
@@ -8,14 +8,7 @@ const headers = { Origin: testOrigin };
 test("zero-cost policy shows backend decisions and refuses unsafe resumption on desktop and mobile", async ({
   page,
 }) => {
-  const login = await page.context().request.post("/api/auth/login", {
-    headers,
-    data: {
-      email: setting("OWNER_EMAIL"),
-      password: setting("OWNER_PASSWORD"),
-    },
-  });
-  expect(login.status()).toBe(200);
+  await loginOwner(page.context().request);
   const initial: State = await (
     await page.context().request.get("/api/state")
   ).json();

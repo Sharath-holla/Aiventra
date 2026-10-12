@@ -313,7 +313,7 @@ def fixture(schema_name: str, context: dict) -> Response:
             "answer": "**Local fixture · no live AI call**\n\nThis response verifies conversation persistence and workflow execution. Configure a real model for an advisory answer.\n\n| Evidence | Status |\n| --- | --- |\n| Conversation | Persisted |\n| External actions | None |\n\n```text\nExplicit fixture; no generated code executed.\n```",
             "questions": [],
         }
-    elif schema_name in {"Analysis", "LeadAnalysis"}:
+    elif schema_name in {"Analysis", "LeadAnalysis", "RequirementCritique"}:
         text = context.get("text", "")
         migration = any(word in text.lower() for word in ("migrat", "cloud", "lightning"))
         data = {
@@ -484,8 +484,37 @@ def fixture(schema_name: str, context: dict) -> Response:
         }
     else:
         raise ProviderError("No fixture exists for this schema")
-    if schema_name == "LeadAnalysis":
+    if schema_name in {"LeadAnalysis", "RequirementCritique"}:
         data["specialist_roles"] = (
             ["Cloud Architect", "Security Architect", "FinOps Engineer"] if migration else []
         )
+    if schema_name == "RequirementCritique":
+        data["requirements"] = [text[:2000]]
+        data["improvements"] = [
+            {
+                "id": "validation",
+                "current_requirement": text[:2000],
+                "gap": "Invalid-input behavior is not specified in this controlled fixture.",
+                "recommendation": "Reject empty task titles without changing saved tasks.",
+                "reason": "An explicit validation rule permits a reproducible acceptance test.",
+                "complexity": "low",
+                "business_impact": "Protect saved task data.",
+                "security_performance_impact": "Validate bounded input before writes.",
+                "essential": True,
+            }
+        ]
+        data["proposed_specification"] = {
+            "text": text,
+            "goals": [text[:2000]],
+            "functional_requirements": [text[:2000]],
+            "nonfunctional_requirements": [],
+            "user_roles": [],
+            "user_journeys": [],
+            "constraints": [],
+            "dependencies": [],
+            "acceptance_criteria": data["acceptance_criteria"],
+            "risks": ["Deterministic fixture; no genuine model analysis or independent review."],
+            "out_of_scope": ["Unauthorized publication or deployment"],
+            "open_questions": data["questions"],
+        }
     return Response(data, 0, 0)

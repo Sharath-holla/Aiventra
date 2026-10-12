@@ -6,6 +6,7 @@ import { Badge, Button, Loading, Panel, useApp } from "./common";
 import type { CatalogModel, Catalog } from "./model-catalog";
 import { ModelPicker } from "./model-picker";
 import { ExecutionEvidence } from "./ai-readiness";
+import { RequirementsReview } from "./requirements-review";
 
 type Form = {
   client_id: string;
@@ -24,6 +25,7 @@ type Form = {
   worker_model_ids: string[];
   overrides: Record<string, string>;
   planning_mode: "ai" | "manual";
+  review_before_planning?: boolean;
 };
 type Eligibility = { allowed: boolean; state: string; reason: string };
 type Options = {
@@ -57,6 +59,7 @@ type Draft = {
     }[];
     requirement_id?: string;
     manual_proposal_id?: string;
+    refinement?: { approval_id: string | null };
   };
 };
 
@@ -137,6 +140,7 @@ export function ProjectWizard({ initialId = "" }: { initialId?: string }) {
           worker_model_ids: [],
           overrides: {},
           planning_mode: "ai",
+          review_before_planning: true,
         };
         sessionStorage.removeItem("aiventra-project-brief");
         current.current = initial;
@@ -1013,6 +1017,15 @@ export function ProjectWizard({ initialId = "" }: { initialId?: string }) {
         </>
       ) : (
         <>
+          {row.data.refinement && (
+            <RequirementsReview
+              draftId={row.id}
+              onChanged={async () => {
+                accept(await api<Draft>(`/project-drafts/${row.id}`));
+                await refresh();
+              }}
+            />
+          )}
           <ExecutionEvidence key={row.id} draftId={row.id} />
           <Panel
             title={
@@ -1038,7 +1051,9 @@ export function ProjectWizard({ initialId = "" }: { initialId?: string }) {
                   ? "Your owner-authored proposal is saved. AI analysis has stopped; review and approve the exact scope before work begins."
                   : row.workflow?.last_error ||
                     (row.workflow?.status === "paused"
-                      ? "Waiting for your owner-authored plan."
+                      ? row.data.refinement && !row.data.refinement.approval_id
+                        ? "Review and approve your requirements before architecture planning."
+                        : "Waiting for your owner-authored plan."
                       : "Analysis progresses only when an eligible Lead AI and specialist models are available.")}
             </p>
             {!row.data.manual_proposal_id && !row.approved_project_id && (
@@ -1112,6 +1127,7 @@ export function ProjectWizard({ initialId = "" }: { initialId?: string }) {
           )}
           {!row.data.manual_proposal_id &&
             !row.approved_project_id &&
+            (!row.data.refinement || row.data.refinement.approval_id) &&
             ["paused", "waiting_for_free_provider"].includes(
               row.workflow?.status || "",
             ) && (

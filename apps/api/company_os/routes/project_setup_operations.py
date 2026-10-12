@@ -341,7 +341,9 @@ def models(
         choices = {"lead_model_id", "worker_mode", "worker_model_ids", "overrides"}
         form = data.form.model_dump(mode="json")
         if {key: value for key, value in form.items() if key not in choices} != {
-            key: value for key, value in row.data["form"].items() if key not in choices
+            key: value
+            for key, value in setup.DraftForm.model_validate(row.data["form"]).model_dump(mode="json").items()
+            if key not in choices
         }:
             raise HTTPException(409, "Submitted requirements cannot be edited through model selection")
         setup.validate_form(session, user, data.form)

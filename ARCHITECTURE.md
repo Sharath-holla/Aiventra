@@ -1,5 +1,9 @@
 # Aiventra OS architecture
 
+## Phase 7 collaborative requirements boundary
+
+New UI wizard drafts enable a separate requirements refinement/sign-off gate on existing BusinessRecord/Requirement/Workflow/WorkflowStep/ModelRun/Approval persistence. requirements_refinement.py supplies bounded critique/specification contracts, version snapshots, source/upload integrity, explicit decisions and enabled-owner exact scope authority; refinement_operations.py supplies organization-serialized owner commands. Lead and BA use the existing gateway then pause before CTO. Revisions fence old leases and reuse the unique workflow for each new requirement version; reconsideration restarts review, while owner-authored scope waits for explicit sign-off at step two. Publication/project authority revalidate the signed scope, and saved requirements artifacts join existing approved project memory. Legacy API drafts/projects retain their earlier exact proposal contract. No DDL/backend cutover, separate engine or inference entitlement is added. REQUIREMENTS_REFINEMENT.md documents limits; PRODUCTION_SDLC_WORKFLOW.md records the remaining Phase 7 gaps.
+
 ## Phase 6.1 local transport and admission
 
 `local_ai.py` supplies GET-only loopback diagnostics and configurable available-RAM admission. The owner-only `/providers/{id}/local-status` route uses tenant scope and registry visibility, verifies the credential-free local spending policy before contacting the server, and reads bounded `/api/version`, `/api/tags` and `/api/ps` responses. It cannot install, pull or invoke a model. Local providers require an empty credential reference; remote registration still requires a dedicated `*_API_KEY` reference. Discovery retains validated installed metadata and existing idempotent registry synchronization.

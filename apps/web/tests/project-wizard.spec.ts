@@ -325,6 +325,27 @@ test("mobile wizard validates uploads and saves a clearly owner-authored proposa
     .getByRole("button", { name: "Submit requirements", exact: true })
     .click();
   await expect(page.getByText("paused", { exact: true })).toBeVisible();
+  await expect(
+    page.getByLabel("Manual architecture", { exact: true }),
+  ).not.toBeVisible();
+  await page
+    .getByLabel("Scope acceptance criteria", { exact: true })
+    .fill("Records persist and owner reviews exact scope");
+  await page
+    .getByRole("button", { name: "Save reviewed scope version", exact: true })
+    .click();
+  await page
+    .getByRole("checkbox", { name: /I reviewed this exact saved scope/ })
+    .check();
+  await page
+    .getByRole("button", {
+      name: "Approve exact requirements version 2",
+      exact: true,
+    })
+    .click();
+  await expect(
+    page.getByText("requirements approved", { exact: true }),
+  ).toBeVisible();
   await page
     .getByLabel("Manual architecture", { exact: true })
     .fill(

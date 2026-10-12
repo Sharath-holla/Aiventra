@@ -93,6 +93,11 @@
 }
 .wizard-toolbar {
   margin: 16px 0;
+  flex-wrap: wrap;
+}
+.wizard-toolbar .button {
+  max-width: 100%;
+  white-space: normal;
 }
 .wizard-steps {
   display: flex;

@@ -1,5 +1,7 @@
 # Aiventra OS
 
+Phase 7 begins with [collaborative requirements refinement](REQUIREMENTS_REFINEMENT.md): Lead/BA critique contracts, explicit recommendation decisions, clarification answers, retained scope versions and exact owner sign-off before architecture for new UI projects. Models may be connected later; owner-authored scope is explicitly labeled. Read the [source gap audit and dependency order](PRODUCTION_SDLC_WORKFLOW.md) and [complete Phase 7 brief](docs/PHASE7_PRODUCTION_SDLC_SPEC.md). Three-stage QA and DevOps deployment acceptance remain subsequent work; no production readiness or live AI completion is implied.
+
 Phase 6 adds backend-derived AI readiness and protected per-invocation evidence to Home, Settings and project workflows. SQLite remains active and ZERO_COST_ONLY mandatory. No genuine model inference is currently verified. See [local hardware/model assessment](LOCAL_MODEL_READINESS.md), [bounded live verification plan](LIVE_AI_VERIFICATION_PLAN.md), [implementation status](IMPLEMENTATION_STATUS.md) and [test evidence](TEST_REPORT.md). Deterministic workflows and actual restricted-runner tests are reported separately; generated PR publication and delivery retain exact approval gates.
 
 A working Next.js + FastAPI application for supervising a configurable AI workforce. Its implemented core takes a client requirement through persisted analysis, specialist consultation, deterministic cost comparison, a versioned proposal, explicit owner approval, assigned project planning tasks and saved artifacts.

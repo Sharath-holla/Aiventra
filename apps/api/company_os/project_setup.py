@@ -59,6 +59,7 @@ class DraftForm(Strict):
     worker_model_ids: list[str] = Field(default_factory=list, max_length=32)
     overrides: dict[str, str] = Field(default_factory=dict, max_length=16)
     planning_mode: Literal["ai", "manual"] = "ai"
+    review_before_planning: bool = False  # Legacy API drafts retain their existing workflow.
 
 
 class LeadAnalysis(Analysis):
@@ -295,6 +296,10 @@ def submit(session, row, user):
         "submitted_at": now(),
         "selection_hash": digest(row.data["form"]),
     }
+    if form.review_before_planning:
+        from .requirements_refinement import initialize
+
+        initialize(row, session.get(m.Requirement, result["id"]))
     for attachment in row.data["attachments"]:
         artifact = session.get(m.Artifact, attachment["id"])
         if (
@@ -384,11 +389,14 @@ def manual_plan(session, row, user, architecture, milestones, criteria):
     from .schemas import Alternative, ProposalContent
 
     requirement = session.get(m.Requirement, row.data["requirement_id"])
+    from .requirements_refinement import assert_approved, enabled
+
+    assert_approved(session, requirement)
     workflow = session.get(m.Workflow, row.data["workflow_id"])
     if (
         workflow.status not in {"paused", "waiting_for_free_provider", "queued"}
         or requirement.version != row.data["requirement_version"]
-        or workflow.step
+        or (workflow.step != 2 if enabled(row) else workflow.step != 0)
         or session.scalar(select(m.ModelRun.id).where(m.ModelRun.workflow_id == workflow.id))
         or session.scalar(select(m.Proposal.id).where(m.Proposal.requirement_id == requirement.id))
     ):

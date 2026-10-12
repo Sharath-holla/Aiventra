@@ -246,6 +246,22 @@ async def main():
         from company_os import sandbox
 
         sandbox.stored_result = fixture_result
+        # Phase 7 critique browser contract: private database + explicit mock
+        # adapter only. No production route can create these model selections.
+        from company_os.db import now, uid
+        from company_os.workflows import consulting_step
+        from test_requirements_refinement import enable_fixture, submitted
+
+        review_draft = submitted(http, company)
+        enable_fixture(company, review_draft)
+        for _ in range(2):
+            with SessionLocal() as session:
+                workflow = session.get(m.Workflow, review_draft["workflow"]["id"])
+                workflow.status, workflow.lease_token, workflow.lease_until = "running", uid(), now() + 180
+                session.commit()
+                await consulting_step(session, workflow, workflow.lease_token)
+                session.commit()
+        saved["requirements_review_draft_id"] = review_draft["id"]
     (root / "data" / "phase5-browser-state.json").write_text(json.dumps(saved), encoding="utf-8")
     from company_os.registry_provenance import classify
 

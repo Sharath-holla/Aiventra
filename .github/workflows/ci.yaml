@@ -71,6 +71,8 @@ jobs:
       - run: uv run --locked --extra dev ruff check apps/api tests scripts infrastructure/database/migrations
       - run: uv run --locked --extra dev ruff format --check apps/api tests scripts infrastructure/database/migrations
       - run: uv run --locked --extra dev pytest -q
+      - name: Recover collaborative requirements after actual API and worker interruption
+        run: uv run --locked --extra dev python scripts/verify_requirements_restart.py
       - run: uv run --locked --extra dev pip-audit
   frontend:
     runs-on: ubuntu-latest

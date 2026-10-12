@@ -1,5 +1,13 @@
 # Next steps
 
+## Phase 7 continuation — requirements before autonomous engineering
+
+The latest owner brief is docs/PHASE7_PRODUCTION_SDLC_SPEC.md. Follow the source gap map in PRODUCTION_SDLC_WORKFLOW.md. Collaborative requirements refinement/sign-off is implemented on existing services; finish and verify its current-source checks before advancing. Preserve its exact owner authority and scope/document/version bindings.
+
+Next implement separate architecture artifact comparison/selection/rejection/revision and owner approval, binding approved design into existing staffing/routing/engineering scope. Then extend the current engineering engine with three distinct evidence-based QA rounds, structured defects, bounded repairs, source-freshness/traceability and deterministic release quality policy. Next add DevOps manifests, restricted configured targets, separate staging/production approvals, receipts/reconciliation/rollback planning/incidents and connect evidence to existing immutable delivery. Extend the disposable Task Management acceptance journey; do not touch the cryptocurrency repository or claim full Phase 7 completion from requirement fixtures.
+
+Models can be configured later. Keep SQLite active, retained PostgreSQL/pgvector compatibility and ZERO_COST_ONLY. Rechecked RAM was 908 MiB; preserve the local Ollama setup and waiting resource state. No Qwen download, paid inference, real generated PR or external deployment is part of this increment.
+
 ## Phase 6.1 continuation — local resources first
 
 The current owner authorizes **only Ollama and qwen3:0.6b**. Reuse verified Ollama 0.40.3; cloud is disabled and a genuine local provider is registered. Do not reinstall the runtime or migrate SQLite. Historical statements below that installation is not authorized are superseded by docs/PHASE61_LOCAL_AI_SPEC.md.

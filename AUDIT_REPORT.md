@@ -1,5 +1,9 @@
 # Aiventra existing-project audit
 
+## Phase 7 requirements source audit — October 12, 2026
+
+Actual starting HEAD a52b267/master was clean. Intake, critique routing, workflow uniqueness, proposal approvals, staffing, restricted engineering/repair, immutable packages, owner release and client acceptance/closure were inspected. Confirmed gap: wizard consultation proceeded from Lead/BA directly to CTO without explicit recommendation decisions or separate requirements sign-off. The new dedicated refinement domain/routes/UI extends existing records/leases and exact authority, preserving legacy approvals and active SQLite. PRODUCTION_SDLC_WORKFLOW.md maps retained capabilities and remaining design/three-QA-round/DevOps gaps. TEST_REPORT.md records actual passing checks and earlier failures; no prior Phase 6 evidence is presented as current-source verification or genuine AI execution.
+
 ## Model selector isolation — October 11, 2026
 
 Confirmed ordinary browser tests used the owner development application and left disabled/non-mock provider records. Catalog organization scoping existed, but lacked fixture provenance filtering. 115 providers / 53 models were conclusively matched to test configuration and audit evidence and quarantined without deletion after verified backup. All original rows and references survive. All inspected project vaults are empty; saved-key audits were exclusively test credentials. New disposable browser services and server/catalog/inference fencing repair the boundary; remaining external/live limitations are explicit.

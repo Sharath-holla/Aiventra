@@ -1,5 +1,13 @@
 # Implementation status
 
+## Phase 7 increment 2 — collaborative requirements, October 12, 2026
+
+Continued actual clean master HEAD a52b267. The full owner brief is preserved in docs/PHASE7_PRODUCTION_SDLC_SPEC.md; PRODUCTION_SDLC_WORKFLOW.md maps existing code to unfinished dependency-ordered work. Implemented requirements refinement on the current wizard/workflow/database: strict Lead/BA critiques, explicit improvement decisions/clarifications, bounded scope versions, source/document hashes, owner-authored exact requirements sign-off, pre-architecture pause, current authority rechecks, approved requirements artifacts/memory and bound downstream proposals. Connected the existing draft, requirement and workspace UI without new top-level navigation. SQLite and existing records, legacy approvals, PostgreSQL compatibility, ZERO_COST_ONLY and Phase 4/5 controls remain.
+
+Initial 38 focused backend/wizard tests passed; strict frontend types passed. Actual three-API-process/abrupt claimed-worker recovery verified two deterministic critiques, one approval, no duplicates, no project and SQLite WAL/integrity/FKs. Full updated checks and exact-source CI are recorded in TEST_REPORT.md only after observation. This is an implemented requirements increment with deterministic model evidence, not completion of Phase 7. Separate architecture artifact decisions, three-stage QA/traceability and DevOps target/deployment/reconciliation remain unfinished. Models can be configured later. RAM recheck: 908 MiB available; no weights downloaded, inference, generated PR, deployment or client delivery occurred.
+
+Final local checks: 45 affected backend/wizard, 32 complete ordinary browser and eight isolated delivery/critique browser passed; earlier full backend 480 passed before final hardening cases. Build/types/format/lint/dependency audits and Alembic no-drift passed. All 49,679 original rows remain with SQLite integrity/FKs valid. Exact-source publication/CI follows after verification; source and fixture/live categories are kept separate in TEST_REPORT.md.
+
 ## Phase 6.1 local Ollama connection — October 12, 2026
 
 Verified application source **ed065c839c1aae56d496a0a1ab187bb995d676c6** is pushed normally. [All six CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38241398273): **458 backend / 69 browser checks**, production build/types/audits, actual restricted Docker fixture execution/recovery and PostgreSQL compatibility/transfer/restart/restore. The documentation follow-up preserves that tested source. Earlier failed runs and repairs remain in TEST_REPORT.md. This is a completed connection/security increment; real Qwen execution acceptance is still resource-blocked.
