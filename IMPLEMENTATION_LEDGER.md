@@ -1,5 +1,11 @@
 # Implementation ledger
 
+## October 12, 2026 — Phase 7 architecture increment
+
+Continued requirements source **528a3ae**, whose six CI jobs passed with 487 backend and 72 browser checks. Extended CTO consultation rather than rebuilding planning: strict alternatives/full proposed design sections, canonical option artifacts, scope/version/run/checkpoint bindings and preserved architecture history. Lead publication uses saved options and deterministic incomplete cost comparison. Existing proposal selection atomically creates a separate architecture approval, project and scoped selected-design memory; planning/coding receive the selected design. Current proposal/workspace views display saved details and hashes.
+
+Repaired the pre-lock proposal read and serialized rejection/request-changes against approval. Tested duplicate selections, changed evidence, expiry, enabled-owner authority, competing decisions and explicitly limited no-model plans. Actual five-API-process recovery preserved review/design/selection with three approvals, two documents and no duplicate runs. Full current checks, initial failures, publication and exact-source CI are recorded in TEST_REPORT.md after observation. SQLite active data is preserved; no model inference, generated PR, production deployment or completed client delivery is claimed. The next dependency is three-stage QA/traceability, followed by restricted DevOps preparation and reconciliation.
+
 ## October 12, 2026 — Phase 7 requirements increment
 
 Starting clean HEAD a52b267 on master. Read the complete Phase 7 brief and audited actual intake/consulting/gateway/workflow/staffing/engineering/delivery/release source. Preserved the specification and dependency gap map. Added dedicated bounded requirements critique/refinement domain and owner routes using existing SQLite-compatible records, version snapshots, exact expiring sign-off, source/document/run/checkpoint integrity, atomic UUID commands and lease-fenced revisions. Existing CTO consultation/proposal approval/project authority and approved-source memory consume the signed scope. UI supports recommendation decisions, answers, editable specifications, historical versions, same-command retry and owner-authored no-model continuation. Existing API drafts/projects retain their earlier proposal gates; no records are migrated or rebuilt.

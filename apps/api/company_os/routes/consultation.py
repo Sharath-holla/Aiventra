@@ -217,7 +217,6 @@ def approve(
     user: m.User = Depends(owner),
     session: Session = Depends(session_dependency),
 ):
-    proposal = scoped(session, m.Proposal, record_id, user)
     try:
         # Serialize approval against concurrent clicks and competing selections.
         session.execute(
@@ -225,6 +224,8 @@ def approve(
             .where(m.Organization.id == user.org_id)
             .values(version=m.Organization.version + 1)
         )
+        session.expire_all()
+        proposal = scoped(session, m.Proposal, record_id, user)
         project = approve_proposal(session, proposal, data, user)
         session.commit()
         return serialize(project)
@@ -246,11 +247,27 @@ def proposal_decision(
     user: m.User = Depends(owner),
     session: Session = Depends(session_dependency),
 ):
+    from ..staffing import lock_org
+
+    lock_org(session, user.org_id)
+    session.expire_all()
     proposal = scoped(session, m.Proposal, record_id, user)
-    if proposal.version != data.version or proposal.status != "awaiting_approval":
+    requirement = session.get(m.Requirement, proposal.requirement_id)
+    if (
+        proposal.version != data.version
+        or proposal.version != requirement.version
+        or proposal.status != "awaiting_approval"
+    ):
         raise HTTPException(409, "Proposal is stale or already decided")
     proposal.status = "rejected" if data.action == "reject" else "changes_requested"
-    session.get(m.Requirement, proposal.requirement_id).status = proposal.status
-    audit(session, user.org_id, user.id, "proposal." + data.action, proposal.id, {"reason": data.reason})
+    requirement.status = proposal.status
+    audit(
+        session,
+        user.org_id,
+        user.id,
+        "proposal." + data.action,
+        proposal.id,
+        {"reason": data.reason, "version": proposal.version, "content_hash": proposal.content_hash},
+    )
     session.commit()
     return serialize(proposal)

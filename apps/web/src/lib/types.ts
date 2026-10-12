@@ -65,6 +65,18 @@ export interface Proposal extends Entity {
     business_problem: string;
     alternatives: Alternative[];
     recommendation: string;
+    architecture_manifest?: {
+      manifest_hash: string;
+      scope_hash: string;
+      basis: string;
+      requirement_version: number;
+      design: {
+        options?: (Alternative & Record<string, string | string[]>)[];
+        limitations?: string[];
+        single_option_reason?: string;
+      };
+      documents: { option: string; artifact_id: string; sha256: string }[];
+    };
     assumptions: string[];
     open_questions: string[];
     milestones: string[];

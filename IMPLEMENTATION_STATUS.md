@@ -1,5 +1,17 @@
 # Implementation status
 
+## Phase 7 increment 3 — architecture decisions, October 12, 2026
+
+The preceding requirements increment is pushed at **528a3aeda9f4bac42c5a60f940bd54a42299c2de**. [All six exact-source CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38275680733): 487 backend tests, ordinary SQLite/PostgreSQL browser regressions, eight isolated browser contracts, restricted Docker execution/recovery and PostgreSQL restart/restore. These results certify that source, not later changes.
+
+Implemented versioned CTO design alternatives and document/run/checkpoint integrity, separate exact expiring owner architecture approval within the existing proposal transaction, rejection/revision history, selected-design planning/coding context and readable existing proposal/workspace panels. Owner-authored limited plans remain labeled; no model or verification claim is inferred. See ARCHITECTURE_DESIGN.md. SQLite records and PostgreSQL compatibility are preserved without new DDL. Full current checks and publication evidence follow in TEST_REPORT.md after observation.
+
+Phase 7 remains incomplete: distinct three-stage QA, structured defects/traceability/readiness, DevOps target manifests, staging/production authorization and deployment reconciliation are next. No genuine inference, generated PR publication, deployment or completed client delivery occurred.
+
+Current local verification: 32 ordinary and nine isolated browser checks passed; production build/types/format, dependency audits, Ruff and no-drift Alembic passed. Actual five-process review/design/approval recovery passed. All 49,699 pre-activation row identities remain, integrity/FKs valid. Windows long-test-path engineering failure and its passing short-path rerun are retained in TEST_REPORT.md. Final full-source counts and exact-source push/CI are recorded after observation.
+
+Full local backend suite passed **507 tests**, collected before three final hardening cases; final complete architecture file **23 passed**. History/staged secret scan checked 1,438 blobs with zero findings. No current observed test failure remains; exact final-source CI is verified after publication rather than inferred from earlier runs.
+
 ## Phase 7 increment 2 — collaborative requirements, October 12, 2026
 
 Continued actual clean master HEAD a52b267. The full owner brief is preserved in docs/PHASE7_PRODUCTION_SDLC_SPEC.md; PRODUCTION_SDLC_WORKFLOW.md maps existing code to unfinished dependency-ordered work. Implemented requirements refinement on the current wizard/workflow/database: strict Lead/BA critiques, explicit improvement decisions/clarifications, bounded scope versions, source/document hashes, owner-authored exact requirements sign-off, pre-architecture pause, current authority rechecks, approved requirements artifacts/memory and bound downstream proposals. Connected the existing draft, requirement and workspace UI without new top-level navigation. SQLite and existing records, legacy approvals, PostgreSQL compatibility, ZERO_COST_ONLY and Phase 4/5 controls remain.

@@ -1,5 +1,11 @@
 # Next steps
 
+## Phase 7 after architecture decisions
+
+Preserve the collaborative requirements and versioned CTO architecture increments described in REQUIREMENTS_REFINEMENT.md and ARCHITECTURE_DESIGN.md. Their exact approvals flow into current workforce/planning/engineering authority. Current-source verification/publication evidence is in TEST_REPORT.md.
+
+Next extend the existing engineering/final-review services with three genuinely distinct source-bound QA stages, structured defects, bounded repairs, acceptance traceability and a deterministic release quality policy. Then add restricted DevOps target manifests and separate staging/production approvals with receipts, interrupted-request reconciliation, rollback and incident controls. Connect them to existing immutable delivery and the five-stage workspace. Extend the harmless Task Management test journey through these gates; current requirements/design fixture evidence does not constitute complete Phase 7 acceptance. Keep models configurable later, SQLite active and ZERO_COST_ONLY mandatory; no crypto-repository changes or unauthorized publication/deployment.
+
 ## Phase 7 continuation — requirements before autonomous engineering
 
 The latest owner brief is docs/PHASE7_PRODUCTION_SDLC_SPEC.md. Follow the source gap map in PRODUCTION_SDLC_WORKFLOW.md. Collaborative requirements refinement/sign-off is implemented on existing services; finish and verify its current-source checks before advancing. Preserve its exact owner authority and scope/document/version bindings.

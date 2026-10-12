@@ -19,6 +19,7 @@ import { RepositoryImport } from "./repository-import";
 import { ProjectHistory } from "./project-history";
 import { ExecutionEvidence } from "./ai-readiness";
 import { RequirementsReview } from "./requirements-review";
+import { ArchitectureEvidence } from "./consulting";
 
 export function Projects({
   engineering,
@@ -208,6 +209,7 @@ export function Projects({
           <h3>{requirement?.title}</h3>
           <p className="wizard-brief">{requirement?.text}</p>
           <p>Selected architecture: {project.selected_alternative}</p>
+          {proposal && <ArchitectureEvidence proposal={proposal} />}
           {requirement && (
             <RequirementsReview
               key={requirement.id}

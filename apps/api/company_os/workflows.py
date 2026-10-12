@@ -192,6 +192,9 @@ async def consulting_step(session: Session, workflow: Workflow, token: str) -> N
                 workflow.status = "paused"
                 requirement.status = "requirements_revision_pending"
     elif name != "proposal":
+        from .architecture_design import TechnicalDesign
+
+        technical_design = name == "CTO" and enabled(setup)
         if name == "CFO":
             # Independent published evidence retrieval is read-only and cannot mutate infrastructure.
             from .research import fetch_source
@@ -232,20 +235,40 @@ async def consulting_step(session: Session, workflow: Workflow, token: str) -> N
             )
         agent = agent_for(session, workflow.org_id, name)
         context["role"] = name
+        if technical_design:
+            context["design_policy"] = (
+                "Design only the exact approved scope. Propose at least two genuinely reasonable alternatives "
+                "when they exist; otherwise explain the single option. Include HLD, LLD, API and database "
+                "specifications, authentication, data flow, deployment topology, observability, verification, "
+                "ADRs and explicit trade-offs. Prices and benchmarks remain unverified. No execution is authorized."
+            )
         result = await execute(
             session,
             workflow,
             agent,
             name,
-            Recommendation,
+            TechnicalDesign if technical_design else Recommendation,
             context,
             quality=85,
             sensitivity=requirement.sensitivity,
             capabilities={"structured", "reasoning"},
         )
+        if technical_design:
+            from .staffing import lock_org
+
+            lock_org(session, workflow.org_id)
+            session.refresh(workflow)
+            session.refresh(requirement)
+            if workflow.revision != requirement.version:
+                raise PermissionError("Requirements changed during architecture design")
+            assert_approved(session, requirement)
         checkpoint(
             session, workflow, token, name, {"agent_id": agent.id, "role": name, **result.model_dump()}
         )
+        if technical_design:
+            from .architecture_design import record
+
+            record(session, requirement, workflow, result)
         session.add(
             Message(
                 org_id=workflow.org_id,
@@ -254,12 +277,20 @@ async def consulting_step(session: Session, workflow: Workflow, token: str) -> N
                 type="ARCHITECTURE_PROPOSAL",
                 correlation_id=requirement.id,
                 content=result.model_dump(),
-                expected_schema="Recommendation",
+                expected_schema="TechnicalDesign" if technical_design else "Recommendation",
                 authorization=f"consulting:{workflow.id}",
                 acknowledged_at=now(),
             )
         )
     else:
+        if enabled(setup):
+            from .architecture_design import validate
+
+            session.refresh(setup)
+            design = setup.data.get("architecture_design")
+            if not design:
+                raise PermissionError("CTO design is required before Lead synthesis")
+            context["approved_architecture_design"] = validate(session, requirement, design)
         contributions = [
             row.result
             for row in session.scalars(
@@ -293,6 +324,9 @@ def project_authority(session: Session, project: Project) -> Approval:
     from .requirements_refinement import assert_approved
 
     assert_approved(session, requirement)
+    from .architecture_design import assert_project_design
+
+    assert_project_design(session, project, proposal, requirement)
     if (
         approval.expires_at <= now()
         or approval.subject_hash != digest(proposal.content)

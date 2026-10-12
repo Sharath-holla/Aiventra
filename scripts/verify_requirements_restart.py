@@ -114,6 +114,8 @@ def main():
     record_id = None
     before_restart = None
     signed = None
+    design = None
+    project_id = None
 
     with (private / "processes.log").open("ab") as logs:
 
@@ -134,7 +136,7 @@ def main():
             response.raise_for_status()
             return response.json()
 
-        for iteration in range(3):
+        for iteration in range(5):
             process = subprocess.Popen(
                 [executable, script, "--serve", str(port)],
                 cwd=root,
@@ -252,7 +254,7 @@ def main():
                         response.raise_for_status()
                         signed = state(client)
                         assert signed["approved"]
-                    else:
+                    elif iteration == 2:
                         assert state(client) == signed
                         with SessionLocal() as session:
                             runs = list(session.scalars(select(m.ModelRun)))
@@ -265,6 +267,47 @@ def main():
                             assert session.execute(text("PRAGMA integrity_check")).scalar() == "ok"
                             assert not session.execute(text("PRAGMA foreign_key_check")).all()
                             assert session.execute(text("PRAGMA journal_mode")).scalar() == "wal"
+                            session.scalar(select(m.Organization)).paused = False
+                            row = session.get(m.BusinessRecord, record_id)
+                            session.get(m.Workflow, row.data["workflow_id"]).mode = "mock"
+                            session.commit()
+                        worker()
+                        with SessionLocal() as session:
+                            design = session.get(m.BusinessRecord, record_id).data["architecture_design"]
+                            assert len(design["documents"]) == 2 and design["basis"] == "FIXTURE_TESTED"
+                    elif iteration == 3:
+                        with SessionLocal() as session:
+                            row = session.get(m.BusinessRecord, record_id)
+                            assert row.data["architecture_design"] == design
+                            assert len(list(session.scalars(select(m.ModelRun)))) == 3
+                        for _ in range(3):
+                            worker()
+                        with SessionLocal() as session:
+                            proposal = session.scalar(select(m.Proposal))
+                            assert proposal.content["architecture_manifest"] == design
+                            body = {
+                                "version": proposal.version,
+                                "content_hash": proposal.content_hash,
+                                "selection": design["design"]["options"][1]["name"],
+                            }
+                        response = client.post(f"/proposals/{proposal.id}/approve", json=body)
+                        response.raise_for_status()
+                        project_id = response.json()["id"]
+                        retry = client.post(f"/proposals/{proposal.id}/approve", json=body)
+                        retry.raise_for_status()
+                        assert retry.json()["id"] == project_id
+                    else:
+                        from company_os.workflows import project_authority
+
+                        with SessionLocal() as session:
+                            project = session.get(m.Project, project_id)
+                            project_authority(session, project)
+                            assert project.selected_alternative == design["design"]["options"][1]["name"]
+                            assert len(list(session.scalars(select(m.Approval)))) == 3
+                            assert len(list(session.scalars(select(m.Project)))) == 1
+                            assert len(list(session.scalars(select(m.ModelRun)))) == 6
+                            assert session.execute(text("PRAGMA integrity_check")).scalar() == "ok"
+                            assert not session.execute(text("PRAGMA foreign_key_check")).all()
             finally:
                 process.terminate()
                 try:
@@ -276,13 +319,15 @@ def main():
     print(
         json.dumps(
             {
-                "evidence": "Actual three API processes, abrupt claimed-worker exit and resumed worker; deterministic model adapters only",
+                "evidence": "Actual five API processes, abrupt claimed-worker exit, resumed review/design workers and saved owner selection; deterministic model adapters only",
                 "sqlite": "integrity/FKs/WAL verified",
                 "scope_sha256": hashlib.sha256(json.dumps(signed, sort_keys=True).encode()).hexdigest(),
                 "reviews": 2,
-                "approvals": 1,
+                "approvals": 3,
+                "architecture_documents": 2,
+                "architecture_manifest_sha256": design["manifest_hash"],
                 "duplicate_model_runs": 0,
-                "projects_created": 0,
+                "projects_created": 1,
             },
             sort_keys=True,
         )

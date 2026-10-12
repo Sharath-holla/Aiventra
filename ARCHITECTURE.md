@@ -1,5 +1,9 @@
 # Aiventra OS architecture
 
+## Phase 7 architecture decisions
+
+`architecture_design.py` extends existing CTO consultation, proposal approval, project setup JSON and Artifact/Approval/ModelRun/WorkflowStep records. It binds proposed alternatives and HLD/LLD/API/database/design documents to approved requirements and successful CTO/checkpoint provenance. Separate exact architecture-selection approval is saved atomically with proposal/project creation. Existing planning and restricted coding consume the actual owner-selected design. The current proposal and project Requirements views expose saved details and hashes without additional navigation. See ARCHITECTURE_DESIGN.md; three-stage QA and restricted DevOps integration remain unfinished.
+
 ## Phase 7 collaborative requirements boundary
 
 New UI wizard drafts enable a separate requirements refinement/sign-off gate on existing BusinessRecord/Requirement/Workflow/WorkflowStep/ModelRun/Approval persistence. requirements_refinement.py supplies bounded critique/specification contracts, version snapshots, source/upload integrity, explicit decisions and enabled-owner exact scope authority; refinement_operations.py supplies organization-serialized owner commands. Lead and BA use the existing gateway then pause before CTO. Revisions fence old leases and reuse the unique workflow for each new requirement version; reconsideration restarts review, while owner-authored scope waits for explicit sign-off at step two. Publication/project authority revalidate the signed scope, and saved requirements artifacts join existing approved project memory. Legacy API drafts/projects retain their earlier exact proposal contract. No DDL/backend cutover, separate engine or inference entitlement is added. REQUIREMENTS_REFINEMENT.md documents limits; PRODUCTION_SDLC_WORKFLOW.md records the remaining Phase 7 gaps.

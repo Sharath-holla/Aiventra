@@ -81,6 +81,9 @@ async def planning_step(session, workflow, token, work, project):
             "This is a draft requiring separate owner staffing approval; no execution or publication is authorized.",
         ][index],
     }
+    from .architecture_design import selected_context
+
+    context["owner_selected_architecture"] = selected_context(proposal, project)
     if index == 2:
         context["available_roles"] = sorted(
             set(

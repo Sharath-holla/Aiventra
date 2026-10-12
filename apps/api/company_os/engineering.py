@@ -191,6 +191,12 @@ async def coding_step(session: Session, workflow: Workflow, token: str) -> None:
     workspace = settings().repository_root.resolve() / ".worktrees" / project.id / task.id
     context = source_context(workspace if workspace.exists() else Path(repository.path), task.objective)
     context["acceptance"] = task.acceptance
+    from .architecture_design import selected_context
+    from .models import Proposal
+
+    context["owner_selected_architecture"] = selected_context(
+        session.get(Proposal, project.proposal_id), project
+    )
     if task.payload.get("publication_id"):
         context["remote_review_feedback"] = {
             "publication_id": task.payload["publication_id"],

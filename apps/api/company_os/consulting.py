@@ -40,6 +40,7 @@ def proposal_content(requirement: Requirement, content: ProposalContent, contrib
 
 
 def publish(session: Session, requirement: Requirement, content: dict) -> Proposal:
+    from .architecture_design import bind_proposal
     from .requirements_refinement import assert_approved
 
     scope_approval = assert_approved(session, requirement)
@@ -75,6 +76,7 @@ def publish(session: Session, requirement: Requirement, content: dict) -> Propos
                 )
             ),
         }
+    content = bind_proposal(session, requirement, content)
     owner_authored = content.get("authorship") == "owner"
     proposal = Proposal(
         id=uid(),
@@ -143,9 +145,15 @@ def approve_proposal(session: Session, proposal: Proposal, request: Approve, use
     if existing:
         if existing.selected_alternative != request.selection:
             raise ValueError("Already approved with a different alternative; revise scope")
+        from .architecture_design import assert_project_design
+
+        assert_project_design(session, existing, proposal, requirement)
         return existing
     if proposal.status != "awaiting_approval":
         raise ValueError("Proposal is not awaiting approval")
+    from .architecture_design import approve_selection
+
+    approve_selection(session, proposal, requirement, user, request.selection)
     approval = Approval(
         id=uid(),
         org_id=user.org_id,

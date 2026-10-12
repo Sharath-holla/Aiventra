@@ -262,6 +262,34 @@ async def main():
                 await consulting_step(session, workflow, workflow.lease_token)
                 session.commit()
         saved["requirements_review_draft_id"] = review_draft["id"]
+        from test_requirements_refinement import revise, signoff
+
+        design_draft = submitted(http, company)
+        enable_fixture(company, design_draft)
+        for _ in range(2):
+            with SessionLocal() as session:
+                workflow = session.get(m.Workflow, design_draft["workflow"]["id"])
+                workflow.status, workflow.lease_token, workflow.lease_until = "running", uid(), now() + 180
+                session.commit()
+                await consulting_step(session, workflow, workflow.lease_token)
+                session.commit()
+        design_draft = http.get(f"/project-drafts/{design_draft['id']}").json()
+        design_draft, _ = revise(http, design_draft)
+        design_draft, _ = signoff(http, design_draft)
+        for _ in range(4):
+            with SessionLocal() as session:
+                workflow = session.get(m.Workflow, design_draft["workflow"]["id"])
+                workflow.mode = "mock"
+                workflow.status, workflow.lease_token, workflow.lease_until = "running", uid(), now() + 180
+                session.commit()
+                await consulting_step(session, workflow, workflow.lease_token)
+                session.commit()
+        with SessionLocal() as session:
+            saved["architecture_proposal_id"] = session.scalar(
+                select(m.Proposal.id).where(
+                    m.Proposal.requirement_id == design_draft["data"]["requirement_id"]
+                )
+            )
     (root / "data" / "phase5-browser-state.json").write_text(json.dumps(saved), encoding="utf-8")
     from company_os.registry_provenance import classify
 

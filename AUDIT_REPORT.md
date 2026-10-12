@@ -1,5 +1,9 @@
 # Aiventra existing-project audit
 
+## Phase 7 architecture boundary
+
+Extended the existing recommendation-only CTO step with bounded design options, canonical artifact/run/checkpoint provenance and separate architecture-selection authority. Approval now refreshes proposal state after obtaining the organization lock; request-changes/rejection uses the same lock, preventing a stale read from winning over a competing decision. Owner-authored plans are explicitly limited; legacy approved proposals retain their contract. Selected-design context and existing source-bound staffing/engineering authority prevent silently implementing the Lead recommendation after the owner chose another option. Fixture, actual restart and exact-source CI evidence are separate in TEST_REPORT.md. Three-stage QA and DevOps remain unfinished.
+
 ## Phase 7 requirements source audit — October 12, 2026
 
 Actual starting HEAD a52b267/master was clean. Intake, critique routing, workflow uniqueness, proposal approvals, staffing, restricted engineering/repair, immutable packages, owner release and client acceptance/closure were inspected. Confirmed gap: wizard consultation proceeded from Lead/BA directly to CTO without explicit recommendation decisions or separate requirements sign-off. The new dedicated refinement domain/routes/UI extends existing records/leases and exact authority, preserving legacy approvals and active SQLite. PRODUCTION_SDLC_WORKFLOW.md maps retained capabilities and remaining design/three-QA-round/DevOps gaps. TEST_REPORT.md records actual passing checks and earlier failures; no prior Phase 6 evidence is presented as current-source verification or genuine AI execution.

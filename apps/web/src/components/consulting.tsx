@@ -542,6 +542,7 @@ function ProposalReview({ proposal: p }: { proposal: Proposal }) {
           );
         })}
       </div>
+      <ArchitectureEvidence proposal={p} />
       <div className="alert warning">
         Cost inputs are partial estimates. Missing compute, storage, data
         transfer, licensing, labor and downtime costs prevent a verified
@@ -685,5 +686,57 @@ function ProposalReview({ proposal: p }: { proposal: Proposal }) {
         <Pretty value={p} />
       </details>
     </Panel>
+  );
+}
+
+export function ArchitectureEvidence({ proposal: p }: { proposal: Proposal }) {
+  return (
+    <>
+      {p.content.architecture_manifest && (
+        <section aria-label="Saved architecture evidence">
+          <h3>
+            Architecture design · requirements v
+            {p.content.architecture_manifest.requirement_version}
+          </h3>
+          <Badge>{p.content.architecture_manifest.basis}</Badge>
+          <p>
+            Approval binds the selected option and these saved design documents
+            to this exact requirements version. Implementation, benchmarks and
+            cloud prices remain unverified.
+          </p>
+          {p.content.architecture_manifest.design.limitations?.map((text) => (
+            <p key={text}>{text}</p>
+          ))}
+          {p.content.architecture_manifest.design.single_option_reason && (
+            <p>{p.content.architecture_manifest.design.single_option_reason}</p>
+          )}
+          {p.content.architecture_manifest.design.options?.map((option) => (
+            <details key={option.name}>
+              <summary>{option.name} · design and trade-offs</summary>
+              {Object.entries(option)
+                .filter(([key]) => key !== "name")
+                .map(([key, value]) => (
+                  <div key={key}>
+                    <h4>{key.replaceAll("_", " ")}</h4>
+                    {Array.isArray(value) ? (
+                      <ul>
+                        {value.map((text, index) => (
+                          <li key={index}>{text}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="preserve-lines">{value}</p>
+                    )}
+                  </div>
+                ))}
+            </details>
+          ))}
+          <details>
+            <summary>Saved document identities and hashes</summary>
+            <Pretty value={p.content.architecture_manifest.documents} />
+          </details>
+        </section>
+      )}
+    </>
   );
 }

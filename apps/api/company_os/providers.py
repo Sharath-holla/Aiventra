@@ -339,7 +339,7 @@ def fixture(schema_name: str, context: dict) -> Response:
                 "Owner approves exact scope before implementation",
             ],
         }
-    elif schema_name == "Recommendation":
+    elif schema_name in {"Recommendation", "TechnicalDesign"}:
         role = context.get("role", "Specialist")
         data = {
             "summary": f"Fixture contribution from {role}: assess requirements and validate missing constraints.",
@@ -517,4 +517,38 @@ def fixture(schema_name: str, context: dict) -> Response:
             "out_of_scope": ["Unauthorized publication or deployment"],
             "open_questions": data["questions"],
         }
+    if schema_name == "TechnicalDesign":
+        from .architecture_design import DesignOption
+
+        options = []
+        for name in ["Modular application", "Separated API and web client"]:
+            option = {
+                field: "Proposed fixture design; implementation and verification are pending."
+                for field in DesignOption.model_fields
+            }
+            option.update(
+                name=name,
+                advantages=["Explicit component ownership"],
+                disadvantages=["Requires implementation and measured validation"],
+                architecture_decisions=["Keep SQLite active; preserve PostgreSQL compatibility"],
+                unresolved_assumptions=["Hosting and resource requirements need owner confirmation"],
+            )
+            options.append(option)
+        data.update(
+            options=options,
+            recommended_option=options[0]["name"],
+            single_option_reason="",
+            benchmarks_verified=False,
+            cloud_prices_verified=False,
+        )
+    if schema_name == "ProposalContent" and context.get("approved_architecture_design"):
+        design = context["approved_architecture_design"]["design"]
+        data["alternatives"] = [
+            {
+                key: option[key]
+                for key in ("name", "architecture", "advantages", "disadvantages", "reliability")
+            }
+            for option in design["options"]
+        ]
+        data["recommendation"] = design["recommended_option"]
     return Response(data, 0, 0)
