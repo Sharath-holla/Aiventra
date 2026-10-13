@@ -453,7 +453,9 @@ async def test_quality_scope_rejects_missing_project_and_other_tenant(http, comp
         },
     ).json()
     other, _ = await draft_project(http, company, requirement)
+    assert other["id"] != qa_candidate["project"]["id"]
     with company["factory"]() as session:
+        assert session.get(m.Task, qa_candidate["task_id"]).status == "completed"
         session.get(m.BusinessRecord, plan["id"]).project_id = other["id"]
         session.commit()
     denied = run(http, plan)

@@ -11,7 +11,9 @@ from sqlalchemy import select
 async def draft_project(http, company, requirement):
     for _ in range(7):
         await tick(company["factory"])
-    proposal = http.get("/state").json()["proposals"][0]
+    proposal = next(
+        row for row in http.get("/state").json()["proposals"] if row["requirement_id"] == requirement["id"]
+    )
     response = http.post(
         f"/proposals/{proposal['id']}/approve",
         json={

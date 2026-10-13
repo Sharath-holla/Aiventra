@@ -1,5 +1,11 @@
 # Aiventra verification report
 
+## First Increment 6 CI failure and correction
+
+Source `f5aa5dd`, [CI 38340169132](https://github.com/Sharath-holla/Aiventra/actions/runs/38340169132): **five jobs passed, backend failed**. Backend was **589 passed / one failed, 483.24s**. The shared draft_project fixture selected proposals[0], so same-second ordering could reselect the original project and pause its completed coding task instead of creating the intended second project. The cross-project QA test then received a coding-evidence denial rather than the expected foreign-project denial. Corrected selection by the supplied requirement ID and strengthened assertions for distinct projects and an unchanged completed original candidate. Application authorization/QA policy and the security assertion remain unchanged. Focused planning/QA rerun passed: **49 passed, 467.33s**. The test-only correction is ready for normal commit/push and complete new-source CI.
+
+The first source's other five jobs passed, including actual restricted Docker, **73 browser checks** (32 SQLite/32 PostgreSQL/nine isolated), Compose/migrations/transfer and PostgreSQL service/database restart/separate restoration. Paused partial simulation job `efab9de8-eaac-4aa1-8fca-278bb1131cdc` recovered across actual API/worker/web restart to checkpoint five and valid receipt `6ad11f08-da2d-41bf-a85a-e6f3ab7b6b1d`, with live_verified=false. No final all-job completion is claimed for this failed source.
+
 ## Increment 6 local source checkpoint — October 13, 2026
 
 - Full backend **589 passed, 1,147.33s**, existing Starlette/httpx deprecation only. Final expanded DevOps **36 passed, 167.00s** additionally verifies current provenance/lease hardening, crash-before-dispatch and secret/tenant abuse cases. CI will collect 590 cases including the last new crash variant; do not sum overlapping runs.
