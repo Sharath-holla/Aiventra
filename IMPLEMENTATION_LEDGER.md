@@ -1,5 +1,13 @@
 # Implementation ledger
 
+## October 13, 2026 — Increment 6 verified and pushed
+
+Starting HEAD 4a16aec and completed Increment 5/e69ff70 preserved. Implementation f5aa5dd adds deployment domain/router/simulator and Delivery UI using existing records/approvals/worker. Final source **12489d38a09c8dccf0db1bc4a3c6583aac91ec05** corrects a shared test helper to select the requested requirement's proposal and strengthens cross-project assertions. [All six CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38341916925): backend **590 / 502.43s**, browser **73**, frontend/audits/secrets, actual Docker **two journeys / 33.50s**, PostgreSQL transfer/restart/separate restore and same-job partial simulator recovery. No app authorization was weakened; failed first CI and local failure evidence remain below.
+
+Final local DevOps **36 / 167.00s**, corrected planning/QA **49 / 467.33s**; existing full local regression **589 / 1,147.33s** preceded the final added crash variant. Browser 32+9 and production build/type/security/schema checks passed. Corrected-source history scan **1,622 blobs / zero findings**. All baseline owner IDs, SQLite/audit integrity and healthy managed services remain. No active migration, model install/download, paid call, live deployment, generated client PR or genuine client acceptance. Evidence-only documentation follows; Increment 6 is complete within explicit simulator contracts, not overall v1.0 readiness.
+
+### Earlier retained evidence and corrections
+
 ## First Increment 6 CI failure and correction
 
 Source `f5aa5dd`, [CI 38340169132](https://github.com/Sharath-holla/Aiventra/actions/runs/38340169132): **five jobs passed, backend failed**. Backend was **589 passed / one failed, 483.24s**. The shared draft_project fixture selected proposals[0], so same-second ordering could reselect the original project and pause its completed coding task instead of creating the intended second project. The cross-project QA test then received a coding-evidence denial rather than the expected foreign-project denial. Corrected selection by the supplied requirement ID and strengthened assertions for distinct projects and an unchanged completed original candidate. Application authorization/QA policy and the security assertion remain unchanged. Focused planning/QA rerun passed: **49 passed, 467.33s**. The test-only correction is ready for normal commit/push and complete new-source CI.

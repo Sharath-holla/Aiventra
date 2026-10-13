@@ -1,8 +1,27 @@
 # Next steps
 
+## Next milestone after verified Increment 6
+
+Increment 6 source **12489d38a09c8dccf0db1bc4a3c6583aac91ec05** is pushed; [all six CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38341916925). Backend 590, browser 73, actual Docker engineering/QA-to-simulated-staging/failure/rollback, PostgreSQL partial deployment recovery/database restart/separate restore and owner SQLite preservation are verified. Preserve these services and approval/evidence boundaries. docs/INCREMENT6_VERIFICATION.md contains the complete handoff; historical pending-CI notes below are superseded.
+
+1. Qualify actual authorized local model resources and live agent reliability when the owner explicitly authorizes the required resources/weights. No model installation/download or paid fallback is authorized now.
+2. Extend the restricted adapter to a separately approved disposable/live staging target with scoped credentials, allowlisted operations, infrastructure/cost policy and exact owner approval. Obtain actual deployment/health/recovery evidence before enabling any production release gate. Simulation must stay distinct.
+3. Extend independent QA profiles beyond current Python/owner-authored plans when relevant; preserve non-waivable security, actual tool evidence and exact candidate/source traceability.
+4. Complete an explicitly authorized genuine project PR/delivery/client-acceptance journey after live AI/engineering/staging evidence exists. Existing connector and client contracts remain fixture tested; source pushes do not authorize generated client PR publication or external deployment.
+
+No external credential is required for completed simulator functionality. A future target needs its own scoped infrastructure credentials/configuration and exact authorization; do not request AI keys now. SQLite remains active, records preserved, PostgreSQL/pgvector compatibility retained and ZERO_COST_ONLY mandatory. Do not cut over the active database, provision paid/public infrastructure or perform production operations without explicit owner authorization.
+
+### Historical continuation instructions
+
+## Current action — finish corrected-source CI 38341916925
+
+Source **12489d38a09c8dccf0db1bc4a3c6583aac91ec05** is pushed normally. Monitor all six jobs in [CI 38341916925](https://github.com/Sharath-holla/Aiventra/actions/runs/38341916925); fix any real failure, then update final evidence, commit/push documentation and confirm clean Git/remote state. First source f5aa5dd passed Docker, PostgreSQL/restart/restore, 73 browser checks, frontend and secrets, but its backend fixture selected the wrong project. The requirement-ID correction passed all 49 planning/QA tests. All application source is preserved; no new major feature before final verification.
+
+### Earlier continuation instructions
+
 ## Next action — exact-source Increment 6 CI verification
 
-All local checks passed: full backend 589, final DevOps 36, browser 32+9, types/build/formats/audits/schema and owner SQLite preservation. Commit this source normally, push to the existing remote and inspect all six jobs. Verify actual Docker engineering/QA-to-simulated-staging/failed-health/rollback, real PostgreSQL receipt integrity and paused partial-job recovery across service restart, database restart and separate restoration. Fix actual CI failures, then record exact source/CI and push evidence-only documentation. Current continuation: docs/PHASE7_INCREMENT6_CONTINUATION_SPEC.md. Do not begin another major feature before this is verified.
+All local checks passed: full backend 589, final DevOps 36, browser 32+9, types/build/formats/audits/schema and owner SQLite preservation. Source f5aa5dd is already pushed normally; inspect all six jobs in CI 38340169132 before calling Increment 6 complete. Verify actual Docker engineering/QA-to-simulated-staging/failed-health/rollback, real PostgreSQL receipt integrity and paused partial-job recovery across service restart, database restart and separate restoration. Fix actual CI failures, then record exact source/CI and push evidence-only documentation. Current continuation: docs/PHASE7_INCREMENT6_CONTINUATION_SPEC.md. Do not begin another major feature before this is verified.
 
 Afterwards, v1.0 still requires separately approved live model/resource qualification, a restricted live staging adapter with scoped credentials and infrastructure policy, actual authorized deployment/health observation and a genuine client acceptance journey. Production/public deployment, paid AI, model installation, generated PR publication and destructive migration are not authorized. No external credential is needed for the simulator milestone. SQLite stays active; preserve PostgreSQL/pgvector compatibility and ZERO_COST_ONLY.
 

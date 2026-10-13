@@ -1,5 +1,21 @@
 # Controlled Task API engineering evidence
 
+## Final Increment 6 Docker and simulator evidence
+
+Source **12489d38a09c8dccf0db1bc4a3c6583aac91ec05**, [all-six green CI](https://github.com/Sharath-holla/Aiventra/actions/runs/38341916925): actual restricted Docker journeys **two passed / 33.50s**. Reviewed Phase 7 candidate `3c34100802c35fbc5df9f4fc491bd4faf406f9fa` stayed unpublished; frozen package hash `9ad9dbe75ecfb290662be9a7098ceca0ed9dfd133b0247d29b6bab6d61207580` validated after approved repair/fresh three-stage QA/closure/readiness. Exact simulated staging receipt `0ec30ad5-1ed7-4e97-8e86-3482f36f0f23`, failed-health incident `886dd87d-3fcd-45ec-b4d3-1aec3721c781` and separately approved verified rollback receipt `df926e9f-4e4a-449f-82d7-f460090bf6e0` were retained. Eight actual runner results matched after broker restart; real in-flight QA interruption reconciled without duplicate dispatch.
+
+Actual code/build/test/repair/QA execution is Docker verified. All AI is FIXTURE_TESTED; all staging/health/rollback here is SIMULATED_NONPRODUCTION. No real target deployment, generated PR, live AI or client release occurred. PostgreSQL separately recovered a paused partial simulator job after actual API/worker restart and matched all table digests after database restart/separate restore. TEST_REPORT.md records exact results and the failed first CI.
+
+### Earlier observed source evidence
+
+## Increment 6 actual restricted Docker → simulated staging evidence
+
+Source `f5aa5dd95f85352ecee47b663e2ba028138977f4`, [CI 38340169132](https://github.com/Sharath-holla/Aiventra/actions/runs/38340169132): the completed runner job passed **both engineering journeys, two tests / 44.80s**. Actual restricted Docker isolation, eight-result broker restart preservation and real in-flight QA interruption/reconciliation passed. AI output remained FIXTURE_TESTED; staging and rollback remained SIMULATED_NONPRODUCTION.
+
+The reviewed Phase 7 journey retained actual code changes, controlled build failure, approved repair, a detected functional defect, exact-approved new candidate, three fresh QA rounds and verified closure/readiness. Its immutable package hash is `f24a2036c25066e99f1f0268bde48f2cfc0ffabefe62f1345b35e8ef3c3f9569`. Candidate `d89bab5a9fbe5b4df58b66481b8a2c19ba095b3a` stayed unpublished. Exact simulated staging receipt `9860d2a9-3eb2-403e-8578-1eaae66b3a99` passed provenance/integrity. A simulated failed health check saved incident `eced063b-8ba1-429b-b374-d75522a4c4c9`, followed by a separately approved verified rollback receipt `b2cdef9a-edbb-4a5f-a91c-6a58dbafa65b`. The legacy journey also retained a valid package/staging/failure/rollback path. No genuine deployment, paid model, generated PR publication or client release occurred.
+
+The runner job is verified; final all-job backend/PostgreSQL CI conclusion is recorded in TEST_REPORT.md after completion. Do not infer full production readiness from this bounded Docker-plus-simulator journey.
+
 ## Increment 5 — actual restricted Docker quality and repair
 
 Source **e69ff70ea6b36ca9e3704358c1ecd91e146ed8d6**, [CI 38303099307](https://github.com/Sharath-holla/Aiventra/actions/runs/38303099307), **two engineering journeys passed, 24.88s**. All six CI jobs passed. Model generation, reviews and QA assessments are explicitly FIXTURE_TESTED; Docker compilation, tests, file changes, commits, persistence and package hashing are actual execution.

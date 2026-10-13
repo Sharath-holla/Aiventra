@@ -1,5 +1,13 @@
 # Aiventra existing-project audit
 
+## Increment 6 final source audit — October 13, 2026
+
+Inspected and preserved current architecture, owner SQLite and all completed Increment 5 functionality. Final source **12489d38a09c8dccf0db1bc4a3c6583aac91ec05** is pushed normally and [all six CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38341916925): backend 590, browser 73, real restricted Docker QA/repair, explicit simulated staging/failure/rollback, PostgreSQL partial-job/service/database restart and separate restore. The first CI fixture selected the wrong proposal; corrected by saved requirement identity with stronger scope assertions, without changing authorization. TEST_REPORT.md retains all actual failures and outcomes.
+
+All 49,699 baseline owner identities remain (49,733 rows/57 tables), integrity/FKs/audit valid; active SQLite and ZERO_COST_ONLY remain enforced. The implementation reuses protected records/approvals/workflows and grants no agent infrastructure/secret/Docker control. Current adapter is simulation only and cannot authorize real release. No production readiness, live AI, genuine deployment/PR/client acceptance or active migration is claimed. See docs/DEVOPS_DEPLOYMENT_POLICY.md and docs/INCREMENT6_VERIFICATION.md. Older audit entries below are historical.
+
+### Earlier audit checkpoints
+
 ## Increment 6 working-tree audit — October 13, 2026
 
 Inspected current HEAD `4a16aec`, actual Increment 5 source/CI and all new DevOps modules. Increment 5 was already verified; it was preserved. Increment 6 implements restricted simulation contracts and UI, not public/production deployment. Focused 35-test verification passed; complete corrected-source regression/CI remains pending. Initial browser request-shape and accessible-select defects were fixed; an expired-auth QA case passed in a fresh fixture without policy changes. SQLite retained every 49,699 baseline identity and passed integrity/FKs/no-drift. Existing older audit entries below are historical and do not supersede the current status/ledger/test evidence. See docs/DEVOPS_DEPLOYMENT_POLICY.md.
