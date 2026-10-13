@@ -87,6 +87,9 @@ def release_readiness(session, package):
     if not package.manifest["recipient_ids"]:
         raise PermissionError("An exact intended recipient scope is required")
     project = session.get(m.Project, package.project_id)
+    from .deployments import release_gate
+
+    release_gate(session, project, package)
     from . import quality
 
     if quality.required(session, project):

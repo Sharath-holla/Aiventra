@@ -16,6 +16,7 @@ from .routes import (
     consultation,
     conversations,
     delivery_operations,
+    deployment_operations,
     engineering,
     history_operations,
     identity,
@@ -75,5 +76,6 @@ for router in (
     readiness_operations.router,
     refinement_operations.router,
     quality_operations.router,
+    deployment_operations.router,
 ):
     app.include_router(router)

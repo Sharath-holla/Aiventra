@@ -1,5 +1,25 @@
 # Aiventra verification report
 
+## Increment 6 local source checkpoint — October 13, 2026
+
+- Full backend **589 passed, 1,147.33s**, existing Starlette/httpx deprecation only. Final expanded DevOps **36 passed, 167.00s** additionally verifies current provenance/lease hardening, crash-before-dispatch and secret/tenant abuse cases. CI will collect 590 cases including the last new crash variant; do not sum overlapping runs.
+- Browser **32 ordinary passed, 3.4m** and **nine isolated passed, 1.5m**. Independent package-to-staging test **one passed, 27.1s**, including actual UI/HTTP approvals, saved revision/health receipt, reload and mobile no-overflow assertion. Reviewed the saved mobile screenshot. No synthetic browser response shortcuts.
+- Strict TypeScript and production build passed (compile 5.8s, build types 6.3s). Ruff lint/format **195 files** and frontend Prettier passed. Python dependency audit: no known vulnerabilities; local project not on PyPI. npm production audit: **zero vulnerabilities**. Staged/history secret scan follows before commit.
+- SQLite **49,699 baseline identities retained; 49,733 current rows / 57 tables**, integrity OK, zero FK errors; all **4,403 audit events valid**. Alembic: no new upgrade operations. Private backup integrity/FKs passed. Managed local API/web HTTP 200 and newly registered deployment endpoints observed after restart; existing database/approval settings retained.
+- Actual current-source Docker engineering/QA-to-simulation, PostgreSQL compatibility/partial deployment recovery/database restart/separate restore and all-six CI remain **pending normal source push**. No production-readiness claim follows from local fixture/simulator results.
+
+Earlier failed results and their actual corrections remain below. Final source/CI identities will be recorded only after observation.
+
+### Earlier local continuation evidence
+
+## Increment 6 continuation — verification underway (October 13, 2026)
+
+Starting HEAD `4a16aec`; preserved Increment 5 verified source `e69ff70`. Current DevOps source is uncommitted pending final regression, build/security and CI. Focused simulator/orchestration **35 passed, 146.40s**, including five actual worker-process crash/recovery variants (deploy dispatch/running/health and rollback dispatch/health), exact approval/tenant/source/artifact protection, rollback cap/escalation, cancellation, lost acknowledgements and no blind retry. AI decisions and deployment health observations remain explicit fixtures/simulations.
+
+Failures retained: initial browser **31 passed/one failed** because the new component used fetch options with api(path, body), sending the wrong JSON object (HTTP 422). Fixed the component request; standalone execution revealed an existing test-order dependency and ambiguous exact select labels, both corrected. Browser rerun is pending. Initial full backend **583 passed/one failed, 18,375.35s**: a QA source HTTP request had expired authentication. The exact case passed independently (**one passed, 13.43s**) using a fresh normal-auth fixture; no policy was weakened. Full fresh-source rerun is in progress. Earlier worker-probe failure mixed an already-running parent process with a newly edited approval field; clean-source crash variants subsequently passed.
+
+Owner SQLite read-only preservation: **49,699 original identities retained; 49,732 rows / 57 tables**, integrity OK, zero FK errors. Alembic: no new upgrade operations. Python dependency audit: no known vulnerabilities (local package is not on PyPI). Ruff lint/format: 194 files passed. Actual Docker/PostgreSQL/restart/restore and all-six exact-source CI are pending; do not infer these from fixture passes.
+
 ## Phase 7 Increment 5 verified — October 13, 2026
 
 Started at `62e4ad463eacdc7fd5232f262b650cdbf53eb306`, preserving the interrupted working tree. Final source **e69ff70ea6b36ca9e3704358c1ecd91e146ed8d6** is pushed normally to origin/master. [CI 38303099307](https://github.com/Sharath-holla/Aiventra/actions/runs/38303099307) completed successfully: **all six jobs passed** (backend, frontend, secrets, runner, delivery-browser, integration). This evidence follow-up changes documentation only; the tested application/CI source remains the SHA above.

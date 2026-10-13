@@ -275,6 +275,7 @@ async def test_controlled_engineering_repair_qa_and_delivery_gate(http, company,
         await verify_quality_repair(http, company, project, task, patch_files)
     evidence = http.get(f"/projects/{project['id']}/delivery-readiness?mode=mock").json()
     package_receipt = {"status": "blocked: actual dedicated Docker QA required"}
+    deployment_receipt = {"status": "not attempted: actual dedicated Docker QA required"}
     if real_runner:
         assert evidence["ready"], evidence["blockers"]
         assert any(
@@ -310,6 +311,9 @@ async def test_controlled_engineering_repair_qa_and_delivery_gate(http, company,
             "classification": saved["classification"],
             "manifest_hash": saved["manifest_hash"],
         }
+        from deployment_journey import verify_deployment
+
+        deployment_receipt = await verify_deployment(http, company, project, saved)
     else:
         assert not evidence["ready"]  # Runner contract fixture cannot certify packaging.
     assert not http.get(f"/projects/{project['id']}/delivery-readiness").json()["ready"]
@@ -328,6 +332,7 @@ async def test_controlled_engineering_repair_qa_and_delivery_gate(http, company,
                 "bounded_repairs": 1,
                 "candidate_commit": candidate,
                 "nonproduction_package": package_receipt,
+                "deployment": deployment_receipt,
                 "published": False,
                 "live_ai": False,
             }

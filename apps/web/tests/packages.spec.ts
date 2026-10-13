@@ -1,11 +1,12 @@
 import { test, expect } from "@playwright/test";
 import { loginOwner } from "./support/login";
+import { prepareDeliveryReview } from "./support/delivery-fixture";
 import type { State } from "../src/lib/types";
 
 test("owner prepares a real frozen fixture package with verified downloads and reload", async ({
   page,
 }) => {
-  test.setTimeout(120000);
+  test.setTimeout(240000);
   const request = page.context().request;
   await loginOwner(request);
   const state: State = await (await request.get("/api/state")).json();
@@ -25,6 +26,7 @@ test("owner prepares a real frozen fixture package with verified downloads and r
       break;
     }
   }
+  if (!selected) selected = await prepareDeliveryReview(request);
   expect(
     selected,
     "Existing final-review browser fixture must remain available",
@@ -134,11 +136,95 @@ test("owner prepares a real frozen fixture package with verified downloads and r
       exact: true,
     }),
   ).toBeVisible();
+  const deployment = page.getByRole("region", {
+    name: "Deployment orchestration",
+    exact: true,
+  });
+  await expect(deployment).toContainText("SIMULATED_NONPRODUCTION");
+  await deployment
+    .getByRole("button", { name: "Refresh deployment evidence", exact: true })
+    .click();
+  const resume = deployment.getByRole("button", {
+    name: "Resume company deployments",
+    exact: true,
+  });
+  if (await resume.isVisible()) await resume.click();
+  await deployment
+    .getByText("Create a simulation target", { exact: true })
+    .click();
+  await deployment
+    .getByLabel("Target name", { exact: true })
+    .fill("Browser staging simulation");
+  const targetResponse = page.waitForResponse(
+    (r) =>
+      r.url().endsWith(`/projects/${review.project_id}/deployment-targets`) &&
+      r.request().method() === "POST",
+  );
+  await deployment
+    .getByRole("button", { name: "Save simulation target", exact: true })
+    .click();
+  const targetResult = await targetResponse;
+  expect(targetResult.status()).toBe(201);
+  const target = await targetResult.json();
+  await deployment
+    .getByLabel("Frozen release package", { exact: true })
+    .selectOption(saved.id);
+  await deployment
+    .getByLabel("Deployment target", { exact: true })
+    .selectOption(target.id);
+  const planResponse = page.waitForResponse(
+    (r) =>
+      r.url().endsWith(`/projects/${review.project_id}/deployment-plans`) &&
+      r.request().method() === "POST",
+  );
+  await deployment
+    .getByRole("button", { name: "Prepare deployment plan", exact: true })
+    .click();
+  const planResult = await planResponse;
+  expect(planResult.status()).toBe(201);
+  const plan = await planResult.json();
+  await deployment
+    .getByRole("button", {
+      name: "Approve exact staging deploy simulation",
+      exact: true,
+    })
+    .click();
+  await deployment
+    .getByRole("button", { name: "Run approved simulation", exact: true })
+    .click();
+  await expect
+    .poll(
+      async () => {
+        const data = await (
+          await request.get(`/api/projects/${review.project_id}/deployments`)
+        ).json();
+        return data.receipts.find(
+          (r: { data: { body: { plan_id: string } } }) =>
+            r.data.body.plan_id === plan.id,
+        )?.integrity_valid;
+      },
+      { timeout: 30000 },
+    )
+    .toBe(true);
+  await deployment
+    .getByRole("button", { name: "Refresh deployment evidence", exact: true })
+    .click();
+  await expect(deployment).toContainText("deployment_completed");
+  await expect(deployment).toContainText(
+    "Simulation cannot release a client package",
+  );
+  await page.reload();
+  await page.getByRole("button", { name: "Delivery", exact: true }).click();
+  await expect(deployment).toContainText("deployment_completed");
   await page.setViewportSize({ width: 390, height: 844 });
   await page
     .getByRole("heading", { name: "Immutable delivery packages", exact: true })
     .click();
   await page.keyboard.press("Escape");
+  await page.screenshot({
+    path: "../../artifacts/deployment-mobile.png",
+    fullPage: true,
+  });
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,

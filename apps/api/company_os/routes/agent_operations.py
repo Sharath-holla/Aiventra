@@ -308,6 +308,15 @@ def cancel_work(
     record_id: str, user: m.User = Depends(owner), session: Session = Depends(session_dependency)
 ):
     work = scoped(session, m.AgentWork, record_id, user)
+    if work.kind == "deployment":
+        from ..deployments import command
+
+        try:
+            command(session, work, user, "cancel")
+        except PermissionError as exc:
+            raise HTTPException(409, str(exc)) from None
+        session.commit()
+        return serialize(work)
     session.execute(
         update(m.Organization).where(m.Organization.id == user.org_id).values(paused=m.Organization.paused)
     )

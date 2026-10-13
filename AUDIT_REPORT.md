@@ -1,5 +1,9 @@
 # Aiventra existing-project audit
 
+## Increment 6 working-tree audit — October 13, 2026
+
+Inspected current HEAD `4a16aec`, actual Increment 5 source/CI and all new DevOps modules. Increment 5 was already verified; it was preserved. Increment 6 implements restricted simulation contracts and UI, not public/production deployment. Focused 35-test verification passed; complete corrected-source regression/CI remains pending. Initial browser request-shape and accessible-select defects were fixed; an expired-auth QA case passed in a fresh fixture without policy changes. SQLite retained every 49,699 baseline identity and passed integrity/FKs/no-drift. Existing older audit entries below are historical and do not supersede the current status/ledger/test evidence. See docs/DEVOPS_DEPLOYMENT_POLICY.md.
+
 ## Phase 7 architecture boundary
 
 Current source 66e4e91 has all six CI jobs passing with 511 backend/73 browser checks and actual Docker/PostgreSQL restart/restore evidence. Extended harmless-project verification confirmed the exact non-recommended design in document/planning/patch/review handoffs, failed-build bounded repair, intact unpublished candidate/nonproduction package and strict fixture publication/release refusal. A genuine login throttle and oversized generic fixture documents were repaired in test adapters without weakening authentication, context limits or release policy; TEST_REPORT.md retains both failed runs. Active SQLite preserves all 49,699 baseline row identities and validates 4,397 append-only audit events. These are verified requirements/design/engineering increments, not full Phase 7, genuine AI, three-stage QA or operational deployment certification.

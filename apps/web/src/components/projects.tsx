@@ -21,6 +21,7 @@ import { ExecutionEvidence } from "./ai-readiness";
 import { RequirementsReview } from "./requirements-review";
 import { ArchitectureEvidence } from "./consulting";
 import { QualityControls } from "./quality-controls";
+import { DeploymentControls } from "./deployment-controls";
 
 export function Projects({
   engineering,
@@ -300,6 +301,10 @@ export function Projects({
       {tab === "delivery" && (
         <>
           <DeliveryControls key={project.id} projectId={project.id} />
+          <DeploymentControls
+            key={`deployment:${project.id}`}
+            projectId={project.id}
+          />
           <PackageControls
             key={`packages:${project.id}`}
             projectId={project.id}

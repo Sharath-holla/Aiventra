@@ -1,5 +1,14 @@
 import type { NextConfig } from "next";
 const config: NextConfig = {
+  // Disposable browser servers must not share the owner's running dev lock.
+  distDir:
+    process.env.AIVENTRA_TEST_BUILD === "browser"
+      ? ".next-browser"
+      : process.env.AIVENTRA_TEST_BUILD === "delivery"
+        ? ".next-delivery"
+        : process.env.AIVENTRA_TEST_BUILD === "production"
+          ? ".next-build"
+          : ".next",
   output: "standalone",
   poweredByHeader: false,
   devIndicators: false,

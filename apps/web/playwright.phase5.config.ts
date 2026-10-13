@@ -25,6 +25,7 @@ export default defineConfig({
       reuseExistingServer: false,
       env: {
         API_INTERNAL_URL: "http://127.0.0.1:8001",
+        AIVENTRA_TEST_BUILD: "delivery",
         WEB_ORIGIN: "http://localhost:3001",
         COOKIE_SECURE: "false",
       },

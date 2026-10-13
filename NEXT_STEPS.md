@@ -1,5 +1,19 @@
 # Next steps
 
+## Next action — exact-source Increment 6 CI verification
+
+All local checks passed: full backend 589, final DevOps 36, browser 32+9, types/build/formats/audits/schema and owner SQLite preservation. Commit this source normally, push to the existing remote and inspect all six jobs. Verify actual Docker engineering/QA-to-simulated-staging/failed-health/rollback, real PostgreSQL receipt integrity and paused partial-job recovery across service restart, database restart and separate restoration. Fix actual CI failures, then record exact source/CI and push evidence-only documentation. Current continuation: docs/PHASE7_INCREMENT6_CONTINUATION_SPEC.md. Do not begin another major feature before this is verified.
+
+Afterwards, v1.0 still requires separately approved live model/resource qualification, a restricted live staging adapter with scoped credentials and infrastructure policy, actual authorized deployment/health observation and a genuine client acceptance journey. Production/public deployment, paid AI, model installation, generated PR publication and destructive migration are not authorized. No external credential is needed for the simulator milestone. SQLite stays active; preserve PostgreSQL/pgvector compatibility and ZERO_COST_ONLY.
+
+### Earlier continuation instructions
+
+## Current priority — finish Increment 6 verification
+
+Preserve the current DevOps implementation and all Increment 5 records. The existing full backend rerun and focused corrected package-to-staging browser run are active; inspect their saved results before starting duplicate processes. Then run both complete browser suites, strict types/build/format, security scans, owner SQLite/audit preservation and Alembic checks. Commit verified source, push normally and inspect all six exact-source CI jobs, including the real Docker engineering/QA-to-simulated-staging/failure/rollback journey and PostgreSQL receipt/service/database restart/restore evidence. Repair observed failures before claiming completion. docs/PHASE7_INCREMENT6_CONTINUATION_SPEC.md is the current continuation.
+
+After verified Increment 6, live staging requires a separately configured restricted adapter, scoped target credentials, policy-reviewed infrastructure and exact owner approval. Actual production deployment, model installation/download, paid inference, generated client PR publication and live client acceptance remain unauthorized/unverified. No credential is needed for the current simulator milestone. Independent QA runtime expansion, live model/resource qualification and complete actual staging-to-client acceptance remain v1.0 prerequisites. Keep SQLite active, existing data, PostgreSQL/pgvector compatibility and ZERO_COST_ONLY.
+
 ## Next unfinished milestone — Phase 7 Increment 6
 
 Increment 5 source `e69ff70ea6b36ca9e3704358c1ecd91e146ed8d6` is committed and pushed; [all six CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38303099307). Backend 554, browser 73, actual Docker defect/approved repair/three fresh QA rounds, SQLite preservation and PostgreSQL compatibility/restart/restore are verified. Preserve these services and the source/approval/fixture boundaries; do not rebuild them.

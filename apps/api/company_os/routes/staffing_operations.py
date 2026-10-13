@@ -153,6 +153,16 @@ def workflow_control(
 ):
     staffing.lock_org(session, user.org_id)
     workflow = scoped(session, m.Workflow, record_id, user)
+    work = session.scalar(select(m.AgentWork).where(m.AgentWork.workflow_id == workflow.id))
+    if work and work.kind == "deployment":
+        from ..deployments import command
+
+        try:
+            command(session, work, user, data.action)
+        except PermissionError as exc:
+            raise HTTPException(409, str(exc)) from None
+        session.commit()
+        return serialize(workflow)
     task = session.get(m.Task, workflow.task_id) if workflow.task_id else None
     plan = staffing.task_plan(session, task)
     if data.action == "resume" and plan and plan.status != "active":

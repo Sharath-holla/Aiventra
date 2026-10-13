@@ -155,9 +155,13 @@ jobs:
           docker compose exec -T api python - < scripts/verify_package_recovery.py > /tmp/packages-before.json
           docker compose exec -T api python - < scripts/verify_project_setup_recovery.py > /tmp/project-setup-before.json
           docker compose exec -T api python - < scripts/verify_history_recovery.py > /tmp/history-before.json
+          docker compose exec -T api python - < scripts/verify_deployment_recovery.py > /tmp/deployments-before.json
           docker compose restart api worker web
           docker compose up -d --wait --wait-timeout 90
           curl --fail http://localhost:8000/health/ready
+          docker compose exec -T api python - < scripts/verify_deployment_recovery.py > /tmp/deployments-after.json
+          cmp /tmp/deployments-before.json /tmp/deployments-after.json
+          cat /tmp/deployments-after.json
           docker compose exec -T api python - < scripts/verify_history_recovery.py > /tmp/history-after.json
           cmp /tmp/history-before.json /tmp/history-after.json
           cat /tmp/history-after.json
@@ -189,6 +193,16 @@ jobs:
           docker compose exec -T api python - < scripts/verify_zero_cost_recovery.py > /tmp/zero-cost-after.json
           cmp /tmp/zero-cost-before.json /tmp/zero-cost-after.json
           cat /tmp/zero-cost-after.json
+      - name: Recover partial simulated deployment after actual API and worker restart
+        # Deployment is an explicit simulator; API/worker restart is real.
+        run: |
+          docker compose stop worker
+          docker compose exec -T api python - --prepare < scripts/verify_deployment_preparation_recovery.py > /tmp/deployment-preparation-before.json
+          docker compose restart api worker web
+          docker compose up -d --wait --wait-timeout 90
+          docker compose exec -T api python - < scripts/verify_deployment_preparation_recovery.py > /tmp/deployment-preparation-after.json
+          cmp /tmp/deployment-preparation-before.json /tmp/deployment-preparation-after.json
+          docker compose exec -T api python - --resume --verify < scripts/verify_deployment_preparation_recovery.py
       - name: Recover partial deterministic package after actual API and worker restart
         run: |
           docker compose stop worker

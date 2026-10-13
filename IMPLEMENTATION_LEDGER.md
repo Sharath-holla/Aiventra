@@ -1,5 +1,19 @@
 # Implementation ledger
 
+## Increment 6 source checkpoint — all local checks passed
+
+Starting HEAD `4a16aec` preserved. Full backend 589 passed/1,147.33s; final 36 DevOps cases passed/167.00s, including crash before dispatch (uncertain/no resubmit), five after-dispatch/running/health/rollback process crashes, tenant/source/owner/approval/secret protection and recovery limits. Browser 32+9, standalone package/staging/mobile, strict types/build/formats/audits/schema passed. Corrected fetch-body API integration, independent browser fixture setup, accessible selects and mobile hash wrapping; no assertions or auth limits were weakened. The earlier five-hour full run's expired-auth case passed afresh. CI now also verifies actual API/worker restart with a paused partial simulator job and preserves its same job/receipt identity. These new CI probes await actual execution after normal source push.
+
+Local services reloaded safely following identity checks and a consistent private backup; all owner baseline IDs and SQLite/audit integrity remain. This is simulated DevOps functionality, not a live model or deployment claim.
+
+### Earlier implementation checkpoints
+
+## October 13, 2026 — Increment 6 continuation checkpoint
+
+Resumed existing uncommitted source at `4a16aec`; retained all Increment 5 functionality and owner records. DevOps domain/router/simulator and Delivery controls now use the existing records/approval/workflow architecture. Fixed missing approval selection, separate reserved approval identity, rollback budget reset, unknown cancellation claims and pre-dispatch stale-worker lease admission. Added 35 focused contracts, process crash probes, actual package-to-simulation browser controls, Docker engineering-to-staging/failure/rollback extension and PostgreSQL service-restart receipt digests.
+
+Initial browser result was 31 passed/one failed: the new UI passed fetch options to the existing api(path, body) helper, producing HTTP 422. Corrected actual request serialization, made the package test self-contained when run alone and added explicit accessible select names. Initial full backend was 583 passed/one expired-auth failure over 18,375.35 seconds; the exact failing QA case subsequently passed with a fresh fixture, without changing authentication. Final full regressions and CI are underway, not yet claimed passed. SQLite baseline and no-drift checks passed; Python dependency audit has no known vulnerabilities. No external deployment, model call, weights, active migration or generated PR.
+
 ## October 13, 2026 — Increment 5 verified and pushed
 
 Final source `e69ff70ea6b36ca9e3704358c1ecd91e146ed8d6` follows preserved interrupted implementation `007c8c3`, UTF-8/local evidence `d81ac1d`, fixture lint/context correction `2b69e5a`, Docker stream-order parser correction `1bd0882` and final CI diagnostic correction `e69ff70`. [All six final CI jobs passed](https://github.com/Sharath-holla/Aiventra/actions/runs/38303099307): backend 554, browsers 73, frontend/audits/secrets, actual restricted Docker QA/approved repair/closure/readiness/package, PostgreSQL transfer/recovery/restart/separate restore. Failed runs remain in TEST_REPORT.md; no tests or security limits were disabled.

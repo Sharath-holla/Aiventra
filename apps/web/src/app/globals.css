@@ -2684,6 +2684,22 @@ details p {
   border-top: 1px solid var(--line);
   min-width: 0;
 }
+.deployment-controls,
+.deployment-controls label,
+.deployment-controls article {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.deployment-controls select,
+.deployment-controls .button {
+  max-width: 100%;
+  white-space: normal;
+}
+.deployment-controls article {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
 .delivery-hash {
   display: block;
   overflow-wrap: anywhere;
